@@ -1,0 +1,44 @@
+[
+  {
+    "id": "emotion_happy",
+    "label": "Vui",
+    "emoji": "😄",
+    "type": "HAPPY",
+    "description": "Cảm giác vui vẻ, hạnh phúc khi có điều tốt xảy ra."
+  },
+  {
+    "id": "emotion_sad",
+    "label": "Buồn",
+    "emoji": "😢",
+    "type": "SAD",
+    "description": "Cảm giác buồn bã khi mất đi thứ mình yêu thích hoặc nhớ ai đó."
+  },
+  {
+    "id": "emotion_angry",
+    "label": "Tức giận",
+    "emoji": "😠",
+    "type": "ANGRY",
+    "description": "Cảm giác tức giận khi có điều gì đó không công bằng hoặc không như mong muốn."
+  },
+  {
+    "id": "emotion_surprised",
+    "label": "Ngạc nhiên",
+    "emoji": "😲",
+    "type": "SURPRISED",
+    "description": "Cảm giác bất ngờ khi có điều gì đó xảy ra bất ngờ, ngoài dự đoán."
+  },
+  {
+    "id": "emotion_calm",
+    "label": "Bình tĩnh",
+    "emoji": "😌",
+    "type": "CALM",
+    "description": "Cảm giác yên lặng, thư thái, không lo lắng hay bồn chồn."
+  },
+  {
+    "id": "emotion_tired",
+    "label": "Mệt mỏi",
+    "emoji": "😴",
+    "type": "TIRED",
+    "description": "Cảm giác mệt mỏi, muốn nghỉ ngơi sau khi làm việc hoặc chơi nhiều."
+  }
+]

@@ -1,0 +1,65 @@
+[
+  {
+    "id": "scenario_001",
+    "title": "Đồ chơi bị mất",
+    "situationText": "Bé đang chơi với con gấu bông yêu thích. Bé tìm mãi nhưng không thấy con gấu bông đâu nữa.",
+    "imageName": null,
+    "correctEmotion": "SAD",
+    "options": ["SAD", "HAPPY", "CALM", "ANGRY"],
+    "explanation": "Khi mất đồ chơi yêu thích, chúng ta thường cảm thấy buồn. Cảm xúc đó là bình thường."
+  },
+  {
+    "id": "scenario_002",
+    "title": "Bạn tặng quà",
+    "situationText": "Hôm nay là sinh nhật của bé. Bạn thân mang đến một gói quà được gói rất đẹp và trao cho bé.",
+    "imageName": null,
+    "correctEmotion": "HAPPY",
+    "options": ["HAPPY", "SAD", "TIRED", "ANGRY"],
+    "explanation": "Khi nhận được món quà từ người bạn yêu quý, chúng ta thường cảm thấy vui và hạnh phúc."
+  },
+  {
+    "id": "scenario_003",
+    "title": "Bạn lấy đồ chơi",
+    "situationText": "Bé đang xếp hình. Một bạn khác chạy đến lấy miếng hình bé đang cầm mà không hỏi trước.",
+    "imageName": null,
+    "correctEmotion": "ANGRY",
+    "options": ["ANGRY", "HAPPY", "SURPRISED", "CALM"],
+    "explanation": "Khi ai đó lấy đồ của mình mà không xin phép, chúng ta có thể cảm thấy tức giận. Lúc đó hãy nói nhẹ nhàng với bạn."
+  },
+  {
+    "id": "scenario_004",
+    "title": "Bóng bay nổ",
+    "situationText": "Bé đang cầm quả bóng bay màu đỏ rất đẹp. Bỗng nhiên 'bụp' — bóng nổ to và biến mất.",
+    "imageName": null,
+    "correctEmotion": "SURPRISED",
+    "options": ["SURPRISED", "CALM", "HAPPY", "SAD"],
+    "explanation": "Khi có điều gì đó xảy ra bất ngờ như bóng nổ, chúng ta thường cảm thấy ngạc nhiên."
+  },
+  {
+    "id": "scenario_005",
+    "title": "Giờ đọc sách",
+    "situationText": "Bé ngồi trên ghế êm ái, đọc cuốn truyện tranh yêu thích trong phòng yên tĩnh.",
+    "imageName": null,
+    "correctEmotion": "CALM",
+    "options": ["CALM", "ANGRY", "SURPRISED", "SAD"],
+    "explanation": "Khi làm việc mình thích trong không gian yên lặng, chúng ta thường cảm thấy bình tĩnh và dễ chịu."
+  },
+  {
+    "id": "scenario_006",
+    "title": "Chơi nhiều quá",
+    "situationText": "Bé đã chạy nhảy và chơi ngoài sân cả buổi chiều. Bây giờ bé muốn ngồi nghỉ và nhắm mắt lại.",
+    "imageName": null,
+    "correctEmotion": "TIRED",
+    "options": ["TIRED", "HAPPY", "ANGRY", "CALM"],
+    "explanation": "Sau khi hoạt động nhiều, cơ thể cần nghỉ ngơi và chúng ta cảm thấy mệt mỏi. Đó là dấu hiệu để nghỉ ngơi."
+  },
+  {
+    "id": "scenario_007",
+    "title": "Bạn mới đến lớp",
+    "situationText": "Sáng nay có một bạn mới đến lớp. Cô giáo giới thiệu bạn trước cả lớp và mọi người vỗ tay.",
+    "imageName": null,
+    "correctEmotion": "SURPRISED",
+    "options": ["SURPRISED", "TIRED", "SAD", "HAPPY"],
+    "explanation": "Khi gặp điều mới lạ bất ngờ như bạn mới, chúng ta thường cảm thấy ngạc nhiên và tò mò."
+  }
+]

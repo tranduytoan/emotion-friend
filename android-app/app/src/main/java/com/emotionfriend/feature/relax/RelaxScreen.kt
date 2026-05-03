@@ -7,16 +7,22 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.emotionfriend.core.designsystem.components.EmotionScreenScaffold
 
 @Composable
-fun RelaxScreen(modifier: Modifier = Modifier) {
-    Box(
-        modifier         = modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text  = "Thư giãn",
-            style = MaterialTheme.typography.headlineMedium
-        )
+fun RelaxScreen(
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    EmotionScreenScaffold(title = "Thư giãn", onBack = onBack) {
+        Box(
+            modifier         = modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text  = "Thư giãn",
+                style = MaterialTheme.typography.headlineMedium
+            )
+        }
     }
 }

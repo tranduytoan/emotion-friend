@@ -7,16 +7,22 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.emotionfriend.core.designsystem.components.EmotionScreenScaffold
 
 @Composable
-fun LearnScreen(modifier: Modifier = Modifier) {
-    Box(
-        modifier        = modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text  = "Học cảm xúc",
-            style = MaterialTheme.typography.headlineMedium
-        )
+fun LearnScreen(
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    EmotionScreenScaffold(title = "Học cảm xúc", onBack = onBack) {
+        Box(
+            modifier        = modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text  = "Học cảm xúc",
+                style = MaterialTheme.typography.headlineMedium
+            )
+        }
     }
 }

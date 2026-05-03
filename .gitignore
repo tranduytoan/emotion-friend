@@ -1,0 +1,211 @@
+# =============================================================================
+# Emotion Friend — Root .gitignore
+# Covers: Android Studio, Gradle, Kotlin, IntelliJ IDEA, VS Code,
+#         Docker, environment files, macOS, Windows, Linux
+# =============================================================================
+
+
+# =============================================================================
+# Android / Android Studio
+# =============================================================================
+*.iml
+.gradle/
+local.properties
+.idea/
+.idea/caches/
+.idea/libraries/
+.idea/modules.xml
+.idea/workspace.xml
+.idea/navEditor.xml
+.idea/assetWizardSettings.xml
+android-app/.idea/
+android-app/captures/
+android-app/build/
+android-app/app/build/
+android-app/**/*.apk
+android-app/**/*.aab
+android-app/**/*.ap_
+android-app/**/*.dex
+android-app/app/release/
+android-app/keystore/
+*.keystore
+*.jks
+
+# Google Services (contains API keys — never commit)
+google-services.json
+GoogleService-Info.plist
+
+
+# =============================================================================
+# Gradle
+# =============================================================================
+.gradle/
+**/build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+gradle-app.setting
+!gradle-wrapper.jar
+!gradle-wrapper.properties
+.gradletasknamecache
+
+
+# =============================================================================
+# Kotlin / JVM
+# =============================================================================
+*.class
+*.jar
+!gradle-wrapper.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+hs_err_pid*
+
+
+# =============================================================================
+# IntelliJ IDEA / JetBrains IDEs
+# =============================================================================
+.idea/
+*.iws
+out/
+!.idea/codeStyleSettings.xml
+!.idea/inspectionProfiles/
+
+
+# =============================================================================
+# VS Code
+# =============================================================================
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+*.code-workspace
+
+
+# =============================================================================
+# Backend (Ktor / JVM)
+# =============================================================================
+backend-api/build/
+backend-api/out/
+backend-api/.idea/
+
+
+# =============================================================================
+# Docker / Infrastructure
+# =============================================================================
+# Actual env files — never commit secrets
+infra/.env
+infra/env/*.env
+infra/env/*.local
+*.env
+!*.env.example
+!.env.example
+
+# Docker volumes and local data
+infra/data/
+infra/mysql-data/
+docker-volumes/
+
+
+# =============================================================================
+# Environment & Secrets
+# =============================================================================
+.env
+.env.*
+!.env.example
+*.local
+secrets/
+*.pem
+*.p12
+*.pfx
+*.key
+*.cert
+*.crt
+config/secrets.yml
+config/secrets.yaml
+
+
+# =============================================================================
+# Node.js (if any tooling scripts use Node)
+# =============================================================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+
+# =============================================================================
+# Python (if any tooling scripts use Python)
+# =============================================================================
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+
+# =============================================================================
+# macOS
+# =============================================================================
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+
+# =============================================================================
+# Windows
+# =============================================================================
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+
+# =============================================================================
+# Linux
+# =============================================================================
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+
+# =============================================================================
+# Logs & Crash reports
+# =============================================================================
+*.log
+logs/
+crash-reports/
+*.hprof
+
+
+# =============================================================================
+# Test artifacts
+# =============================================================================
+test-results/
+jacoco/
+coverage/

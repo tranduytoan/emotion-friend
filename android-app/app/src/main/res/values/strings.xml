@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Emotion Friend</string>
+
+    <!-- Home -->
+    <string name="home_title">Emotion Friend</string>
+    <string name="home_subtitle">Chọn hoạt động</string>
+
+    <!-- Feature labels -->
+    <string name="label_learn">Học cảm xúc</string>
+    <string name="label_situation">Tình huống xã hội</string>
+    <string name="label_express">Luyện biểu đạt</string>
+    <string name="label_relax">Thư giãn</string>
+    <string name="label_journal">Cảm xúc hôm nay</string>
+    <string name="label_progress">Tiến trình</string>
+
+    <!-- Common actions -->
+    <string name="action_next">Tiếp theo</string>
+    <string name="action_back">Quay lại</string>
+    <string name="action_confirm">Xác nhận</string>
+    <string name="action_retry">Thử lại</string>
+
+    <!-- Feedback -->
+    <string name="feedback_correct">Đúng rồi! Tuyệt vời!</string>
+    <string name="feedback_incorrect">Chưa đúng. Thử lại nhé!</string>
+</resources>

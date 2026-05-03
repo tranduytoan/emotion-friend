@@ -2,20 +2,48 @@ package com.emotionfriend.core.designsystem.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Light palette
-val Purple40      = Color(0xFF6650A4)
-val PurpleGrey40  = Color(0xFF625B71)
-val Pink40        = Color(0xFF7D5260)
+// ─── Primary brand ───────────────────────────────────────────────────────────
+val SkyBlue40      = Color(0xFF4A90C4)  // primary (calm, friendly)
+val SkyBlue80      = Color(0xFFB3D7F2)  // primary container
+val SkyBlueLight   = Color(0xFFE8F4FD)  // soft tint background
 
-// Dark palette
-val Purple80      = Color(0xFFD0BCFF)
-val PurpleGrey80  = Color(0xFFCCC2DC)
-val Pink80        = Color(0xFFEFB8C8)
+// ─── Secondary ───────────────────────────────────────────────────────────────
+val MintGreen40    = Color(0xFF4CAF82)  // secondary (positive feedback)
+val MintGreen80    = Color(0xFFB2DFD0)  // secondary container
 
-// Emotion Friend brand palette (placeholder — replace with final design tokens)
-val EmotionYellow = Color(0xFFFFD966)
-val EmotionBlue   = Color(0xFF5B9BD5)
-val EmotionGreen  = Color(0xFF70AD47)
-val EmotionRed    = Color(0xFFFF6B6B)
-val EmotionPurple = Color(0xFFAF77C4)
-val EmotionPeach  = Color(0xFFFFB347)
+// ─── Background / Surface ────────────────────────────────────────────────────
+val WarmCream      = Color(0xFFFFF8F0)  // screen background (warm, not harsh white)
+val SurfaceWhite   = Color(0xFFFFFFFF)
+val SurfaceVariant = Color(0xFFF4F0EB)  // card background
+
+// ─── On colors ───────────────────────────────────────────────────────────────
+val OnPrimary      = Color(0xFFFFFFFF)
+val OnBackground   = Color(0xFF2D2D2D)  // legible dark text
+val OnSurface      = Color(0xFF3A3A3A)
+val OnSurfaceVar   = Color(0xFF6B6B6B)  // secondary text, hints
+
+// ─── Emotion colors (stable — never replaced by dynamic color) ───────────────
+val EmotionHappy    = Color(0xFFFFD166)  // yellow-gold  — happy
+val EmotionSad      = Color(0xFF74B2D8)  // soft blue     — sad
+val EmotionAngry    = Color(0xFFFF8A80)  // soft red-pink — angry (not aggressive)
+val EmotionScared   = Color(0xFFB39DDB)  // soft purple   — scared
+val EmotionSurprised= Color(0xFFFFCC80)  // warm orange   — surprised
+val EmotionCalm     = Color(0xFF80CBC4)  // teal-mint     — calm
+
+// Container tints for emotion chips / option buttons
+val EmotionHappyBg    = Color(0xFFFFF8E1)
+val EmotionSadBg      = Color(0xFFE3F2FD)
+val EmotionAngryBg    = Color(0xFFFFEBEE)
+val EmotionScaredBg   = Color(0xFFEDE7F6)
+val EmotionSurprisedBg= Color(0xFFFFF3E0)
+val EmotionCalmBg     = Color(0xFFE0F2F1)
+
+// ─── Feedback ─────────────────────────────────────────────────────────────────
+val FeedbackCorrect   = Color(0xFF4CAF82)  // green
+val FeedbackWrong     = Color(0xFFFF8A80)  // soft red
+val FeedbackCorrectBg = Color(0xFFE8F5EF)
+val FeedbackWrongBg   = Color(0xFFFFEBEE)
+
+// ─── Outline / Divider ────────────────────────────────────────────────────────
+val OutlineLight = Color(0xFFDDD8D0)
+val OutlineMedium= Color(0xFFC0BAB0)

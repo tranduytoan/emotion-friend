@@ -20,7 +20,7 @@ data class ExpressUiState(
 )
 
 @HiltViewModel
-class ExpressViewModel @Inject constructor() : ViewModel() {
+class ExpressCameraViewModel @Inject constructor() : ViewModel() {
 
     private val _uiState = MutableStateFlow(ExpressUiState())
     val uiState: StateFlow<ExpressUiState> = _uiState.asStateFlow()

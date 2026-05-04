@@ -19,4 +19,7 @@ interface EmotionCardDao {
 
     @Upsert
     suspend fun upsert(card: EmotionCardEntity)
+
+    @Query("SELECT COUNT(*) FROM emotion_cards")
+    suspend fun count(): Int
 }

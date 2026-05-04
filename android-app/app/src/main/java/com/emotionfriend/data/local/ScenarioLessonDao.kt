@@ -16,4 +16,7 @@ interface ScenarioLessonDao {
 
     @Upsert
     suspend fun upsertAll(lessons: List<ScenarioLessonEntity>)
+
+    @Query("SELECT COUNT(*) FROM scenario_lessons")
+    suspend fun count(): Int
 }

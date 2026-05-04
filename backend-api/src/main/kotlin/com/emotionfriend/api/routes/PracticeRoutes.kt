@@ -16,10 +16,11 @@ fun Route.practiceRoutes(service: PracticeService) {
             val req = call.receive<CreatePracticeAttemptRequest>()
             val attempt = service.create(
                 PracticeAttempt(
-                    childId = req.childId,
-                    scenarioId = req.scenarioId,
+                    childId       = req.childId,
+                    scenarioId    = req.scenarioId,
                     selectedIndex = req.selectedIndex,
-                    isCorrect = req.isCorrect,
+                    isCorrect     = req.isCorrect,
+                    promptEmotion = req.promptEmotion,
                 ),
             )
             call.respond(HttpStatusCode.Created, ApiResponse(success = true, data = attempt))

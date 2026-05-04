@@ -24,6 +24,7 @@ fun Application.module() {
     // Initialise database + run Flyway migrations when DATABASE_URL is configured.
     // Without it the app runs on in-memory fake repositories (dev/test mode).
     val dbConfig = DatabaseConfig.fromEnv()
+    val useDatabase = dbConfig != null
     if (dbConfig != null) {
         log.info("Database URL detected — connecting and running Flyway migrations…")
         DatabaseFactory.init(
@@ -37,5 +38,5 @@ fun Application.module() {
         log.warn("DATABASE_URL not set — running with in-memory fake repositories.")
     }
 
-    configureRouting()
+    configureRouting(useDatabase = useDatabase)
 }

@@ -9,5 +9,6 @@ data class PracticeAttempt(
     val scenarioId: String,
     val selectedIndex: Int,
     val isCorrect: Boolean,
+    val promptEmotion: String? = null,
     val createdAt: String = "",
 )

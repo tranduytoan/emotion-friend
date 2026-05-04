@@ -16,4 +16,5 @@ data class CreatePracticeAttemptRequest(
     val scenarioId: String,
     val selectedIndex: Int,
     val isCorrect: Boolean,
+    val promptEmotion: String? = null,
 )

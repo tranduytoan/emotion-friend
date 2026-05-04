@@ -1,0 +1,49 @@
+version: "3.9"
+
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: emotion_friend_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: emotion_friend
+      MYSQL_USER: ${MYSQL_USER:-efuser}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-efpassword}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-rootpassword}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  backend-api:
+    build:
+      context: ../backend-api
+      dockerfile: Dockerfile
+    container_name: emotion_friend_api
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      PORT: 8080
+      DATABASE_URL: jdbc:mysql://mysql:3306/emotion_friend?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      DATABASE_USER: ${MYSQL_USER:-efuser}
+      DATABASE_PASSWORD: ${MYSQL_PASSWORD:-efpassword}
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+volumes:
+  mysql_data:
+    driver: local

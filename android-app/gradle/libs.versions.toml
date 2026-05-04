@@ -21,6 +21,9 @@ coroutines             = "1.8.1"
 ktor                   = "2.3.12"
 kotlinxSerializationJson = "1.7.1"
 
+# Static analysis
+detekt                 = "1.23.6"
+
 # Testing
 junit                  = "4.13.2"
 junitExt               = "1.2.1"
@@ -90,3 +93,4 @@ kotlin-compose      = { id = "org.jetbrains.kotlin.plugin.compose",   version.re
 ksp                 = { id = "com.google.devtools.ksp",                version.ref = "ksp" }
 hilt                = { id = "com.google.dagger.hilt.android",         version.ref = "hilt" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+detekt              = { id = "io.gitlab.arturbosch.detekt",              version.ref = "detekt" }

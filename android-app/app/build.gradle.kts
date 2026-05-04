@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.detekt)
 }
 
 android {
@@ -104,4 +105,14 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
+}
+
+detekt {
+    // Point to the shared config file at the android-app root.
+    config.setFrom(files("$rootDir/config/detekt/detekt.yml"))
+    // Build DOES NOT fail on detekt issues in this project (student/demo mode).
+    // Flip to true when the team is ready to enforce rules strictly.
+    ignoreFailures = true
+    // Include generated sources produced by KSP/Hilt? No — only analyse hand-written code.
+    source.setFrom(files("src/main/java", "src/main/kotlin"))
 }

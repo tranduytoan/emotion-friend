@@ -40,17 +40,33 @@ jobs:
         working-directory: android-app
         run: chmod +x gradlew
 
-      # ── 5. Run unit tests ─────────────────────────────────────────────────
+      # ── 5. Run detekt static analysis ────────────────────────────────────
+      - name: Run detekt
+        working-directory: android-app
+        run: ./gradlew detekt --no-daemon
+        # ignoreFailures=true in build.gradle.kts so this step never breaks the build;
+        # the HTML/XML report is still uploaded for review.
+
+      # ── 6. Upload detekt report ───────────────────────────────────────────
+      - name: Upload detekt report
+        if: always()        # Upload even when detekt found issues
+        uses: actions/upload-artifact@v4
+        with:
+          name: detekt-report
+          path: android-app/app/build/reports/detekt/
+          retention-days: 14
+
+      # ── 7. Run unit tests ─────────────────────────────────────────────────
       - name: Run debug unit tests
         working-directory: android-app
         run: ./gradlew testDebugUnitTest --no-daemon
 
-      # ── 6. Assemble the debug APK ─────────────────────────────────────────
+      # ── 8. Assemble the debug APK ─────────────────────────────────────────
       - name: Assemble debug APK
         working-directory: android-app
         run: ./gradlew assembleDebug --no-daemon
 
-      # ── 7. Upload debug APK so it can be downloaded from the Actions UI ───
+      # ── 9. Upload debug APK so it can be downloaded from the Actions UI ───
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:

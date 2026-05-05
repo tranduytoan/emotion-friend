@@ -203,6 +203,18 @@ cd android-app
 # APK xuất ra: app/build/outputs/apk/debug/app-debug.apk
 ```
 
+### 5. Kiểm tra code tĩnh với detekt
+
+```bash
+cd android-app
+./gradlew detekt
+# Báo cáo HTML: app/build/reports/detekt/detekt.html
+# Báo cáo XML : app/build/reports/detekt/detekt.xml
+```
+
+> **Lưu ý:** Trong môi trường phát triển, build **không thất bại** khi có cảnh báo từ detekt (`ignoreFailures = true`).  
+> Báo cáo vẫn được tạo để tham khảo. Cấu hình nằm tại `android-app/config/detekt/detekt.yml`.
+
 ---
 
 ## Hướng dẫn chạy Backend + MySQL

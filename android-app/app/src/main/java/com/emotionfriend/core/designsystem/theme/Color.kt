@@ -26,7 +26,7 @@ val OnSurfaceVar   = Color(0xFF6B6B6B)  // secondary text, hints
 val EmotionHappy    = Color(0xFFFFD166)  // yellow-gold  — happy
 val EmotionSad      = Color(0xFF74B2D8)  // soft blue     — sad
 val EmotionAngry    = Color(0xFFFF8A80)  // soft red-pink — angry (not aggressive)
-val EmotionScared   = Color(0xFFB39DDB)  // soft purple   — scared
+val EmotionTired    = Color(0xFFB39DDB)  // soft purple   — tired
 val EmotionSurprised= Color(0xFFFFCC80)  // warm orange   — surprised
 val EmotionCalm     = Color(0xFF80CBC4)  // teal-mint     — calm
 
@@ -34,7 +34,7 @@ val EmotionCalm     = Color(0xFF80CBC4)  // teal-mint     — calm
 val EmotionHappyBg    = Color(0xFFFFF8E1)
 val EmotionSadBg      = Color(0xFFE3F2FD)
 val EmotionAngryBg    = Color(0xFFFFEBEE)
-val EmotionScaredBg   = Color(0xFFEDE7F6)
+val EmotionTiredBg    = Color(0xFFEDE7F6)
 val EmotionSurprisedBg= Color(0xFFFFF3E0)
 val EmotionCalmBg     = Color(0xFFE0F2F1)
 

@@ -41,6 +41,8 @@ import com.emotionfriend.core.designsystem.theme.EmotionSad
 import com.emotionfriend.core.designsystem.theme.EmotionSadBg
 import com.emotionfriend.core.designsystem.theme.EmotionSurprised
 import com.emotionfriend.core.designsystem.theme.EmotionSurprisedBg
+import com.emotionfriend.core.designsystem.theme.EmotionTired
+import com.emotionfriend.core.designsystem.theme.EmotionTiredBg
 import com.emotionfriend.domain.model.EmotionType
 
 // ---------------------------------------------------------------------------
@@ -249,7 +251,7 @@ private fun EmotionType.toOptionVisuals(): OptionVisuals = when (this) {
     EmotionType.ANGRY     -> OptionVisuals("Tức giận",   "😠", EmotionAngry,     EmotionAngryBg)
     EmotionType.SURPRISED -> OptionVisuals("Ngạc nhiên", "😲", EmotionSurprised, EmotionSurprisedBg)
     EmotionType.CALM      -> OptionVisuals("Bình tĩnh",  "😌", EmotionCalm,      EmotionCalmBg)
-    EmotionType.TIRED     -> OptionVisuals("Mệt mỏi",    "😴", EmotionCalm,      EmotionCalmBg)
+    EmotionType.TIRED     -> OptionVisuals("Mệt mỏi",    "😴", EmotionTired,     EmotionTiredBg)
 }
 
 // ---------------------------------------------------------------------------

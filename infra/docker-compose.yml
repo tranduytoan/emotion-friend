@@ -11,7 +11,7 @@ services:
       MYSQL_USER: ${MYSQL_USER:-efuser}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-efpassword}
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
@@ -31,7 +31,7 @@ services:
       mysql:
         condition: service_healthy
     ports:
-      - "8080:8080"
+      - "8081:8080"
     environment:
       PORT: 8080
       DATABASE_URL: jdbc:mysql://mysql:3306/emotion_friend?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC

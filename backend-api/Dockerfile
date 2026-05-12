@@ -9,7 +9,7 @@ COPY gradle ./gradle
 COPY build.gradle.kts settings.gradle.kts gradle.properties ./
 
 # Download dependencies
-RUN chmod +x gradlew && ./gradlew dependencies --no-daemon --quiet || true
+RUN sed -i 's/\r//' gradlew && sed -i '/org\.gradle\.java\.home/d' gradle.properties && chmod +x gradlew && ./gradlew dependencies --no-daemon --quiet || true
 
 # Copy source code
 COPY src ./src

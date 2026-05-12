@@ -52,7 +52,8 @@ Docker sẽ:
 ### 3. Kiểm Tra Health Endpoint
 
 ```bash
-curl http://localhost:8080/health
+# Port 8081 = host port được map từ container port 8080 (xem docker-compose.yml)
+curl http://localhost:8081/health
 ```
 
 Kết quả mong đợi:
@@ -117,8 +118,10 @@ Flyway sẽ tự chạy lại migration từ đầu khi backend khởi động.
 | `MYSQL_ROOT_PASSWORD` | `rootpassword` | Mật khẩu root MySQL |
 | `MYSQL_USER` | `efuser` | User app MySQL |
 | `MYSQL_PASSWORD` | `efpassword` | Mật khẩu user app |
-| `PORT` | `8080` | Port backend lắng nghe |
+| `PORT` | `8080` | Port backend lắng nghe (nội bộ container) |
 | `DATABASE_URL` | *(auto từ compose)* | JDBC URL kết nối MySQL |
+| `DATABASE_USER` | *(= `MYSQL_USER`)* | Username backend dùng để kết nối DB |
+| `DATABASE_PASSWORD` | *(= `MYSQL_PASSWORD`)* | Mật khẩu backend dùng để kết nối DB |
 
 ---
 

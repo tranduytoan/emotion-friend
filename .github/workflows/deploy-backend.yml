@@ -1,0 +1,68 @@
+name: Deploy Backend to VPS
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - "backend/**"
+      - "docker-compose.yml"
+      - "nginx/**"
+      - "database/schema.sql"
+      - ".github/workflows/deploy-backend.yml"
+
+  # Allow manual trigger from the Actions UI
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: SSH Deploy to VPS
+    runs-on: ubuntu-latest
+
+    steps:
+      # ── 1. Checkout (needed only to read workflow file; actual code is pulled on VPS) ──
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── 2. Deploy via SSH ─────────────────────────────────────────────────────────────
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host:        ${{ secrets.VPS_HOST }}
+          username:    ${{ secrets.VPS_USER }}
+          key:         ${{ secrets.VPS_SSH_KEY }}
+          timeout:     120s
+          script_stop: true   # abort on first failing command
+          script: |
+            set -euo pipefail
+
+            echo "==> Navigating to project directory ..."
+            cd "${{ secrets.VPS_PROJECT_PATH }}"
+
+            echo "==> Pulling latest code from main ..."
+            git fetch origin main
+            git reset --hard origin/main
+
+            echo "==> Stopping running containers ..."
+            docker compose down --remove-orphans
+
+            echo "==> Building and starting containers ..."
+            docker compose up -d --build
+
+            echo "==> Waiting for backend health check ..."
+            attempt=0
+            until curl -sf http://localhost/health; do
+              attempt=$((attempt + 1))
+              if [ $attempt -ge 12 ]; then
+                echo "Health check timed out after 60 s — deployment failed"
+                docker compose logs --tail=50
+                exit 1
+              fi
+              echo "  ... waiting (attempt $attempt/12)"
+              sleep 5
+            done
+
+            echo "==> Cleaning up dangling images ..."
+            docker image prune -f
+
+            echo "==> Deployment complete!"
+            docker compose ps

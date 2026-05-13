@@ -1,0 +1,39 @@
+# =============================================================================
+# docker-compose.https.yml — HTTPS override (Certbot + Let's Encrypt)
+# =============================================================================
+# Usage (apply on top of docker-compose.yml):
+#
+#   docker compose -f docker-compose.yml -f docker-compose.https.yml up -d --build
+#
+# Prerequisites:
+#   1. DNS A record for YOUR_DOMAIN.COM → VPS IP
+#   2. Port 80 AND 443 open in UFW
+#   3. Run scripts/setup-https.sh ONCE to obtain the first certificate
+# =============================================================================
+
+services:
+
+  nginx:
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx-https.conf:/etc/nginx/nginx.conf:ro
+      - letsencrypt_certs:/etc/letsencrypt:ro
+      - certbot_webroot:/var/www/certbot:ro
+
+  certbot:
+    image: certbot/certbot:latest
+    container_name: emotion_friend_certbot
+    volumes:
+      - letsencrypt_certs:/etc/letsencrypt
+      - certbot_webroot:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot --quiet; sleep 12h & wait $${!}; done'"
+    networks:
+      - backend_net
+
+volumes:
+  letsencrypt_certs:
+    driver: local
+  certbot_webroot:
+    driver: local

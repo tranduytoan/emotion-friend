@@ -1,10 +1,27 @@
 package com.emotionfriend.core.navigation
 
 /**
- * Centralized route constants for the app.
+ * Centralised route constants for Emotion Friend.
  *
- * Using a sealed class allows exhaustive `when` expressions and
- * makes adding new routes safer — the compiler will flag missing branches.
+ * Owner: Nghĩa — all additions to the route table must go through this file.
+ *
+ * Using a sealed class gives:
+ * • Exhaustive `when` expressions — compiler flags unhandled routes.
+ * • A single source of truth — no route strings scattered across the codebase.
+ * • Safe refactoring — rename a route here and the compiler catches every usage.
+ *
+ * Screen → owner mapping:
+ * ┌─────────────────────┬─────────┐
+ * │ Route               │ Owner   │
+ * ├─────────────────────┼─────────┤
+ * │ Home                │ Nghĩa   │
+ * │ LearnEmotion        │ Duy     │
+ * │ Situation           │ Dũng    │
+ * │ ExpressCamera       │ Hiệp    │
+ * │ Relax               │ Hiệp    │
+ * │ Journal             │ Toàn    │
+ * │ Progress            │ Toàn    │
+ * └─────────────────────┴─────────┘
  */
 sealed class AppRoute(val route: String) {
     data object Home          : AppRoute("home")

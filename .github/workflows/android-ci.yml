@@ -1,11 +1,16 @@
 name: Android CI
 
-# Trigger on every push or pull request targeting the main development branches.
 on:
   push:
-    branches: [main, develop]
+    branches: [ "main", "develop", "feat/**", "fix/**", "ci/**" ]
+    paths:
+      - "android-app/**"
+      - ".github/workflows/android-ci.yml"
   pull_request:
-    branches: [main, develop]
+    branches: [ "main", "develop" ]
+    paths:
+      - "android-app/**"
+      - ".github/workflows/android-ci.yml"
 
 jobs:
   build:
@@ -61,15 +66,24 @@ jobs:
         working-directory: android-app
         run: ./gradlew testDebugUnitTest --no-daemon
 
-      # ── 8. Assemble the debug APK ─────────────────────────────────────────
+      # ── 8. Upload unit test report ────────────────────────────────────────
+      - name: Upload unit test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-report
+          path: android-app/app/build/reports/tests/testDebugUnitTest/
+          retention-days: 7
+
+      # ── 9. Assemble the debug APK ─────────────────────────────────────────
       - name: Assemble debug APK
         working-directory: android-app
         run: ./gradlew assembleDebug --no-daemon
 
-      # ── 9. Upload debug APK so it can be downloaded from the Actions UI ───
+      # ── 10. Upload debug APK so it can be downloaded from the Actions UI ──
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
-          name: emotion-friend-debug
+          name: emotion-friend-debug-${{ github.run_number }}
           path: android-app/app/build/outputs/apk/debug/app-debug.apk
           retention-days: 14

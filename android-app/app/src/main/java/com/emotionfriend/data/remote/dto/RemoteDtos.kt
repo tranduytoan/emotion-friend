@@ -78,3 +78,32 @@ data class CreatePracticeAttemptRequest(
     val isCorrect: Boolean,
     val promptEmotion: String? = null,
 )
+
+// ── Nghĩa's backend DTOs (P7 — plain JSON, no ApiResponseDto envelope) ───────
+
+/** Mirrors backend Situation model — /api/situations. */
+@Serializable
+data class SituationDto(
+    val id: Int,
+    val emotionId: Int,
+    val title: String,
+    val description: String,
+)
+
+/** Mirrors backend EmotionLog response — /api/emotion-log. */
+@Serializable
+data class EmotionLogDto(
+    val id: Int,
+    val userId: Int,
+    val emotionId: Int,
+    val note: String? = null,
+    val createdAt: String,
+)
+
+/** Request body for POST /api/emotion-log. */
+@Serializable
+data class CreateEmotionLogRequest(
+    val userId: Int,
+    val emotionId: Int,
+    val note: String? = null,
+)

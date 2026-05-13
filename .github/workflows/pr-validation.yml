@@ -1,0 +1,71 @@
+name: PR Validation
+
+# Chạy khi có PR nhắm vào main hoặc develop
+on:
+  pull_request:
+    branches: [main, develop]
+    types: [opened, synchronize, reopened, edited]
+
+jobs:
+  # ── 1. Validate branch name follows convention ─────────────────────────────
+  branch-name:
+    name: Check Branch Name Convention
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate branch name
+        env:
+          BRANCH: ${{ github.head_ref }}
+        run: |
+          # Convention: <type>/<short-description>
+          # Allowed types: feature, fix, hotfix, chore, docs, refactor, test, ci, release
+          PATTERN='^(feature|fix|hotfix|chore|docs|refactor|test|ci|release)\/[a-z0-9][a-z0-9\-]*[a-z0-9]$'
+          echo "Branch name: $BRANCH"
+          if [[ ! "$BRANCH" =~ $PATTERN ]]; then
+            echo ""
+            echo "❌ Branch name '$BRANCH' không đúng convention."
+            echo ""
+            echo "✅ Định dạng yêu cầu: <type>/<mô-tả-ngắn-kebab-case>"
+            echo ""
+            echo "   Ví dụ hợp lệ:"
+            echo "     feature/add-emotion-quiz"
+            echo "     fix/crash-on-startup"
+            echo "     chore/update-dependencies"
+            echo "     hotfix/login-token-expiry"
+            echo "     docs/update-readme"
+            echo "     release/1-2-0"
+            echo ""
+            echo "   Các type được chấp nhận:"
+            echo "     feature | fix | hotfix | chore | docs | refactor | test | ci | release"
+            exit 1
+          fi
+          echo "✅ Branch name hợp lệ: $BRANCH"
+
+  # ── 2. Validate PR title follows Conventional Commits ─────────────────────
+  pr-title:
+    name: Check PR Title (Conventional Commits)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate PR title
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          # Conventional Commits: <type>[(scope)]: <description>
+          PATTERN='^(feat|fix|hotfix|chore|docs|refactor|test|ci|build|style|perf|revert)(\([a-z0-9\-]+\))?: .{1,100}$'
+          echo "PR title: $PR_TITLE"
+          if [[ ! "$PR_TITLE" =~ $PATTERN ]]; then
+            echo ""
+            echo "❌ PR title không đúng Conventional Commits format."
+            echo ""
+            echo "✅ Định dạng yêu cầu: <type>[(scope)]: <mô tả>"
+            echo ""
+            echo "   Ví dụ hợp lệ:"
+            echo "     feat(android): add emotion quiz screen"
+            echo "     fix(backend): handle null pointer in progress endpoint"
+            echo "     chore: update gradle wrapper to 8.10"
+            echo "     docs: update backend setup guide"
+            echo ""
+            echo "   Các type được chấp nhận:"
+            echo "     feat | fix | hotfix | chore | docs | refactor | test | ci | build | style | perf | revert"
+            exit 1
+          fi
+          echo "✅ PR title hợp lệ: $PR_TITLE"

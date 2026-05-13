@@ -1,5 +1,6 @@
 package com.emotionfriend.core.di
 
+import com.emotionfriend.core.config.AppConfig
 import com.emotionfriend.data.remote.EmotionFriendApiClient
 import dagger.Module
 import dagger.Provides
@@ -42,8 +43,8 @@ object RemoteModule {
             level = LogLevel.BODY
         }
         engine {
-            connectTimeout = 10_000
-            socketTimeout  = 30_000
+            connectTimeout = AppConfig.CONNECT_TIMEOUT_MS
+            socketTimeout  = AppConfig.SOCKET_TIMEOUT_MS
         }
     }
 

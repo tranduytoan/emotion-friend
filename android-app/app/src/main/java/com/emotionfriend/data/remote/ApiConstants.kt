@@ -1,17 +1,20 @@
 package com.emotionfriend.data.remote
 
+import com.emotionfriend.core.config.AppConfig
+
 /**
- * Central place for remote API configuration.
- * Replace BASE_URL with your backend address before enabling remote sync.
- * For local Docker Compose testing on an emulator, use http://10.0.2.2:8080
+ * Remote API path constants.
+ *
+ * The base URL is sourced from [AppConfig] so it can be changed in one place.
+ * Path constants stay here because they are data-layer concerns.
  */
 object ApiConstants {
-    // TODO: replace with actual backend URL or inject via BuildConfig
-    const val BASE_URL = "http://10.0.2.2:8080"
+    /** Delegates to [AppConfig.BASE_URL] — change the URL there, not here. */
+    val BASE_URL: String get() = AppConfig.BASE_URL
 
-    const val PATH_EMOTIONS         = "/api/emotions"
-    const val PATH_SCENARIOS        = "/api/scenarios"
-    const val PATH_JOURNAL_ENTRIES  = "/api/journal-entries"
+    const val PATH_EMOTIONS          = "/api/emotions"
+    const val PATH_SCENARIOS         = "/api/scenarios"
+    const val PATH_JOURNAL_ENTRIES   = "/api/journal-entries"
     const val PATH_PRACTICE_ATTEMPTS = "/api/practice-attempts"
-    const val PATH_PROGRESS         = "/api/progress"
+    const val PATH_PROGRESS          = "/api/progress"
 }

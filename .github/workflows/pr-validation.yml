@@ -17,8 +17,8 @@ jobs:
           BRANCH: ${{ github.head_ref }}
         run: |
           # Convention: <type>/<short-description>
-          # Allowed types: feature, fix, hotfix, chore, docs, refactor, test, ci, release
-          PATTERN='^(feature|fix|hotfix|chore|docs|refactor|test|ci|release)\/[a-z0-9][a-z0-9\-]*[a-z0-9]$'
+          # Allowed types: feature, feat, fix, hotfix, chore, docs, refactor, test, ci, release
+          PATTERN='^(feature|feat|fix|hotfix|chore|docs|refactor|test|ci|release)\/[a-z0-9][a-z0-9\-]*[a-z0-9]$'
           echo "Branch name: $BRANCH"
           if [[ ! "$BRANCH" =~ $PATTERN ]]; then
             echo ""
@@ -35,7 +35,7 @@ jobs:
             echo "     release/1-2-0"
             echo ""
             echo "   Các type được chấp nhận:"
-            echo "     feature | fix | hotfix | chore | docs | refactor | test | ci | release"
+            echo "     feature | feat | fix | hotfix | chore | docs | refactor | test | ci | release"
             exit 1
           fi
           echo "✅ Branch name hợp lệ: $BRANCH"

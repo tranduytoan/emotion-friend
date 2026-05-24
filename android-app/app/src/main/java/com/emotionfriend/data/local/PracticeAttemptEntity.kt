@@ -13,5 +13,7 @@ data class PracticeAttemptEntity(
     val selectedEmotion: EmotionType?,
     val correctEmotion: EmotionType?,
     val isCorrect: Boolean?,
-    val createdAt: Long
+    val createdAt: Long,
+    val syncStatus: SyncStatus = SyncStatus.PENDING,
+    val lastModifiedAt: Long = System.currentTimeMillis()
 )

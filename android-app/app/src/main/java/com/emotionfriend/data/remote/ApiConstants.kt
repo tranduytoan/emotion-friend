@@ -23,4 +23,13 @@ object ApiConstants {
     const val PATH_SITUATIONS  = "/api/situations"
     /** POST /api/emotion-log  — submit an emotion log entry. */
     const val PATH_EMOTION_LOG = "/api/emotion-log"
+
+    // ── Auth endpoints ───────────────────────────────────────────────────────
+    const val PATH_AUTH_LOGIN           = "/api/auth/login"
+    const val PATH_AUTH_REGISTER        = "/api/auth/register"
+    const val PATH_AUTH_FORGOT_PASSWORD = "/api/auth/forgot-password"
+
+    // ── Sync endpoints ───────────────────────────────────────────────────────
+    const val PATH_SYNC_PULL = "/api/sync/pull"
+    const val PATH_SYNC_PUSH = "/api/sync/push"
 }

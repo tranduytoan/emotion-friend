@@ -10,5 +10,7 @@ data class JournalEntryEntity(
     val childId: String,
     val emotionType: EmotionType,
     val note: String?,
-    val createdAt: Long
+    val createdAt: Long,
+    val syncStatus: SyncStatus = SyncStatus.PENDING,
+    val lastModifiedAt: Long = System.currentTimeMillis()
 )

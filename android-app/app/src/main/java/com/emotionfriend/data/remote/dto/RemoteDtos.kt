@@ -107,3 +107,63 @@ data class CreateEmotionLogRequest(
     val emotionId: Int,
     val note: String? = null,
 )
+
+// ── Auth DTOs ──────────────────────────────────────────────────────────────────
+
+@Serializable
+data class LoginRequest(
+    val email: String,
+    val password: String,
+)
+
+@Serializable
+data class RegisterRequest(
+    val email: String,
+    val password: String,
+    val displayName: String,
+    val role: String = "CHILD",
+)
+
+@Serializable
+data class ForgotPasswordRequest(
+    val email: String,
+)
+
+@Serializable
+data class AuthResponseDto(
+    val userId: Long,
+    val email: String,
+    val displayName: String,
+    val role: String,
+    val token: String,
+    val message: String = "OK",
+)
+
+// ── Sync DTOs ──────────────────────────────────────────────────────────────────
+
+@Serializable
+data class SyncPullResponseDto(
+    val emotions: List<EmotionCardDto> = emptyList(),
+    val serverTimestamp: Long = 0L,
+)
+
+@Serializable
+data class JournalSyncEntry(
+    val localId: String,
+    val emotionId: Int,
+    val note: String? = null,
+    val createdAt: Long,
+)
+
+@Serializable
+data class SyncPushRequestDto(
+    val userId: Long,
+    val journalEntries: List<JournalSyncEntry> = emptyList(),
+)
+
+@Serializable
+data class SyncPushResponseDto(
+    val accepted: Int,
+    val rejected: Int,
+    val serverTimestamp: Long = 0L,
+)

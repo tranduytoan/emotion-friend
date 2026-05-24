@@ -24,11 +24,25 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            // Signing config populated from env vars set by CI; ignored in local dev.
+            val storeFile = System.getenv("SIGNING_STORE_FILE")
+            val storePass = System.getenv("SIGNING_STORE_PASSWORD")
+            val keyAlias  = System.getenv("SIGNING_KEY_ALIAS")
+            val keyPass   = System.getenv("SIGNING_KEY_PASSWORD")
+            if (storeFile != null && storePass != null && keyAlias != null && keyPass != null) {
+                signingConfig = signingConfigs.create("release").apply {
+                    this.storeFile = file(storeFile)
+                    this.storePassword = storePass
+                    this.keyAlias = keyAlias
+                    this.keyPassword = keyPass
+                }
+            }
         }
     }
 
@@ -67,6 +81,8 @@ dependencies {
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.androidx.hilt.work)
+    ksp(libs.androidx.hilt.compiler)
 
     // Room
     implementation(libs.androidx.room.runtime)

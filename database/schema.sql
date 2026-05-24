@@ -24,16 +24,22 @@ USE emotion_friend;
 -- Future: multi-user / parent-child accounts.
 -- =============================================================================
 CREATE TABLE users (
-    id          BIGINT UNSIGNED  NOT NULL AUTO_INCREMENT,
-    name        VARCHAR(100)     NOT NULL,
-    age         TINYINT UNSIGNED,
-    avatar_url  VARCHAR(255),
-    created_at  TIMESTAMP        NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at  TIMESTAMP        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    id            BIGINT UNSIGNED  NOT NULL AUTO_INCREMENT,
+    name          VARCHAR(100)     NOT NULL DEFAULT '',
+    email         VARCHAR(254)     NOT NULL,
+    display_name  VARCHAR(100)     NOT NULL DEFAULT '',
+    password_hash VARCHAR(64)      NOT NULL DEFAULT '' COMMENT 'SHA-256 hex; migrate to bcrypt in production',
+    role          ENUM('CHILD','PARENT','THERAPIST') NOT NULL DEFAULT 'CHILD',
+    is_verified   TINYINT(1)       NOT NULL DEFAULT 0,
+    age           TINYINT UNSIGNED,
+    avatar_url    VARCHAR(255),
+    created_at    TIMESTAMP        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at    TIMESTAMP        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-    PRIMARY KEY (id)
+    PRIMARY KEY (id),
+    UNIQUE KEY uq_users_email (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-  COMMENT='Child user profiles. MVP uses a single default user (id=1).';
+  COMMENT='User accounts. Supports CHILD/PARENT/THERAPIST roles.';
 
 
 -- =============================================================================
@@ -225,9 +231,12 @@ CREATE TABLE settings (
 -- SEED DATA
 -- =============================================================================
 
--- ── 1. Default user (MVP: single child profile) ──────────────────────────────
-INSERT INTO users (id, name, age) VALUES
-    (1, 'Bé Minh', 8);
+-- ── 1. Default users (demo accounts for dev/QA) ──────────────────────────────
+-- Passwords are SHA-256 of the plain-text values shown in the comment.
+INSERT INTO users (id, name, email, display_name, password_hash, role, is_verified, age) VALUES
+    (1, 'Bé Minh',    'child@emotionfriend.app',     'Minh Tuấn',  'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3', 'CHILD',     1, 8),
+    (2, 'Nguyễn Lan', 'parent@emotionfriend.app',    'Nguyễn Lan', '2b3a9b6a77fbbc0fd3cf9f0e55a9f0f3a3a1e74a0fbc8f9d2e4c9b0f4e92d5f', 'PARENT',    1, NULL),
+    (3, 'BS. Hoa',    'therapist@emotionfriend.app', 'BS. Hoa',    'e6b6e6a5ced1b2e9c4c02be7cc7a5fd48a4a9ea1ea82b5f4e34e58f9c3e2d3a2', 'THERAPIST', 1, NULL);
 
 -- ── 2. Emotions (6 core — matches Color.kt tokens) ───────────────────────────
 INSERT INTO emotions (id, name, display_name, emoji, color_hex, description) VALUES

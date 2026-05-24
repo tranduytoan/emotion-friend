@@ -1,15 +1,18 @@
 package com.emotionfriend
 
 import com.emotionfriend.config.DatabaseConfig
+import com.emotionfriend.repositories.AuthRepository
 import com.emotionfriend.repositories.EmotionLogRepository
 import com.emotionfriend.repositories.EmotionRepository
 import com.emotionfriend.repositories.ProgressRepository
 import com.emotionfriend.repositories.SituationRepository
+import com.emotionfriend.routes.authRoutes
 import com.emotionfriend.routes.emotionLogRoutes
 import com.emotionfriend.routes.emotionRoutes
 import com.emotionfriend.routes.healthRoutes
 import com.emotionfriend.routes.progressRoutes
 import com.emotionfriend.routes.situationRoutes
+import com.emotionfriend.routes.syncRoutes
 import com.emotionfriend.services.EmotionLogService
 import com.emotionfriend.services.EmotionService
 import com.emotionfriend.services.ProgressService
@@ -40,6 +43,7 @@ fun Application.module() {
     val situationRepo  = SituationRepository(db)
     val progressRepo   = ProgressRepository(db)
     val emotionLogRepo = EmotionLogRepository(db)
+    val authRepo       = AuthRepository(db)
 
     // ── Services ──────────────────────────────────────────────────────────────
     val emotionService    = EmotionService(emotionRepo)
@@ -63,10 +67,12 @@ fun Application.module() {
 
     // ── Routing ───────────────────────────────────────────────────────────────
     routing {
-        healthRoutes(dbConnected = db != null)
-        emotionRoutes(emotionService)
-        situationRoutes(situationService)
-        progressRoutes(progressService)
-        emotionLogRoutes(emotionLogService)
-    }
+            healthRoutes(dbConnected = db != null)
+            authRoutes(authRepo)
+            emotionRoutes(emotionService)
+            situationRoutes(situationService)
+            progressRoutes(progressService)
+            emotionLogRoutes(emotionLogService)
+            syncRoutes(authRepo, emotionRepo, situationRepo, emotionLogRepo)
+        }
 }

@@ -4,14 +4,18 @@ import com.emotionfriend.config.DatabaseConfig
 import com.emotionfriend.repositories.EmotionLogRepository
 import com.emotionfriend.repositories.EmotionRepository
 import com.emotionfriend.repositories.ProgressRepository
+import com.emotionfriend.repositories.SettingsRepository
 import com.emotionfriend.repositories.SituationRepository
+import com.emotionfriend.repositories.UserRepository
 import com.emotionfriend.routes.emotionLogRoutes
 import com.emotionfriend.routes.emotionRoutes
 import com.emotionfriend.routes.healthRoutes
+import com.emotionfriend.routes.profileRoutes
 import com.emotionfriend.routes.progressRoutes
 import com.emotionfriend.routes.situationRoutes
 import com.emotionfriend.services.EmotionLogService
 import com.emotionfriend.services.EmotionService
+import com.emotionfriend.services.ProfileService
 import com.emotionfriend.services.ProgressService
 import com.emotionfriend.services.SituationService
 import io.ktor.http.*
@@ -40,12 +44,15 @@ fun Application.module() {
     val situationRepo  = SituationRepository(db)
     val progressRepo   = ProgressRepository(db)
     val emotionLogRepo = EmotionLogRepository(db)
+    val userRepo       = UserRepository(db)
+    val settingsRepo   = SettingsRepository(db)
 
     // ── Services ──────────────────────────────────────────────────────────────
     val emotionService    = EmotionService(emotionRepo)
     val situationService  = SituationService(situationRepo)
     val progressService   = ProgressService(progressRepo)
     val emotionLogService = EmotionLogService(emotionLogRepo)
+    val profileService    = ProfileService(userRepo, settingsRepo, progressRepo)
 
     // ── Plugins ───────────────────────────────────────────────────────────────
     install(ContentNegotiation) {
@@ -68,5 +75,6 @@ fun Application.module() {
         situationRoutes(situationService)
         progressRoutes(progressService)
         emotionLogRoutes(emotionLogService)
+        profileRoutes(profileService)
     }
 }

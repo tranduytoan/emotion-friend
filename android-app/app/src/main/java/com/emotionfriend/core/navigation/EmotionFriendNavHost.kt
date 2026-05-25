@@ -17,9 +17,24 @@ import com.emotionfriend.feature.situation.SituationScreen
 /**
  * Root navigation host for Emotion Friend.
  *
- * Each feature screen receives only the callbacks it needs
- * (navigate-to and navigate-back), not the full NavController.
- * This keeps feature screens decoupled from the navigation library.
+ * Owner: Nghĩa (routing / integration layer only)
+ *
+ * Architecture decisions:
+ * • Feature screens receive only typed callbacks — they are decoupled
+ *   from the navigation library entirely.
+ * • [navigateSingleTop] prevents a duplicate entry being pushed when the
+ *   user double-taps a card on the Home screen.
+ * • Back navigation uses [NavHostController.popBackStack]; feature screens
+ *   never need to import navigation themselves.
+ *
+ * Screen ownership:
+ * • HomeScreen              — Nghĩa
+ * • LearnScreen             — Duy
+ * • SituationScreen         — Dũng
+ * • ExpressScreen           — Hiệp
+ * • RelaxScreen             — Hiệp
+ * • JournalScreen           — Toàn
+ * • ProgressScreen          — Toàn
  */
 @Composable
 fun EmotionFriendNavHost(
@@ -32,17 +47,19 @@ fun EmotionFriendNavHost(
         modifier         = modifier
     ) {
 
+        // ── Home ─────────────────────────────────────────────────────────────
         composable(AppRoute.Home.route) {
             HomeScreen(
-                onNavigateToLearn    = { navController.navigate(AppRoute.LearnEmotion.route) },
-                onNavigateToSituation = { navController.navigate(AppRoute.Situation.route) },
-                onNavigateToExpress  = { navController.navigate(AppRoute.ExpressCamera.route) },
-                onNavigateToRelax    = { navController.navigate(AppRoute.Relax.route) },
-                onNavigateToJournal  = { navController.navigate(AppRoute.Journal.route) },
-                onNavigateToProgress = { navController.navigate(AppRoute.Progress.route) }
+                onNavigateToLearn     = { navController.navigateSingleTop(AppRoute.LearnEmotion.route) },
+                onNavigateToSituation = { navController.navigateSingleTop(AppRoute.Situation.route) },
+                onNavigateToExpress   = { navController.navigateSingleTop(AppRoute.ExpressCamera.route) },
+                onNavigateToRelax     = { navController.navigateSingleTop(AppRoute.Relax.route) },
+                onNavigateToJournal   = { navController.navigateSingleTop(AppRoute.Journal.route) },
+                onNavigateToProgress  = { navController.navigateSingleTop(AppRoute.Progress.route) }
             )
         }
 
+        // ── Feature screens (UI owned by teammates) ───────────────────────────
         composable(AppRoute.LearnEmotion.route) {
             LearnScreen(onBack = { navController.popBackStack() })
         }
@@ -67,4 +84,16 @@ fun EmotionFriendNavHost(
             ProgressScreen(onBack = { navController.popBackStack() })
         }
     }
+}
+
+// ── Navigation helpers ────────────────────────────────────────────────────────
+
+/**
+ * Navigate to [route] with [launchSingleTop] = true so that double-tapping
+ * a card never pushes a duplicate entry onto the back stack.
+ *
+ * Use this for all forward navigation calls from [EmotionFriendNavHost].
+ */
+private fun NavHostController.navigateSingleTop(route: String) {
+    navigate(route) { launchSingleTop = true }
 }

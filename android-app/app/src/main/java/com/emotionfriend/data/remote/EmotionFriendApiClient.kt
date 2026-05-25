@@ -1,13 +1,16 @@
 package com.emotionfriend.data.remote
 
 import com.emotionfriend.data.remote.dto.ApiResponseDto
+import com.emotionfriend.data.remote.dto.CreateEmotionLogRequest
 import com.emotionfriend.data.remote.dto.CreateJournalEntryRequest
 import com.emotionfriend.data.remote.dto.CreatePracticeAttemptRequest
 import com.emotionfriend.data.remote.dto.EmotionCardDto
+import com.emotionfriend.data.remote.dto.EmotionLogDto
 import com.emotionfriend.data.remote.dto.JournalEntryDto
 import com.emotionfriend.data.remote.dto.PracticeAttemptDto
 import com.emotionfriend.data.remote.dto.ProgressSummaryDto
 import com.emotionfriend.data.remote.dto.ScenarioLessonDto
+import com.emotionfriend.data.remote.dto.SituationDto
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -71,6 +74,30 @@ class EmotionFriendApiClient @Inject constructor(
         val response = httpClient.get("${ApiConstants.BASE_URL}${ApiConstants.PATH_PROGRESS}/$childId")
         val body: ApiResponseDto<ProgressSummaryDto> = response.body()
         requireNotNull(body.data) { "No data in response" }
+    }
+
+    // ── Nghĩa's backend endpoints (P7) ──────────────────────────────────────
+
+    /**
+     * GET /api/situations — all practice situations.
+     * Backend returns a plain JSON array (no ApiResponseDto envelope).
+     * Falls back to empty list on error so the app stays functional offline.
+     */
+    suspend fun getSituations(): ApiResult<List<SituationDto>> = safeCall {
+        httpClient.get("${ApiConstants.BASE_URL}${ApiConstants.PATH_SITUATIONS}").body()
+    }
+
+    /**
+     * POST /api/emotion-log — submit an emotion log entry.
+     * Backend returns 201 Created with the persisted [EmotionLogDto].
+     */
+    suspend fun postEmotionLog(
+        request: CreateEmotionLogRequest,
+    ): ApiResult<EmotionLogDto> = safeCall {
+        httpClient.post("${ApiConstants.BASE_URL}${ApiConstants.PATH_EMOTION_LOG}") {
+            contentType(ContentType.Application.Json)
+            setBody(request)
+        }.body()
     }
 
     // ── helpers ───────────────────────────────────────────────────────────────

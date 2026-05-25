@@ -49,6 +49,7 @@ fun HomeScreen(
     onNavigateToRelax: () -> Unit,
     onNavigateToJournal: () -> Unit,
     onNavigateToProgress: () -> Unit,
+    onNavigateToProfile: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val features = listOf(
@@ -87,6 +88,12 @@ fun HomeScreen(
             title       = "Tiến trình",
             description = "Xem con đã học được bao nhiêu rồi!",
             onClick     = onNavigateToProgress
+        ),
+        HomeFeature(
+            emoji       = "🧒",
+            title       = "Hồ sơ cá nhân",
+            description = "Xem thông tin và cài đặt của con.",
+            onClick     = onNavigateToProfile
         )
     )
 
@@ -181,7 +188,8 @@ private fun HomeScreenPreview() {
             onNavigateToExpress   = {},
             onNavigateToRelax     = {},
             onNavigateToJournal   = {},
-            onNavigateToProgress  = {}
+            onNavigateToProgress  = {},
+            onNavigateToProfile   = {}
         )
     }
 }

@@ -31,4 +31,5 @@ sealed class AppRoute(val route: String) {
     data object Relax         : AppRoute("relax")
     data object Journal       : AppRoute("journal")
     data object Progress      : AppRoute("progress")
+    data object Profile       : AppRoute("profile")
 }

@@ -43,6 +43,30 @@ data class EmotionLog(
     val loggedAt: String? = null
 )
 
+@Serializable
+data class User(
+    val id: Long,
+    val name: String,
+    val age: Int,
+    val avatarUrl: String? = null
+)
+
+@Serializable
+data class Settings(
+    val userId: Long,
+    val soundEnabled: Boolean,
+    val notificationEnabled: Boolean,
+    val reminderTime: String,
+    val language: String
+)
+
+@Serializable
+data class UserProfile(
+    val user: User,
+    val settings: Settings,
+    val progress: Progress
+)
+
 // ── Request bodies ────────────────────────────────────────────────────────────
 
 @Serializable
@@ -50,4 +74,16 @@ data class EmotionLogRequest(
     val userId: Long,
     val emotionId: Int,
     val note: String? = null
+)
+
+@Serializable
+data class ProfileUpdateRequest(
+    val userId: Long,
+    val name: String? = null,
+    val age: Int? = null,
+    val avatarUrl: String? = null,
+    val soundEnabled: Boolean? = null,
+    val notificationEnabled: Boolean? = null,
+    val reminderTime: String? = null,
+    val language: String? = null
 )

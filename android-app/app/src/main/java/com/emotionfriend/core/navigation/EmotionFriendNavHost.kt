@@ -22,6 +22,9 @@ import com.emotionfriend.feature.express.ExpressScreen
 import com.emotionfriend.feature.home.HomeScreen
 import com.emotionfriend.feature.journal.JournalScreen
 import com.emotionfriend.feature.learn.LearnScreen
+import com.emotionfriend.feature.parent.ParentDashboardScreen
+import com.emotionfriend.feature.parent.ParentReportScreen
+import com.emotionfriend.feature.profile.ProfileScreen
 import com.emotionfriend.feature.progress.ProgressScreen
 import com.emotionfriend.feature.relax.RelaxScreen
 import com.emotionfriend.feature.situation.SituationScreen
@@ -81,7 +84,7 @@ fun EmotionFriendNavHost(
                 onLoginSuccess         = {
                     val user = (authViewModel.authState.value as? AuthState.Authenticated)?.user
                     val dest = if (user?.role == UserRole.CHILD) AppRoute.Home.route
-                               else AppRoute.Progress.route
+                               else AppRoute.ParentDashboard.route
                     navController.navigate(dest) {
                         popUpTo(AppRoute.Login.route) { inclusive = true }
                         launchSingleTop = true
@@ -121,7 +124,7 @@ fun EmotionFriendNavHost(
                 viewModel       = authViewModel,
                 onVerifySuccess = { user ->
                     val dest = if (user.role == UserRole.CHILD) AppRoute.Home.route
-                               else AppRoute.Progress.route
+                               else AppRoute.ParentDashboard.route
                     navController.navigate(dest) {
                         popUpTo(AppRoute.Login.route) { inclusive = true }
                         launchSingleTop = true
@@ -141,6 +144,7 @@ fun EmotionFriendNavHost(
                 onNavigateToRelax     = { navController.navigateSingleTop(AppRoute.Relax.route) },
                 onNavigateToJournal   = { navController.navigateSingleTop(AppRoute.Journal.route) },
                 onNavigateToProgress  = { navController.navigateSingleTop(AppRoute.Progress.route) },
+                onNavigateToProfile   = { navController.navigateSingleTop(AppRoute.Profile.route) },
             )
         }
 
@@ -168,6 +172,21 @@ fun EmotionFriendNavHost(
 
         composable(AppRoute.Progress.route) {
             ProgressScreen(onBack = { navController.popBackStack() })
+        }
+
+        composable(AppRoute.Profile.route) {
+            ProfileScreen(onBack = { navController.popBackStack() })
+        }
+
+        composable(AppRoute.ParentDashboard.route) {
+            ParentDashboardScreen(
+                onBack             = { navController.popBackStack() },
+                onNavigateToReport = { navController.navigateSingleTop(AppRoute.ParentReport.route) },
+            )
+        }
+
+        composable(AppRoute.ParentReport.route) {
+            ParentReportScreen(onBack = { navController.popBackStack() })
         }
     }
 }

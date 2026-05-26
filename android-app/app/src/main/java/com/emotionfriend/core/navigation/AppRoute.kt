@@ -44,6 +44,8 @@ sealed class AppRoute(val route: String) {
     data object ExpressCamera : AppRoute("express_camera")
     data object Relax         : AppRoute("relax")
     data object Journal       : AppRoute("journal")
-    data object Progress      : AppRoute("progress")
-    data object Profile       : AppRoute("profile")
+    data object Progress        : AppRoute("progress")
+    data object Profile         : AppRoute("profile")
+    data object ParentDashboard : AppRoute("parent_dashboard")
+    data object ParentReport    : AppRoute("parent_report")
 }

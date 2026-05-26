@@ -10,6 +10,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.emotionfriend.core.designsystem.theme.EmotionFriendTheme
@@ -21,13 +22,16 @@ import com.emotionfriend.core.designsystem.theme.EmotionFriendTheme
 @Composable
 fun EmotionCard(
     modifier: Modifier = Modifier,
+    containerColor: Color = Color.Unspecified,
     content: @Composable ColumnScope.() -> Unit
 ) {
+    val resolvedColor = if (containerColor == Color.Unspecified)
+        MaterialTheme.colorScheme.surfaceVariant
+    else
+        containerColor
     Card(
         shape   = MaterialTheme.shapes.large,
-        colors  = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        ),
+        colors  = CardDefaults.cardColors(containerColor = resolvedColor),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         modifier  = modifier.fillMaxWidth()
     ) {

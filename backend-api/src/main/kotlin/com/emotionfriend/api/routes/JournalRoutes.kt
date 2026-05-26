@@ -19,5 +19,15 @@ fun Route.journalRoutes(service: JournalService) {
             )
             call.respond(HttpStatusCode.Created, ApiResponse(success = true, data = entry))
         }
+
+        get("/{childId}") {
+            val childId = call.parameters["childId"]
+                ?: return@get call.respond(
+                    HttpStatusCode.BadRequest,
+                    ApiResponse<List<Nothing>>(success = false, error = "childId is required")
+                )
+            val entries = service.getAllByChildId(childId)
+            call.respond(HttpStatusCode.OK, ApiResponse(success = true, data = entries))
+        }
     }
 }

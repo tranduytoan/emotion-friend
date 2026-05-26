@@ -25,5 +25,15 @@ fun Route.practiceRoutes(service: PracticeService) {
             )
             call.respond(HttpStatusCode.Created, ApiResponse(success = true, data = attempt))
         }
+
+        get("/{childId}") {
+            val childId = call.parameters["childId"]
+                ?: return@get call.respond(
+                    HttpStatusCode.BadRequest,
+                    ApiResponse<List<Nothing>>(success = false, error = "childId is required")
+                )
+            val attempts = service.getAllByChildId(childId)
+            call.respond(HttpStatusCode.OK, ApiResponse(success = true, data = attempts))
+        }
     }
 }

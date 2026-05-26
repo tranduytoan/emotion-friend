@@ -76,6 +76,20 @@ class EmotionFriendApiClient @Inject constructor(
         requireNotNull(body.data) { "No data in response" }
     }
 
+    /** GET /api/journal-entries/{childId} — fetches remote journal history for a child. */
+    suspend fun getJournalEntries(childId: String): ApiResult<List<JournalEntryDto>> = safeCall {
+        val response = httpClient.get("${ApiConstants.BASE_URL}${ApiConstants.PATH_JOURNAL_ENTRIES}/$childId")
+        val body: ApiResponseDto<List<JournalEntryDto>> = response.body()
+        requireNotNull(body.data) { "No data in response" }
+    }
+
+    /** GET /api/practice-attempts/{childId} — fetches remote practice history for a child. */
+    suspend fun getPracticeAttempts(childId: String): ApiResult<List<PracticeAttemptDto>> = safeCall {
+        val response = httpClient.get("${ApiConstants.BASE_URL}${ApiConstants.PATH_PRACTICE_ATTEMPTS}/$childId")
+        val body: ApiResponseDto<List<PracticeAttemptDto>> = response.body()
+        requireNotNull(body.data) { "No data in response" }
+    }
+
     // ── Nghĩa's backend endpoints (P7) ──────────────────────────────────────
 
     /**

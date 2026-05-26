@@ -32,7 +32,10 @@ data class ParentDashboardUiState(
     val accuracyRate: Float                   = 0f,
     val journalCount: Int                     = 0,
     val mostMistakenEmotion: EmotionType?     = null,
+    /** Last 5 entries — shown on the Dashboard overview card. */
     val recentEntries: List<JournalEntry>     = emptyList(),
+    /** Full journal history — shown on the Report screen. */
+    val allEntries: List<JournalEntry>        = emptyList(),
 )
 
 // ---------------------------------------------------------------------------
@@ -84,6 +87,7 @@ class ParentDashboardViewModel @Inject constructor(
                     journalCount        = summary.journalCount,
                     mostMistakenEmotion = summary.mostMistakenEmotion,
                     recentEntries       = entries.take(RECENT_ENTRY_LIMIT),
+                    allEntries          = entries,
                 )
             }.collect { state ->
                 _uiState.value = state

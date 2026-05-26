@@ -65,9 +65,12 @@ fun ParentReportScreen(
             }
 
             else -> {
-                // Use LazyColumn so journal history can be arbitrarily long
+                // Use LazyColumn so journal history can be arbitrarily long.
+                // weight(1f) is required because we're inside an EmotionScreenScaffold Column.
                 LazyColumn(
-                    modifier            = modifier.padding(bottom = 32.dp),
+                    modifier            = modifier
+                        .weight(1f)
+                        .padding(bottom = 32.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
                     // ── Stats section ─────────────────────────────────────────
@@ -105,7 +108,7 @@ fun ParentReportScreen(
                     }
 
                     // ── Journal entries list ──────────────────────────────────
-                    if (state.recentEntries.isEmpty()) {
+                    if (state.allEntries.isEmpty()) {
                         item {
                             EmotionCard(modifier = Modifier.fillMaxWidth()) {
                                 Text(
@@ -118,9 +121,9 @@ fun ParentReportScreen(
                         item {
                             EmotionCard(modifier = Modifier.fillMaxWidth()) {
                                 Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
-                                    state.recentEntries.forEachIndexed { index, entry ->
+                                    state.allEntries.forEachIndexed { index, entry ->
                                         JournalEntryRow(entry = entry)
-                                        if (index < state.recentEntries.lastIndex) {
+                                        if (index < state.allEntries.lastIndex) {
                                             HorizontalDivider(
                                                 modifier  = Modifier.padding(vertical = 8.dp),
                                                 thickness = 0.5.dp,

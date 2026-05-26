@@ -18,3 +18,13 @@ data class CreatePracticeAttemptRequest(
     val isCorrect: Boolean,
     val promptEmotion: String? = null,
 )
+
+/** Request body for the mock camera expression-practice endpoint. */
+@Serializable
+data class ExpressionPracticeRequest(
+    val childId: String,
+    /** The emotion that was prompted (e.g. "HAPPY"). */
+    val promptedEmotion: String,
+    /** Optional client-side detection result — may be absent when mocking. */
+    val detectedEmotion: String? = null,
+)

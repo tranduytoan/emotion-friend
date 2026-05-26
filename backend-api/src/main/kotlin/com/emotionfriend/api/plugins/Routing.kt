@@ -26,6 +26,6 @@ fun Application.configureRouting(useDatabase: Boolean = false) {
         scenarioRoutes(scenarioService)
         journalRoutes(journalService)
         practiceRoutes(practiceService)
-        progressRoutes(progressService)
+        progressRoutes(progressService, practiceService)
     }
 }

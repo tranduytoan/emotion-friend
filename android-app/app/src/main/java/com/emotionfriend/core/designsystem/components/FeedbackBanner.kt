@@ -48,7 +48,7 @@ fun FeedbackBanner(
 ) {
     val backgroundColor = if (type == FeedbackType.CORRECT) FeedbackCorrectBg else FeedbackWrongBg
     val accentColor     = if (type == FeedbackType.CORRECT) FeedbackCorrect   else FeedbackWrong
-    val emoji           = if (type == FeedbackType.CORRECT) "🎉" else "💪"
+    val emoji           = if (type == FeedbackType.CORRECT) "🎉" else "🌈"
 
     AnimatedVisibility(
         visible = visible,

@@ -30,6 +30,7 @@ import com.emotionfriend.core.designsystem.components.EmotionPrimaryButton
 import com.emotionfriend.core.designsystem.components.EmotionScreenScaffold
 import com.emotionfriend.core.designsystem.components.FeedbackBanner
 import com.emotionfriend.core.designsystem.components.FeedbackType
+import com.emotionfriend.core.designsystem.components.ProgressPill
 import com.emotionfriend.core.designsystem.theme.EmotionAngry
 import com.emotionfriend.core.designsystem.theme.EmotionAngryBg
 import com.emotionfriend.core.designsystem.theme.EmotionCalm
@@ -57,13 +58,7 @@ fun LearnScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
 
-    val topTitle = when {
-        state.isLoading || state.totalQuestions == 0 -> "Học cảm xúc"
-        state.isSessionComplete                       -> "Hoàn thành!"
-        else -> "Câu ${state.questionIndex + 1}/${state.totalQuestions}"
-    }
-
-    EmotionScreenScaffold(title = topTitle, onBack = onBack) {
+    EmotionScreenScaffold(title = "Học cảm xúc", onBack = onBack) {
         when {
             state.isLoading -> {
                 Box(
@@ -104,6 +99,8 @@ fun LearnScreen(
                     isAnswerSubmitted  = state.isAnswerSubmitted,
                     isCorrect         = state.isCorrect,
                     feedbackMessage   = state.feedbackMessage,
+                    currentQuestion   = state.questionIndex + 1,
+                    totalQuestions    = state.totalQuestions,
                     onSelectAnswer    = viewModel::selectAnswer,
                     onSubmit          = viewModel::submitAnswer,
                     onNext            = viewModel::nextQuestion,
@@ -126,6 +123,8 @@ private fun QuestionContent(
     isAnswerSubmitted: Boolean,
     isCorrect: Boolean?,
     feedbackMessage: String,
+    currentQuestion: Int,
+    totalQuestions: Int,
     onSelectAnswer: (EmotionType) -> Unit,
     onSubmit: () -> Unit,
     onNext: () -> Unit,
@@ -138,6 +137,12 @@ private fun QuestionContent(
             .padding(bottom = 24.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
+
+        // --- Progress pill ---------------------------------------------------
+        ProgressPill(
+            current  = currentQuestion,
+            total    = totalQuestions
+        )
 
         // --- Flashcard -------------------------------------------------------
         EmotionCard {
@@ -152,7 +157,7 @@ private fun QuestionContent(
                 )
                 Text(
                     text      = "Bạn này đang cảm thấy gì?",
-                    style     = MaterialTheme.typography.titleLarge,
+                    style     = MaterialTheme.typography.headlineSmall,
                     textAlign = TextAlign.Center
                 )
             }
@@ -269,6 +274,8 @@ private fun LearnScreenPreview() {
             isAnswerSubmitted  = false,
             isCorrect         = null,
             feedbackMessage   = "",
+            currentQuestion   = 2,
+            totalQuestions    = 5,
             onSelectAnswer    = {},
             onSubmit          = {},
             onNext            = {}

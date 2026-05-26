@@ -38,12 +38,12 @@ fun EmotionPrimaryButton(
         ),
         modifier = modifier
             .fillMaxWidth()
-            .heightIn(min = 56.dp)
+            .heightIn(min = 64.dp)
             .semantics { role = Role.Button }
     ) {
         Text(
             text  = text,
-            style = MaterialTheme.typography.labelLarge
+            style = MaterialTheme.typography.titleMedium
         )
     }
 }

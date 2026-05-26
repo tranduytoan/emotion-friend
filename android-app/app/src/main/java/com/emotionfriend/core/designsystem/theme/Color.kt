@@ -55,9 +55,9 @@ val EmotionCalmBg     = Color(0xFFE0F2F1)
 
 // ─── Feedback ─────────────────────────────────────────────────────────────────
 val FeedbackCorrect   = Color(0xFF4CAF82)  // green
-val FeedbackWrong     = Color(0xFFFF8A80)  // soft red
+val FeedbackWrong     = Color(0xFFFF9E40)  // warm amber-orange — not alarming
 val FeedbackCorrectBg = Color(0xFFE8F5EF)
-val FeedbackWrongBg   = Color(0xFFFFEBEE)
+val FeedbackWrongBg   = Color(0xFFFFF3E0)  // soft amber background
 
 // ─── Outline / Divider ────────────────────────────────────────────────────────
 val OutlineLight = Color(0xFFDDD8D0)

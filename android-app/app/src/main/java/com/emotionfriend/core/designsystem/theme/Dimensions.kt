@@ -53,10 +53,12 @@ data class AppDimensions(
     // ── Touch targets (WCAG 2.5.5: min 44×44dp, target 48dp+) ───────────────
     /** Absolute minimum touch target size (48dp) */
     val touchTargetMin: Dp = 48.dp,
-    /** Primary action button height (56dp) */
-    val buttonHeight: Dp = 56.dp,
-    /** Option / choice button height (80dp) */
-    val optionButtonHeight: Dp = 80.dp,
+    /** Primary action button height (64dp) — child-friendly */
+    val buttonHeight: Dp = 64.dp,
+    /** Option / choice button height (100dp) — large tap area for children */
+    val optionButtonHeight: Dp = 100.dp,
+    /** Home screen activity tile minimum height (130dp) */
+    val homeTileMinHeight: Dp = 130.dp,
     /** Icon button tap area (48dp) */
     val iconButtonSize: Dp = 48.dp,
 
@@ -65,8 +67,8 @@ data class AppDimensions(
     val emojiMd: Dp = 40.dp,
     /** Large emoji size (56dp) — card hero */
     val emojiLg: Dp = 56.dp,
-    /** Extra-large emoji size (72dp) — full-screen hero */
-    val emojiXl: Dp = 72.dp,
+    /** Extra-large emoji size (96dp) — full-screen hero */
+    val emojiXl: Dp = 96.dp,
 
     // ── Progress indicators ───────────────────────────────────────────────────
     /** Height of linear progress bars (12dp) */

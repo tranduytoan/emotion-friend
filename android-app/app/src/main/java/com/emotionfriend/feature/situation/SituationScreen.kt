@@ -32,6 +32,7 @@ import com.emotionfriend.core.designsystem.components.EmotionPrimaryButton
 import com.emotionfriend.core.designsystem.components.EmotionScreenScaffold
 import com.emotionfriend.core.designsystem.components.FeedbackBanner
 import com.emotionfriend.core.designsystem.components.FeedbackType
+import com.emotionfriend.core.designsystem.components.ProgressPill
 import com.emotionfriend.core.designsystem.theme.EmotionAngry
 import com.emotionfriend.core.designsystem.theme.EmotionAngryBg
 import com.emotionfriend.core.designsystem.theme.EmotionCalm
@@ -61,13 +62,7 @@ fun SituationScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
 
-    val topTitle = when {
-        state.isLoading || state.totalQuestions == 0 -> "Tình huống xã hội"
-        state.isSessionComplete                       -> "Hoàn thành!"
-        else -> "Câu ${state.questionIndex + 1}/${state.totalQuestions}"
-    }
-
-    EmotionScreenScaffold(title = topTitle, onBack = onBack) {
+    EmotionScreenScaffold(title = "Tình huống xã hội", onBack = onBack) {
         when {
             state.isLoading -> {
                 Box(
@@ -108,6 +103,8 @@ fun SituationScreen(
                     isAnswerSubmitted  = state.isAnswerSubmitted,
                     isCorrect         = state.isCorrect,
                     explanation       = state.explanation,
+                    currentQuestion   = state.questionIndex + 1,
+                    totalQuestions    = state.totalQuestions,
                     onSelectEmotion   = viewModel::selectEmotion,
                     onSubmit          = viewModel::submitAnswer,
                     onNext            = viewModel::nextScenario,
@@ -130,6 +127,8 @@ private fun ScenarioContent(
     isAnswerSubmitted: Boolean,
     isCorrect: Boolean?,
     explanation: String,
+    currentQuestion: Int,
+    totalQuestions: Int,
     onSelectEmotion: (EmotionType) -> Unit,
     onSubmit: () -> Unit,
     onNext: () -> Unit,
@@ -142,6 +141,12 @@ private fun ScenarioContent(
             .padding(bottom = 24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+
+        // --- Progress pill -------------------------------------------------------
+        ProgressPill(
+            current = currentQuestion,
+            total   = totalQuestions
+        )
 
         // --- Story panel -------------------------------------------------------
         EmotionCard {
@@ -173,7 +178,7 @@ private fun ScenarioContent(
 
             Text(
                 text      = "Bạn trong câu chuyện cảm thấy thế nào?",
-                style     = MaterialTheme.typography.bodyLarge,
+                style     = MaterialTheme.typography.headlineSmall,
                 textAlign = TextAlign.Center,
                 modifier  = Modifier.fillMaxWidth()
             )
@@ -309,7 +314,9 @@ private fun SituationScreenPreview() {
             explanation       = "",
             onSelectEmotion   = {},
             onSubmit          = {},
-            onNext            = {}
+            onNext            = {},
+            currentQuestion   = 1,
+            totalQuestions    = 5
         )
     }
 }

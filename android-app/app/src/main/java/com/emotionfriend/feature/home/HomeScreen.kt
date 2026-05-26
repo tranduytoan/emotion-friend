@@ -1,40 +1,56 @@
 package com.emotionfriend.feature.home
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.emotionfriend.core.designsystem.components.EmotionCard
 import com.emotionfriend.core.designsystem.components.EmotionScreenScaffold
+import com.emotionfriend.core.designsystem.theme.EmotionAngryBg
+import com.emotionfriend.core.designsystem.theme.EmotionCalmBg
+import com.emotionfriend.core.designsystem.theme.EmotionHappyBg
+import com.emotionfriend.core.designsystem.theme.EmotionSadBg
 import com.emotionfriend.core.designsystem.theme.EmotionFriendTheme
+import com.emotionfriend.core.designsystem.theme.MintGreen80
+import com.emotionfriend.core.designsystem.theme.SkyBlueLight
+import com.emotionfriend.core.designsystem.theme.SurfaceVariant
 
 // ---------------------------------------------------------------------------
 // Data model (private, UI-only)
 // ---------------------------------------------------------------------------
 
-private data class HomeFeature(
+private data class HomeActivity(
     val emoji: String,
-    val title: String,
-    val description: String,
-    val onClick: () -> Unit
+    val label: String,
+    val background: Color,
+    val onClick: () -> Unit,
 )
 
 // ---------------------------------------------------------------------------
@@ -52,76 +68,69 @@ fun HomeScreen(
     onNavigateToProfile: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val features = listOf(
-        HomeFeature(
-            emoji       = "📚",
-            title       = "Học cảm xúc",
-            description = "Tìm hiểu các cảm xúc qua hình ảnh và thẻ bài.",
-            onClick     = onNavigateToLearn
-        ),
-        HomeFeature(
-            emoji       = "🤝",
-            title       = "Hiểu tình huống",
-            description = "Luyện nhận biết cảm xúc trong các tình huống thực tế.",
-            onClick     = onNavigateToSituation
-        ),
-        HomeFeature(
-            emoji       = "😊",
-            title       = "Luyện biểu cảm",
-            description = "Thực hành biểu lộ cảm xúc qua khuôn mặt.",
-            onClick     = onNavigateToExpress
-        ),
-        HomeFeature(
-            emoji       = "🌈",
-            title       = "Thư giãn",
-            description = "Thở sâu và nghỉ ngơi khi cảm thấy căng thẳng.",
-            onClick     = onNavigateToRelax
-        ),
-        HomeFeature(
-            emoji       = "📓",
-            title       = "Cảm xúc của con",
-            description = "Ghi lại cảm xúc của con hôm nay.",
-            onClick     = onNavigateToJournal
-        ),
-        HomeFeature(
-            emoji       = "🌟",
-            title       = "Tiến trình",
-            description = "Xem con đã học được bao nhiêu rồi!",
-            onClick     = onNavigateToProgress
-        ),
-        HomeFeature(
-            emoji       = "🧒",
-            title       = "Hồ sơ cá nhân",
-            description = "Xem thông tin và cài đặt của con.",
-            onClick     = onNavigateToProfile
-        )
+    // 4 primary activities — one task per tile, no description text
+    val primary = listOf(
+        HomeActivity("📚", "Học cảm xúc",   EmotionHappyBg,  onNavigateToLearn),
+        HomeActivity("🤝", "Tình huống",    EmotionSadBg,    onNavigateToSituation),
+        HomeActivity("📓", "Cảm xúc của con", EmotionCalmBg, onNavigateToJournal),
+        HomeActivity("🌈", "Thư giãn",      EmotionAngryBg,  onNavigateToRelax),
+    )
+    // 2 secondary activities
+    val secondary = listOf(
+        HomeActivity("🌟", "Tiến trình", MintGreen80, onNavigateToProgress),
+        HomeActivity("🧒", "Hồ sơ",     SkyBlueLight, onNavigateToProfile),
     )
 
     EmotionScreenScaffold {
         Column(
             modifier = modifier
+                .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(vertical = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            // Greeting header
+            // ── Greeting ──────────────────────────────────────────────────
             Text(
-                text     = "Chào con! 👋",
-                style    = MaterialTheme.typography.headlineLarge,
-                modifier = Modifier.padding(bottom = 4.dp)
+                text  = "Xin chào! 👋",
+                style = MaterialTheme.typography.displaySmall,
             )
             Text(
-                text  = "Hôm nay con muốn học gì?",
-                style = MaterialTheme.typography.bodyLarge.copy(
+                text  = "Hôm nay muốn làm gì?",
+                style = MaterialTheme.typography.titleLarge.copy(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
-            // Feature cards
-            features.forEach { feature ->
-                FeatureCard(feature = feature)
+            // ── Primary 2×2 grid ──────────────────────────────────────────
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                primary.chunked(2).forEach { row ->
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        modifier              = Modifier.fillMaxWidth()
+                    ) {
+                        row.forEach { activity ->
+                            ActivityTile(
+                                activity = activity,
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                    }
+                }
+            }
+
+            // ── Secondary row ─────────────────────────────────────────────
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                modifier              = Modifier.fillMaxWidth()
+            ) {
+                secondary.forEach { activity ->
+                    SecondaryTile(
+                        activity = activity,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -130,46 +139,78 @@ fun HomeScreen(
 }
 
 // ---------------------------------------------------------------------------
-// Feature card
+// Primary activity tile — large, image-first, no description
 // ---------------------------------------------------------------------------
 
 @Composable
-private fun FeatureCard(
-    feature: HomeFeature,
+private fun ActivityTile(
+    activity: HomeActivity,
     modifier: Modifier = Modifier
 ) {
-    EmotionCard(
-        modifier = modifier.clickable(
-            role    = Role.Button,
-            onClickLabel = feature.title,
-            onClick = feature.onClick
-        )
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier         = modifier
+            .heightIn(min = 130.dp)
+            .clip(MaterialTheme.shapes.large)
+            .background(activity.background)
+            .clickable(
+                role         = Role.Button,
+                onClickLabel = activity.label,
+                onClick      = activity.onClick
+            )
+            .padding(20.dp)
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier          = Modifier.fillMaxWidth()
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text     = feature.emoji,
-                fontSize = 40.sp,
-                modifier = Modifier.size(56.dp),
+                text     = activity.emoji,
+                fontSize = 52.sp,
+                modifier = Modifier.size(72.dp),
             )
-            Spacer(modifier = Modifier.width(16.dp))
-            Column {
-                Text(
-                    text  = feature.title,
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold
-                    )
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text  = feature.description,
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                )
-            }
+            Spacer(modifier = Modifier.height(10.dp))
+            Text(
+                text      = activity.label,
+                style     = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Secondary tile — smaller, for progress & profile
+// ---------------------------------------------------------------------------
+
+@Composable
+private fun SecondaryTile(
+    activity: HomeActivity,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier         = modifier
+            .heightIn(min = 72.dp)
+            .clip(MaterialTheme.shapes.large)
+            .background(activity.background)
+            .clickable(
+                role         = Role.Button,
+                onClickLabel = activity.label,
+                onClick      = activity.onClick
+            )
+            .padding(horizontal = 16.dp, vertical = 12.dp)
+    ) {
+        Row(
+            verticalAlignment     = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Text(text = activity.emoji, fontSize = 28.sp)
+            Spacer(modifier = Modifier.size(8.dp))
+            Text(
+                text  = activity.label,
+                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold)
+            )
         }
     }
 }

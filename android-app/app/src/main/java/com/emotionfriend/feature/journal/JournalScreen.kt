@@ -109,15 +109,8 @@ private fun JournalContent(
 
         // --- Header -----------------------------------------------------------
         Text(
-            text      = "Hôm nay con thấy thế nào?",
+            text      = "Hôm nay con thấy thế nào? 💭",
             style     = MaterialTheme.typography.headlineSmall,
-            textAlign = TextAlign.Center,
-            modifier  = Modifier.fillMaxWidth()
-        )
-        Text(
-            text      = "Chọn một cảm xúc con thấy giống mình nhất.",
-            style     = MaterialTheme.typography.bodyMedium,
-            color     = OnSurfaceVar,
             textAlign = TextAlign.Center,
             modifier  = Modifier.fillMaxWidth()
         )

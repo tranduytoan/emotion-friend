@@ -58,16 +58,16 @@ fun EmotionOptionButton(
             contentColor   = MaterialTheme.colorScheme.onBackground
         ),
         modifier = modifier
-            .heightIn(min = 80.dp)
+            .heightIn(min = 100.dp)
             .semantics { role = Role.Button }
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(vertical = 8.dp)
+            modifier = Modifier.padding(vertical = 12.dp)
         ) {
-            Text(text = emoji, style = MaterialTheme.typography.headlineLarge)
-            Spacer(modifier = Modifier.size(4.dp))
-            Text(text = label, style = MaterialTheme.typography.titleMedium)
+            Text(text = emoji, style = MaterialTheme.typography.displayMedium)
+            Spacer(modifier = Modifier.size(6.dp))
+            Text(text = label, style = MaterialTheme.typography.titleLarge)
         }
     }
 }

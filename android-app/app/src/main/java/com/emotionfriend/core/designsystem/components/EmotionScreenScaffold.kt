@@ -53,7 +53,7 @@ fun EmotionScreenScaffold(
                     title = {
                         Text(
                             text  = title,
-                            style = MaterialTheme.typography.titleLarge
+                            style = MaterialTheme.typography.headlineSmall
                         )
                     },
                     navigationIcon = {
@@ -78,7 +78,7 @@ fun EmotionScreenScaffold(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 16.dp),
+                .padding(horizontal = 20.dp),
             content = content
         )
     }

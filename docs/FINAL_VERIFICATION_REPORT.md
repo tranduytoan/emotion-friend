@@ -104,10 +104,9 @@ GitHub (main)
 VPS Ubuntu 22.04
     ├── nginx :80 (or :443 with HTTPS)
     │     └── proxy → backend:8080
-    ├── backend (Ktor, fat JAR)
-    │     └── JDBC → mysql:3306
+    ├── backend-api (Ktor, installDist)
+    │     └── JDBC → mysql:3306 (Flyway migrations on startup)
     └── mysql:8 (volume: mysql_data)
-          └── auto-init: database/schema.sql
 
 Android App (Kotlin + Jetpack Compose)
     ├── Ktor HTTP client → BASE_URL (AppConfig)

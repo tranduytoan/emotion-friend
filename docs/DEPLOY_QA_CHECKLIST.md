@@ -95,7 +95,7 @@
 |----|----------|-----------------|--------------|-----------|
 | G1 | Android CI passes on main | All steps green in GitHub Actions | GitHub → Actions → Android CI | ⬜ |
 | G2 | Debug APK artifact uploaded | Artifact available for download | GitHub → Actions → workflow run → Artifacts | ⬜ |
-| G3 | Deploy workflow runs on push to main | deploy-backend.yml triggers | Push a small change to backend/ → watch Actions | ⬜ |
+| G3 | Deploy workflow runs on push to main | deploy-backend.yml triggers | Push a small change to backend-api/ → watch Actions | ⬜ |
 | G4 | Deployment completes successfully | All SSH deploy steps green | GitHub → Actions → Deploy Backend to VPS | ⬜ |
 
 ---

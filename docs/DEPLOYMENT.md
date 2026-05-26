@@ -77,11 +77,9 @@ Internet
 ├── .env.example                  ← template (committed)
 ├── docker-compose.yml            ← base stack
 ├── docker-compose.https.yml      ← HTTPS override (optional)
-├── backend/
+├── backend-api/
 │   ├── Dockerfile                ← multi-stage build (Gradle → JRE)
 │   └── src/...
-├── database/
-│   └── schema.sql                ← auto-imported on first MySQL start
 ├── nginx/
 │   ├── nginx.conf                ← HTTP config
 │   └── nginx-https.conf          ← HTTPS config (optional)
@@ -270,8 +268,8 @@ docker compose logs mysql --tail=30
 
 ```bash
 docker compose logs backend --tail=30
-# Check DB_HOST=mysql (service name, not IP)
-# Check DB_USER / DB_PASSWORD match .env
+# Check DATABASE_URL matches jdbc:mysql://mysql:3306/<db>?...
+# Check DATABASE_USER / DATABASE_PASSWORD match .env
 # Ensure mysql container is healthy before backend starts
 ```
 

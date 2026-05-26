@@ -38,6 +38,8 @@ import com.emotionfriend.core.designsystem.components.EmotionScreenScaffold
 import com.emotionfriend.core.designsystem.components.FeedbackBanner
 import com.emotionfriend.core.designsystem.components.FeedbackType
 import com.emotionfriend.core.designsystem.components.ProgressPill
+import com.emotionfriend.core.designsystem.components.TeacherMyGuide
+import com.emotionfriend.core.designsystem.components.TeacherMyMessages
 import com.emotionfriend.core.designsystem.theme.EmotionAngry
 import com.emotionfriend.core.designsystem.theme.EmotionAngryBg
 import com.emotionfriend.core.designsystem.theme.EmotionCalm
@@ -165,6 +167,15 @@ private fun ScenarioContent(
         }
     }
 
+    // Companion message changes based on answer state
+    val teacherMessage = remember(isAnswerSubmitted, isCorrect) {
+        when {
+            !isAnswerSubmitted -> TeacherMyMessages.randomSituation()
+            isCorrect == true  -> TeacherMyMessages.randomCorrect()
+            else               -> TeacherMyMessages.randomWrong()
+        }
+    }
+
     Box(modifier = modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
@@ -173,6 +184,12 @@ private fun ScenarioContent(
                 .padding(bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+
+            // --- Teacher My companion ----------------------------------------
+            TeacherMyGuide(
+                message = teacherMessage,
+                onSpeak = { tts.speak(teacherMessage) },
+            )
 
             // --- Progress pill ---------------------------------------------------
             ProgressPill(current = currentQuestion, total = totalQuestions)

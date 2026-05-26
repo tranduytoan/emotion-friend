@@ -33,11 +33,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import com.emotionfriend.core.audio.rememberTtsPlayer
 import com.emotionfriend.core.designsystem.components.EmotionCard
 import com.emotionfriend.core.designsystem.components.EmotionPrimaryButton
 import com.emotionfriend.core.designsystem.components.EmotionScreenScaffold
 import com.emotionfriend.core.designsystem.components.FeedbackBanner
 import com.emotionfriend.core.designsystem.components.FeedbackType
+import com.emotionfriend.core.designsystem.components.TeacherMyGuide
+import com.emotionfriend.core.designsystem.components.TeacherMyMessages
 import com.emotionfriend.core.designsystem.theme.EmotionFriendTheme
 import com.emotionfriend.core.designsystem.theme.OnSurfaceVar
 import com.emotionfriend.domain.model.EmotionType
@@ -56,8 +59,10 @@ fun ExpressCameraScreen(
 ) {
     val context = LocalContext.current
     // Owned here; passed to CameraPreview so both can share the same instance.
-    val imageCapture = remember { ImageCapture.Builder().build() }
-    var cameraError  by remember { mutableStateOf(false) }
+    val imageCapture   = remember { ImageCapture.Builder().build() }
+    var cameraError    by remember { mutableStateOf(false) }
+    val tts            = rememberTtsPlayer()
+    val teacherMessage = remember { TeacherMyMessages.randomCamera() }
 
     Column(
         modifier            = modifier
@@ -67,6 +72,12 @@ fun ExpressCameraScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+
+        // Teacher My companion
+        TeacherMyGuide(
+            message = teacherMessage,
+            onSpeak = { tts.speak(teacherMessage) },
+        )
 
         // Prompt card
         EmotionCard {

@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,6 +37,8 @@ import com.emotionfriend.core.designsystem.components.EmotionScreenScaffold
 import com.emotionfriend.core.designsystem.components.FeedbackBanner
 import com.emotionfriend.core.designsystem.components.FeedbackType
 import com.emotionfriend.core.designsystem.components.ProgressPill
+import com.emotionfriend.core.designsystem.components.TeacherMyGuide
+import com.emotionfriend.core.designsystem.components.TeacherMyMessages
 import com.emotionfriend.core.designsystem.theme.EmotionAngry
 import com.emotionfriend.core.designsystem.theme.EmotionAngryBg
 import com.emotionfriend.core.designsystem.theme.EmotionCalm
@@ -162,6 +165,15 @@ private fun QuestionContent(
         }
     }
 
+    // Companion message changes based on answer state
+    val teacherMessage = remember(isAnswerSubmitted, isCorrect) {
+        when {
+            !isAnswerSubmitted -> TeacherMyMessages.randomLearn()
+            isCorrect == true  -> TeacherMyMessages.randomCorrect()
+            else               -> TeacherMyMessages.randomWrong()
+        }
+    }
+
     Box(modifier = modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
@@ -170,6 +182,12 @@ private fun QuestionContent(
                 .padding(bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
+
+            // --- Teacher My companion ----------------------------------------
+            TeacherMyGuide(
+                message = teacherMessage,
+                onSpeak = { tts.speak(teacherMessage) },
+            )
 
             // --- Challenge mode toggle + Progress pill row -------------------
             Row(

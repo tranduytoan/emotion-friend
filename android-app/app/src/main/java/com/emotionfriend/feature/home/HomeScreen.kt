@@ -23,6 +23,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,6 +36,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.emotionfriend.core.audio.rememberTtsPlayer
 import com.emotionfriend.core.designsystem.components.EmotionScreenScaffold
+import com.emotionfriend.core.designsystem.components.TeacherMyGuide
+import com.emotionfriend.core.designsystem.components.TeacherMyMessages
 import com.emotionfriend.core.designsystem.theme.EmotionAngryBg
 import com.emotionfriend.core.designsystem.theme.EmotionCalmBg
 import com.emotionfriend.core.designsystem.theme.EmotionHappyBg
@@ -84,6 +87,7 @@ fun HomeScreen(
 
     val pagerState = rememberPagerState(pageCount = { activities.size })
     val tts = rememberTtsPlayer()
+    val teacherMessage = remember { TeacherMyMessages.randomHome() }
 
     // Read activity name aloud when the page changes
     LaunchedEffect(pagerState.currentPage) {
@@ -131,6 +135,13 @@ fun HomeScreen(
                     )
                 }
             }
+
+            // ── Teacher My ────────────────────────────────────────────────
+            TeacherMyGuide(
+                message  = teacherMessage,
+                onSpeak  = { tts.speak(teacherMessage) },
+                modifier = Modifier.padding(horizontal = 24.dp),
+            )
 
             // ── Carousel ──────────────────────────────────────────────────
             HorizontalPager(

@@ -53,6 +53,8 @@ import androidx.compose.ui.unit.sp
 import com.emotionfriend.core.designsystem.components.EmotionCard
 import com.emotionfriend.core.designsystem.components.EmotionPrimaryButton
 import com.emotionfriend.core.designsystem.components.EmotionScreenScaffold
+import com.emotionfriend.core.designsystem.components.TeacherMyGuide
+import com.emotionfriend.core.designsystem.components.TeacherMyMessages
 import com.emotionfriend.core.designsystem.theme.EmotionCalm
 import com.emotionfriend.core.designsystem.theme.EmotionCalmBg
 import com.emotionfriend.core.designsystem.theme.EmotionFriendTheme
@@ -132,6 +134,9 @@ private fun ChoiceScreen(
     onMusicDurationChange: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val tts            = rememberTtsPlayer()
+    val teacherMessage = remember { TeacherMyMessages.randomRelax() }
+
     Column(
         modifier            = modifier
             .fillMaxSize()
@@ -139,6 +144,12 @@ private fun ChoiceScreen(
             .padding(vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        // --- Teacher My companion ----------------------------------------
+        TeacherMyGuide(
+            message = teacherMessage,
+            onSpeak = { tts.speak(teacherMessage) },
+        )
+
         Text(
             text      = "Con muốn làm gì?",
             style     = MaterialTheme.typography.headlineSmall,

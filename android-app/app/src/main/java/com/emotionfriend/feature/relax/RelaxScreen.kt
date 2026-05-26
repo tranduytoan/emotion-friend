@@ -6,13 +6,16 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,13 +27,19 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import com.emotionfriend.core.audio.rememberTtsPlayer
+import kotlinx.coroutines.delay
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -71,6 +80,9 @@ fun RelaxScreen(
     modifier: Modifier = Modifier
 ) {
     var active by remember { mutableStateOf(RelaxActivity.NONE) }
+    // Duration settings — adjustable in ChoiceScreen before starting an activity
+    var breathingCycles by remember { mutableIntStateOf(10) }   // 10 × 6 s = 1 min
+    var musicDurationSecs by remember { mutableIntStateOf(30) } // 30 s default
 
     EmotionScreenScaffold(title = "Thư giãn", onBack = onBack) {
         // Fade between choice screen and active activity screen
@@ -81,16 +93,22 @@ fun RelaxScreen(
         ) { current ->
             when (current) {
                 RelaxActivity.NONE -> ChoiceScreen(
-                    onChoose = { active = it },
-                    modifier = modifier
+                    onChoose               = { active = it },
+                    breathingCycles        = breathingCycles,
+                    onBreathingCyclesChange = { breathingCycles = it },
+                    musicDurationSecs      = musicDurationSecs,
+                    onMusicDurationChange  = { musicDurationSecs = it },
+                    modifier               = modifier
                 )
                 RelaxActivity.BREATHING -> BreathingScreen(
                     onStop   = { active = RelaxActivity.NONE },
+                    cycles   = breathingCycles,
                     modifier = modifier
                 )
                 RelaxActivity.MUSIC -> MusicScreen(
-                    onStop   = { active = RelaxActivity.NONE },
-                    modifier = modifier
+                    onStop        = { active = RelaxActivity.NONE },
+                    durationSecs  = musicDurationSecs,
+                    modifier      = modifier
                 )
                 RelaxActivity.PUZZLE -> PuzzleScreen(
                     onStop   = { active = RelaxActivity.NONE },
@@ -108,6 +126,10 @@ fun RelaxScreen(
 @Composable
 private fun ChoiceScreen(
     onChoose: (RelaxActivity) -> Unit,
+    breathingCycles: Int,
+    onBreathingCyclesChange: (Int) -> Unit,
+    musicDurationSecs: Int,
+    onMusicDurationChange: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -126,11 +148,26 @@ private fun ChoiceScreen(
 
         Spacer(Modifier.height(4.dp))
 
+        // --- Breathing with duration picker ---------------------------------
+        DurationChips(
+            label   = "🫧 Thời gian thở:",
+            options = listOf(10 to "1 phút", 20 to "2 phút", 30 to "3 phút"),
+            selected = breathingCycles,
+            onSelect = onBreathingCyclesChange
+        )
         ActivityChoiceTile(
             emoji       = "🫧",
             title       = "Thở cùng bóng",
             background  = EmotionCalmBg,
             onClick     = { onChoose(RelaxActivity.BREATHING) }
+        )
+
+        // --- Music with duration picker -------------------------------------
+        DurationChips(
+            label   = "🎵 Thời gian nghe:",
+            options = listOf(30 to "30 giây", 60 to "1 phút", 120 to "2 phút"),
+            selected = musicDurationSecs,
+            onSelect = onMusicDurationChange
         )
         ActivityChoiceTile(
             emoji       = "🎵",
@@ -138,12 +175,54 @@ private fun ChoiceScreen(
             background  = EmotionHappyBg,
             onClick     = { onChoose(RelaxActivity.MUSIC) }
         )
+
         ActivityChoiceTile(
             emoji       = "🧩",
             title       = "Xếp hình vui",
             background  = SkyBlueLight,
             onClick     = { onChoose(RelaxActivity.PUZZLE) }
         )
+    }
+}
+
+@Composable
+private fun DurationChips(
+    label: String,
+    options: List<Pair<Int, String>>,
+    selected: Int,
+    onSelect: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        verticalAlignment     = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier              = modifier.fillMaxWidth()
+    ) {
+        Text(
+            text  = label,
+            style = MaterialTheme.typography.labelMedium,
+            color = OnSurfaceVar
+        )
+        options.forEach { (value, chipLabel) ->
+            val isSelected = selected == value
+            OutlinedButton(
+                onClick        = { onSelect(value) },
+                shape          = MaterialTheme.shapes.extraLarge,
+                border         = BorderStroke(
+                    width = if (isSelected) 2.dp else 1.dp,
+                    color = if (isSelected) MaterialTheme.colorScheme.primary
+                            else MaterialTheme.colorScheme.outline
+                ),
+                colors         = ButtonDefaults.outlinedButtonColors(
+                    containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer
+                                     else androidx.compose.ui.graphics.Color.Transparent
+                ),
+                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
+                modifier       = Modifier.height(32.dp)
+            ) {
+                Text(text = chipLabel, style = MaterialTheme.typography.labelSmall)
+            }
+        }
     }
 }
 
@@ -163,22 +242,44 @@ private fun ActivityChoiceTile(
 }
 
 // ---------------------------------------------------------------------------
-// Breathing activity — full screen, single task
+// Breathing activity — TTS-guided, auto-exits after 60 s
 // ---------------------------------------------------------------------------
 
 @Composable
 private fun BreathingScreen(
     onStop: () -> Unit,
+    cycles: Int = 10,
     modifier: Modifier = Modifier
 ) {
-    val infiniteTransition = rememberInfiniteTransition(label = "breathe")
-    val scale by infiniteTransition.animateFloat(
-        initialValue  = 0.75f,
-        targetValue   = 1.25f,
-        animationSpec = infiniteRepeatable(tween(3000), RepeatMode.Reverse),
+    val tts = rememberTtsPlayer()
+    var phaseIsInhale by remember { mutableStateOf(true) }
+
+    // cycles × (3 s inhale + 3 s exhale) total, then goodbye and exit
+    LaunchedEffect(Unit) {
+        delay(400)
+        tts.speak("Hít vào")
+        repeat(cycles) {
+            delay(3_000)
+            phaseIsInhale = false
+            tts.speak("Thở ra")
+            delay(3_000)
+            phaseIsInhale = true
+            tts.speak("Hít vào")
+        }
+        delay(3_000)
+        phaseIsInhale = false
+        tts.speak("Thở ra")
+        delay(3_000)
+        tts.speak("Tuyệt vời! Bé đã thở rất giỏi. Chúc bé luôn vui vẻ và bình tĩnh nhé!")
+        delay(4_500)
+        onStop()
+    }
+
+    val scale by animateFloatAsState(
+        targetValue   = if (phaseIsInhale) 1.25f else 0.75f,
+        animationSpec = tween(2800),
         label         = "scale"
     )
-    val phaseText = if (scale < 1f) "Hít vào..." else "Thở ra..."
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -212,7 +313,7 @@ private fun BreathingScreen(
         }
 
         Text(
-            text      = phaseText,
+            text      = if (phaseIsInhale) "Hít vào..." else "Thở ra...",
             style     = MaterialTheme.typography.headlineMedium.copy(fontStyle = FontStyle.Italic),
             color     = EmotionCalm,
             textAlign = TextAlign.Center
@@ -232,16 +333,41 @@ private fun BreathingScreen(
 }
 
 // ---------------------------------------------------------------------------
-// Music activity — full screen, single task
+// Music activity — simulated tracks with end-of-song buttons
 // ---------------------------------------------------------------------------
+
+private val relaxSongs = listOf(
+    "Ánh Nắng Bình Yên",
+    "Giọt Mưa Thu",
+    "Tiếng Sóng Biển",
+    "Gió Nhẹ Đồng Quê",
+    "Suối Reo Sớm Mai",
+    "Bầu Trời Xanh",
+)
 
 @Composable
 private fun MusicScreen(
     onStop: () -> Unit,
+    durationSecs: Int = 30,
     modifier: Modifier = Modifier
 ) {
+    val tts = rememberTtsPlayer()
+    var playIndex by remember { mutableIntStateOf(0) }
+    var songEnded by remember { mutableStateOf(false) }
+    val currentSong = remember(playIndex) { relaxSongs.random() }
+
+    // Track duration determined by durationSecs parameter
+    LaunchedEffect(playIndex) {
+        songEnded = false
+        delay(400)
+        tts.speak("Đang phát bài $currentSong. Nhắm mắt và thở đều nhé bé ơi.")
+        delay(durationSecs * 1_000L)
+        songEnded = true
+        tts.speak("Bài nhạc kết thúc rồi. Con muốn nghe thêm hay quay lại?")
+    }
+
     val infiniteTransition = rememberInfiniteTransition(label = "musicPulse")
-    val alpha by infiniteTransition.animateFloat(
+    val pulseAlpha by infiniteTransition.animateFloat(
         initialValue  = 0.45f,
         targetValue   = 1f,
         animationSpec = infiniteRepeatable(tween(1200), RepeatMode.Reverse),
@@ -264,26 +390,52 @@ private fun MusicScreen(
         Spacer(Modifier.height(8.dp))
 
         Text(
-            text  = "♪",
+            text     = "♪",
             fontSize = 96.sp,
-            color = MintGreen40.copy(alpha = alpha)
+            color    = MintGreen40.copy(alpha = if (songEnded) 1f else pulseAlpha)
         )
 
-        Text(
-            text      = "Đang phát nhạc nhẹ...",
-            style     = MaterialTheme.typography.titleLarge,
-            textAlign = TextAlign.Center
-        )
-        Text(
-            text      = "Nhắm mắt và thở đều nhé 😌",
-            style     = MaterialTheme.typography.titleMedium,
-            color     = OnSurfaceVar,
-            textAlign = TextAlign.Center
-        )
+        if (songEnded) {
+            Text(
+                text      = "🎶 Bài nhạc kết thúc rồi!",
+                style     = MaterialTheme.typography.titleLarge,
+                textAlign = TextAlign.Center
+            )
+        } else {
+            Text(
+                text      = "🎵 $currentSong",
+                style     = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                textAlign = TextAlign.Center
+            )
+            Text(
+                text      = "Nhắm mắt và thở đều nhé 😌",
+                style     = MaterialTheme.typography.titleMedium,
+                color     = OnSurfaceVar,
+                textAlign = TextAlign.Center
+            )
+        }
 
         Spacer(Modifier.weight(1f))
 
-        EmotionPrimaryButton(text = "Dừng lại", onClick = onStop)
+        if (songEnded) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                modifier              = Modifier.fillMaxWidth()
+            ) {
+                EmotionPrimaryButton(
+                    text     = "⬅ Quay lại",
+                    onClick  = onStop,
+                    modifier = Modifier.weight(1f)
+                )
+                EmotionPrimaryButton(
+                    text     = "🎵 Nghe thêm",
+                    onClick  = { playIndex++ },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        } else {
+            EmotionPrimaryButton(text = "Dừng lại", onClick = onStop)
+        }
     }
 }
 

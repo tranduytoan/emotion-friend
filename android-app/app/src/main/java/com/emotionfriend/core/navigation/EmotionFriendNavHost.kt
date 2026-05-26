@@ -159,6 +159,7 @@ fun EmotionFriendNavHost(
         // ── Home ─────────────────────────────────────────────────────────────
 
         composable(AppRoute.Home.route) {
+            val userName = (authState as? AuthState.Authenticated)?.user?.displayName ?: ""
             HomeScreen(
                 onNavigateToLearn     = { navController.navigateSingleTop(AppRoute.LearnEmotion.route) },
                 onNavigateToSituation = { navController.navigateSingleTop(AppRoute.Situation.route) },
@@ -167,6 +168,7 @@ fun EmotionFriendNavHost(
                 onNavigateToJournal   = { navController.navigateSingleTop(AppRoute.Journal.route) },
                 onNavigateToProgress  = { navController.navigateSingleTop(AppRoute.Progress.route) },
                 onNavigateToProfile   = { navController.navigateSingleTop(AppRoute.Profile.route) },
+                userName              = userName,
             )
         }
 

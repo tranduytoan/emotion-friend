@@ -14,6 +14,12 @@ fun Route.journalRoutes(service: JournalService) {
     route("/api/journal-entries") {
         post {
             val req = call.receive<CreateJournalEntryRequest>()
+            if (req.childId.isBlank()) {
+                return@post call.respond(
+                    HttpStatusCode.BadRequest,
+                    ApiResponse<Unit>(success = false, error = "childId must not be blank"),
+                )
+            }
             val entry = service.create(
                 JournalEntry(childId = req.childId, emotionType = req.emotionType, note = req.note),
             )

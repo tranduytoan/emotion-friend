@@ -46,6 +46,46 @@ class FakeScenarioRepository : ScenarioRepository {
             correctIndex = 2,
             explanation = "Bị loại ra khỏi nhóm khiến chúng ta cảm thấy buồn và tủi thân.",
         ),
+        ScenarioLesson(
+            id = "scenario_6",
+            title = "Không mở được đồ chơi",
+            situation = "Con rất muốn chơi đồ chơi mới nhưng mãi không mở được hộp. Con cảm thấy thế nào?",
+            options = listOf("Vui vẻ", "Tức giận và bực bội", "Ngạc nhiên", "Bình thản"),
+            correctIndex = 1,
+            explanation = "Khi không làm được điều mình muốn, chúng ta thường cảm thấy tức giận và bực bội.",
+        ),
+        ScenarioLesson(
+            id = "scenario_7",
+            title = "Phải dậy sớm đi học",
+            situation = "Hôm nay con phải dậy rất sớm để đi học trong khi vẫn còn buồn ngủ. Con cảm thấy thế nào?",
+            options = listOf("Vui vẻ", "Ngạc nhiên", "Mệt mỏi và buồn ngủ", "Tức giận"),
+            correctIndex = 2,
+            explanation = "Khi phải dậy sớm hơn bình thường, chúng ta thường cảm thấy mệt mỏi và buồn ngủ.",
+        ),
+        ScenarioLesson(
+            id = "scenario_8",
+            title = "Gặp lại bạn cũ",
+            situation = "Con gặp lại người bạn thân mà đã lâu không gặp. Con cảm thấy thế nào?",
+            options = listOf("Buồn", "Mệt mỏi", "Tức giận", "Vui và ngạc nhiên"),
+            correctIndex = 3,
+            explanation = "Gặp lại bạn thân sau thời gian xa cách khiến chúng ta cảm thấy vui và ngạc nhiên.",
+        ),
+        ScenarioLesson(
+            id = "scenario_9",
+            title = "Bị ướt vì mưa bất ngờ",
+            situation = "Con đang chơi ngoài sân thì trời mưa to bất ngờ và con bị ướt hết. Con cảm thấy thế nào?",
+            options = listOf("Vui vẻ", "Bình thản", "Khó chịu và tức giận", "Ngạc nhiên"),
+            correctIndex = 2,
+            explanation = "Khi bị ướt bất ngờ vì mưa, chúng ta thường cảm thấy khó chịu và tức giận.",
+        ),
+        ScenarioLesson(
+            id = "scenario_10",
+            title = "Nghe nhạc nhẹ trước khi ngủ",
+            situation = "Trước khi ngủ, con nghe nhạc nhẹ nhàng và nằm thư giãn. Con cảm thấy thế nào?",
+            options = listOf("Tức giận", "Bình thản và thư giãn", "Buồn", "Mệt và khó chịu"),
+            correctIndex = 1,
+            explanation = "Nghe nhạc nhẹ và thư giãn giúp chúng ta cảm thấy bình thản và dễ ngủ hơn.",
+        ),
     )
 
     override suspend fun getAll(): List<ScenarioLesson> = scenarios

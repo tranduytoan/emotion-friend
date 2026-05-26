@@ -31,7 +31,8 @@ data class LearnEmotionUiState(
     val feedbackMessage: String       = "",
     val questionIndex: Int            = 0,
     val totalQuestions: Int           = 0,
-    val isSessionComplete: Boolean    = false
+    val isSessionComplete: Boolean    = false,
+    val isChallengeMode: Boolean      = false,
 )
 
 // ---------------------------------------------------------------------------
@@ -105,6 +106,35 @@ class LearnEmotionViewModel @Inject constructor(
         loadSession()
     }
 
+    /**
+     * Toggles between normal (4 options) and challenge (6 options) mode.
+     * Rebuilds the current question's options immediately — no progress is lost.
+     */
+    fun toggleChallengeMode() {
+        val newMode = !_uiState.value.isChallengeMode
+        if (sessionCards.isEmpty()) {
+            _uiState.update { it.copy(isChallengeMode = newMode) }
+            return
+        }
+        val currentIndex    = _uiState.value.questionIndex
+        val card            = sessionCards[currentIndex]
+        val pool            = if (newMode) EmotionType.values().toList()
+                              else sessionCards.map { it.type }.distinct()
+        val distractorCount = if (newMode) 5 else 3
+        val distractors     = pool.filter { it != card.type }.shuffled().take(distractorCount)
+        val newOptions      = (listOf(card.type) + distractors).shuffled()
+        _uiState.update {
+            it.copy(
+                isChallengeMode   = newMode,
+                options           = newOptions,
+                selectedEmotion   = null,
+                isAnswerSubmitted  = false,
+                isCorrect         = null,
+                feedbackMessage   = ""
+            )
+        }
+    }
+
     // ---------------------------------------------------------------------------
     // Private helpers
     // ---------------------------------------------------------------------------
@@ -145,16 +175,16 @@ class LearnEmotionViewModel @Inject constructor(
     }
 
     /**
-     * Returns 4 shuffled options that always include [correct] plus up to 3 distractors.
+     * Returns shuffled options. Normal mode: 4 options (1 correct + 3 distractors).
+     * Challenge mode: 6 options (1 correct + 5 distractors from all EmotionType values).
      */
     private fun buildOptions(
         correct: EmotionType,
         allTypes: List<EmotionType>
     ): List<EmotionType> {
-        val distractors = allTypes
-            .filter { it != correct }
-            .shuffled()
-            .take(3)
+        val pool            = if (_uiState.value.isChallengeMode) EmotionType.values().toList() else allTypes
+        val distractorCount = if (_uiState.value.isChallengeMode) 5 else 3
+        val distractors     = pool.filter { it != correct }.shuffled().take(distractorCount)
         return (listOf(correct) + distractors).shuffled()
     }
 

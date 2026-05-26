@@ -1,9 +1,11 @@
 package com.emotionfriend.feature.profile
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,6 +17,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -30,6 +33,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -42,6 +46,14 @@ import com.emotionfriend.core.designsystem.components.EmotionScreenScaffold
 import com.emotionfriend.core.designsystem.theme.EmotionFriendTheme
 import com.emotionfriend.core.designsystem.theme.OnSurfaceVar
 import com.emotionfriend.core.designsystem.theme.dimensions
+
+// ---------------------------------------------------------------------------
+// Avatar options available for the picker
+// ---------------------------------------------------------------------------
+
+private val avatarOptions = listOf(
+    "🧒", "👦", "👧", "🦊", "🐱", "🐶", "🐻", "🐼", "🦁", "🐸", "🐨", "🐰"
+)
 
 // ---------------------------------------------------------------------------
 // Screen entry point
@@ -57,6 +69,7 @@ fun ProfileScreen(
     var isEditing by rememberSaveable { mutableStateOf(false) }
     var nameInput by rememberSaveable { mutableStateOf("") }
     var ageInput by rememberSaveable { mutableStateOf("") }
+    var avatarInput by rememberSaveable { mutableStateOf("") }
     var soundEnabled by rememberSaveable { mutableStateOf(false) }
     var notificationEnabled by rememberSaveable { mutableStateOf(false) }
     var reminderTime by rememberSaveable { mutableStateOf("") }
@@ -65,6 +78,7 @@ fun ProfileScreen(
     val startEdit = {
         nameInput = state.name
         ageInput = state.age.toString()
+        avatarInput = state.avatarEmoji
         soundEnabled = state.settings.soundEnabled
         notificationEnabled = state.settings.notificationEnabled
         reminderTime = state.settings.reminderTime
@@ -81,8 +95,10 @@ fun ProfileScreen(
         val safeAge = ageInput.trim().toIntOrNull() ?: state.age
         val safeReminder = reminderTime.trim().ifBlank { state.settings.reminderTime }
         val safeLanguage = language.trim().ifBlank { state.settings.language }
+        val safeAvatar = avatarInput.ifBlank { state.avatarEmoji }
 
         viewModel.updateProfile(name = safeName, age = safeAge)
+        viewModel.updateAvatar(safeAvatar)
         viewModel.updateSettings(
             soundEnabled = soundEnabled,
             notificationEnabled = notificationEnabled,
@@ -98,6 +114,7 @@ fun ProfileScreen(
             isEditing = isEditing,
             nameInput = nameInput,
             ageInput = ageInput,
+            avatarInput = avatarInput,
             soundEnabled = soundEnabled,
             notificationEnabled = notificationEnabled,
             reminderTime = reminderTime,
@@ -107,6 +124,7 @@ fun ProfileScreen(
             onSaveEdit = saveEdit,
             onNameChange = { nameInput = it },
             onAgeChange = { ageInput = it },
+            onAvatarChange = { avatarInput = it },
             onSoundToggle = { soundEnabled = it },
             onNotificationToggle = { notificationEnabled = it },
             onReminderChange = { reminderTime = it },
@@ -126,6 +144,7 @@ private fun ProfileContent(
     isEditing: Boolean,
     nameInput: String,
     ageInput: String,
+    avatarInput: String,
     soundEnabled: Boolean,
     notificationEnabled: Boolean,
     reminderTime: String,
@@ -135,6 +154,7 @@ private fun ProfileContent(
     onSaveEdit: () -> Unit,
     onNameChange: (String) -> Unit,
     onAgeChange: (String) -> Unit,
+    onAvatarChange: (String) -> Unit,
     onSoundToggle: (Boolean) -> Unit,
     onNotificationToggle: (Boolean) -> Unit,
     onReminderChange: (String) -> Unit,
@@ -159,7 +179,11 @@ private fun ProfileContent(
                 AvatarBubble(
                     emoji = state.avatarEmoji,
                     backgroundColor = state.accentBackground,
-                    modifier = Modifier.size(88.dp)
+                    modifier = Modifier
+                        .size(88.dp)
+                        .semantics {
+                            contentDescription = "Ảnh đại diện: ${state.avatarEmoji} của ${state.name}"
+                        }
                 )
                 Spacer(Modifier.width(spacing.spacingMd))
                 Column(modifier = Modifier.weight(1f)) {
@@ -189,12 +213,14 @@ private fun ProfileContent(
             EditProfileCard(
                 nameInput = nameInput,
                 ageInput = ageInput,
+                avatarInput = avatarInput,
                 soundEnabled = soundEnabled,
                 notificationEnabled = notificationEnabled,
                 reminderTime = reminderTime,
                 language = language,
                 onNameChange = onNameChange,
                 onAgeChange = onAgeChange,
+                onAvatarChange = onAvatarChange,
                 onSoundToggle = onSoundToggle,
                 onNotificationToggle = onNotificationToggle,
                 onReminderChange = onReminderChange,
@@ -337,12 +363,14 @@ private fun ValueChip(
 private fun EditProfileCard(
     nameInput: String,
     ageInput: String,
+    avatarInput: String,
     soundEnabled: Boolean,
     notificationEnabled: Boolean,
     reminderTime: String,
     language: String,
     onNameChange: (String) -> Unit,
     onAgeChange: (String) -> Unit,
+    onAvatarChange: (String) -> Unit,
     onSoundToggle: (Boolean) -> Unit,
     onNotificationToggle: (Boolean) -> Unit,
     onReminderChange: (String) -> Unit,
@@ -369,6 +397,13 @@ private fun EditProfileCard(
                     )
                 }
             }
+
+            // --- Avatar picker ----------------------------------------------
+            AvatarPickerGrid(
+                selected = avatarInput,
+                onSelect = onAvatarChange
+            )
+
             OutlinedTextField(
                 value = nameInput,
                 onValueChange = onNameChange,
@@ -426,6 +461,53 @@ private fun EditProfileCard(
                     onClick = onSaveEdit,
                     modifier = Modifier.weight(1f)
                 )
+            }
+        }
+    }
+}
+
+@Composable
+private fun AvatarPickerGrid(
+    selected: String,
+    onSelect: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = modifier
+    ) {
+        Text(
+            text  = "Chọn ảnh đại diện cho bé:",
+            style = MaterialTheme.typography.labelMedium,
+            color = OnSurfaceVar
+        )
+        avatarOptions.chunked(4).forEach { rowItems ->
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                rowItems.forEach { emoji ->
+                    val isSelected = selected == emoji
+                    OutlinedButton(
+                        onClick        = { onSelect(emoji) },
+                        shape          = CircleShape,
+                        border         = BorderStroke(
+                            width = if (isSelected) 3.dp else 1.dp,
+                            color = if (isSelected) MaterialTheme.colorScheme.primary
+                                    else MaterialTheme.colorScheme.outline
+                        ),
+                        colors         = ButtonDefaults.outlinedButtonColors(
+                            containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer
+                                             else MaterialTheme.colorScheme.surface
+                        ),
+                        contentPadding = PaddingValues(0.dp),
+                        modifier       = Modifier
+                            .size(52.dp)
+                            .semantics { contentDescription = "Chọn avatar $emoji" }
+                    ) {
+                        Text(text = emoji, style = MaterialTheme.typography.titleMedium)
+                    }
+                }
             }
         }
     }
@@ -497,6 +579,7 @@ private fun ProfileScreenPreview() {
             isEditing = true,
             nameInput = "Bé Minh",
             ageInput = "8",
+            avatarInput = "🧒",
             soundEnabled = true,
             notificationEnabled = true,
             reminderTime = "19:00",
@@ -506,6 +589,7 @@ private fun ProfileScreenPreview() {
             onSaveEdit = {},
             onNameChange = {},
             onAgeChange = {},
+            onAvatarChange = {},
             onSoundToggle = {},
             onNotificationToggle = {},
             onReminderChange = {},

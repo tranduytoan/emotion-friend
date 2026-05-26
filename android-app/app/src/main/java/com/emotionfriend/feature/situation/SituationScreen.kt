@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,8 +27,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.emotionfriend.core.audio.FeedbackPhrases
 import com.emotionfriend.core.audio.TtsPlayer
 import com.emotionfriend.core.audio.rememberTtsPlayer
+import com.emotionfriend.core.designsystem.components.ConfettiOverlay
 import com.emotionfriend.core.designsystem.components.EmotionCard
 import com.emotionfriend.core.designsystem.components.EmotionOptionButton
 import com.emotionfriend.core.designsystem.components.EmotionPrimaryButton
@@ -142,105 +145,119 @@ private fun ScenarioContent(
         tts.speak("$situationText. Bạn trong câu chuyện cảm thấy thế nào?")
     }
 
-    // Read feedback aloud after submission
+    // Read diverse feedback aloud after submission
     LaunchedEffect(isAnswerSubmitted) {
         if (isAnswerSubmitted) {
             delay(300)
             if (isCorrect == true)
-                tts.speak("Chính xác! Con làm tốt lắm.")
+                tts.speak(FeedbackPhrases.randomCorrect())
             else
-                tts.speak("Chưa đúng. Không sao, con thử lại lần sau nhé.")
+                tts.speak(FeedbackPhrases.randomIncorrect())
         }
     }
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(bottom = 24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
+    // Stable feedback message — chosen once when answer is submitted
+    val feedbackText = remember(isAnswerSubmitted, isCorrect) {
+        when {
+            !isAnswerSubmitted -> ""
+            isCorrect == true  -> "${FeedbackPhrases.randomCorrect()} 🌟"
+            else               -> "${FeedbackPhrases.randomIncorrect()} 💪"
+        }
+    }
 
-        // --- Progress pill ---------------------------------------------------
-        ProgressPill(current = currentQuestion, total = totalQuestions)
+    Box(modifier = modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
 
-        // --- Audio player card (replaces the text story panel) ---------------
-        EmotionCard {
-            Column(
-                modifier            = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text  = "🔊",
-                    style = MaterialTheme.typography.displayMedium,
-                )
-                Spacer(Modifier.height(8.dp))
-                Text(
-                    text      = "Bạn trong câu chuyện cảm thấy thế nào?",
-                    style     = MaterialTheme.typography.headlineSmall,
-                    textAlign = TextAlign.Center,
-                    modifier  = Modifier.fillMaxWidth(),
-                )
-                Spacer(Modifier.height(4.dp))
-                TextButton(
-                    onClick = {
-                        tts.speak("$situationText. Bạn trong câu chuyện cảm thấy thế nào?")
-                    }
+            // --- Progress pill ---------------------------------------------------
+            ProgressPill(current = currentQuestion, total = totalQuestions)
+
+            // --- Audio player card (replaces the text story panel) ---------------
+            EmotionCard {
+                Column(
+                    modifier            = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("🔊 Nghe lại tình huống")
-                }
-            }
-        }
-
-        // --- Emotion options — emoji only, TTS on tap ------------------------
-        options.chunked(2).forEach { row ->
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                modifier              = Modifier.fillMaxWidth()
-            ) {
-                row.forEach { type ->
-                    val visuals = type.toOptionVisuals()
-                    EmotionOptionButton(
-                        label          = visuals.label,
-                        emoji          = visuals.emoji,
-                        selected       = selectedEmotion == type,
-                        containerColor = visuals.bg,
-                        borderColor    = visuals.accent,
-                        showLabel      = false,
-                        onClick        = {
-                            onSelectEmotion(type)
-                            tts.speak(visuals.label)
-                        },
-                        modifier       = Modifier.weight(1f)
+                    Text(
+                        text  = "🔊",
+                        style = MaterialTheme.typography.displayMedium,
                     )
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        text      = "Bạn trong câu chuyện cảm thấy thế nào?",
+                        style     = MaterialTheme.typography.headlineSmall,
+                        textAlign = TextAlign.Center,
+                        modifier  = Modifier.fillMaxWidth(),
+                    )
+                    Spacer(Modifier.height(4.dp))
+                    TextButton(
+                        onClick = {
+                            tts.speak("$situationText. Bạn trong câu chuyện cảm thấy thế nào?")
+                        }
+                    ) {
+                        Text("🔊 Nghe lại tình huống")
+                    }
                 }
-                if (row.size == 1) Spacer(Modifier.weight(1f))
+            }
+
+            // --- Emotion options — emoji only, TTS on tap ------------------------
+            options.chunked(2).forEach { row ->
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier              = Modifier.fillMaxWidth()
+                ) {
+                    row.forEach { type ->
+                        val visuals = type.toOptionVisuals()
+                        EmotionOptionButton(
+                            label          = visuals.label,
+                            emoji          = visuals.emoji,
+                            selected       = selectedEmotion == type,
+                            containerColor = visuals.bg,
+                            borderColor    = visuals.accent,
+                            showLabel      = false,
+                            onClick        = {
+                                onSelectEmotion(type)
+                                tts.speak(visuals.label)
+                            },
+                            modifier       = Modifier.weight(1f)
+                        )
+                    }
+                    if (row.size == 1) Spacer(Modifier.weight(1f))
+                }
+            }
+
+            // --- Feedback banner -------------------------------------------------
+            FeedbackBanner(
+                visible = isAnswerSubmitted,
+                type    = if (isCorrect == true) FeedbackType.CORRECT else FeedbackType.WRONG,
+                message = feedbackText
+            )
+
+            // --- Action button ---------------------------------------------------
+            if (!isAnswerSubmitted) {
+                EmotionPrimaryButton(
+                    text    = "Xác nhận",
+                    onClick = onSubmit,
+                    enabled = selectedEmotion != null
+                )
+            } else {
+                EmotionPrimaryButton(
+                    text    = "Tình huống tiếp theo →",
+                    onClick = onNext
+                )
             }
         }
 
-        // --- Feedback banner -------------------------------------------------
-        FeedbackBanner(
-            visible = isAnswerSubmitted,
-            type    = if (isCorrect == true) FeedbackType.CORRECT else FeedbackType.WRONG,
-            message = if (isCorrect == true)
-                "Chính xác! Con làm tốt lắm. 🌟"
-            else
-                "Không sao, mình thử lại nhé. 💪"
+        // --- Confetti burst on correct answer --------------------------------
+        ConfettiOverlay(
+            active   = isAnswerSubmitted && isCorrect == true,
+            modifier = Modifier.fillMaxSize()
         )
-
-        // --- Action button ---------------------------------------------------
-        if (!isAnswerSubmitted) {
-            EmotionPrimaryButton(
-                text    = "Xác nhận",
-                onClick = onSubmit,
-                enabled = selectedEmotion != null
-            )
-        } else {
-            EmotionPrimaryButton(
-                text    = "Tình huống tiếp theo →",
-                onClick = onNext
-            )
-        }
     }
 }
 

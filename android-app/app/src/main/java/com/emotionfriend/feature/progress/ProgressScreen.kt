@@ -1,6 +1,7 @@
 package com.emotionfriend.feature.progress
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -125,6 +126,14 @@ private fun ProgressContent(
                 modifier = Modifier.weight(1f)
             )
         }
+
+        // --- Badges row -------------------------------------------------
+        Text(
+            text  = "Huy hiệu 🎖️",
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onBackground
+        )
+        BadgesRow(badges = buildBadges(state))
 
         // --- Accuracy card --------------------------------------------------
         EmotionCard {
@@ -273,6 +282,62 @@ private fun accuracyLabel(rate: Float): String = when {
     rate >= 0.8f -> "Xuất sắc"
     rate >= 0.5f -> "Tiến bộ"
     else         -> "Cần luyện thêm"
+}
+
+// ---------------------------------------------------------------------------
+// Badges
+// ---------------------------------------------------------------------------
+
+private data class BadgeItem(val emoji: String, val label: String, val earned: Boolean)
+
+private fun buildBadges(state: ProgressUiState): List<BadgeItem> = listOf(
+    BadgeItem("🌱", "Bước đầu",   state.completedLessons >= 1),
+    BadgeItem("📖", "5 bài học",  state.completedLessons >= 5),
+    BadgeItem("🏆", "10 bài học", state.completedLessons >= 10),
+    BadgeItem("💫", "20 bài học", state.completedLessons >= 20),
+    BadgeItem("⭐", "Chính xác 80%", state.accuracyRate >= 0.8f),
+    BadgeItem("📓", "3 nhật ký",  state.journalCount >= 3),
+)
+
+@Composable
+private fun BadgesRow(badges: List<BadgeItem>, modifier: Modifier = Modifier) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState())
+    ) {
+        badges.forEach { badge -> BadgeChip(badge = badge) }
+    }
+}
+
+@Composable
+private fun BadgeChip(badge: BadgeItem) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .clip(MaterialTheme.shapes.large)
+            .background(
+                if (badge.earned) MaterialTheme.colorScheme.primaryContainer
+                else MaterialTheme.colorScheme.surfaceVariant
+            )
+            .padding(horizontal = 12.dp, vertical = 10.dp)
+    ) {
+        Text(
+            text  = badge.emoji,
+            style = MaterialTheme.typography.titleLarge,
+            color = if (badge.earned) MaterialTheme.colorScheme.onSurface
+                    else OnSurfaceVar.copy(alpha = 0.3f)
+        )
+        Spacer(Modifier.height(4.dp))
+        Text(
+            text      = badge.label,
+            style     = MaterialTheme.typography.labelSmall,
+            color     = if (badge.earned) MaterialTheme.colorScheme.onSurface
+                        else OnSurfaceVar.copy(alpha = 0.4f),
+            textAlign = TextAlign.Center
+        )
+    }
 }
 
 private fun parentSuggestion(state: ProgressUiState): String {

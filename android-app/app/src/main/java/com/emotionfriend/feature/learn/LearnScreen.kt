@@ -25,8 +25,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.emotionfriend.core.audio.FeedbackPhrases
 import com.emotionfriend.core.audio.TtsPlayer
 import com.emotionfriend.core.audio.rememberTtsPlayer
+import com.emotionfriend.core.designsystem.components.ConfettiOverlay
 import com.emotionfriend.core.designsystem.components.EmotionCard
 import com.emotionfriend.core.designsystem.components.EmotionOptionButton
 import com.emotionfriend.core.designsystem.components.EmotionPrimaryButton
@@ -98,20 +100,22 @@ fun LearnScreen(
             else -> {
                 val card = state.currentCard!!
                 QuestionContent(
-                    cardId            = card.id,
-                    cardDescription   = card.description,
-                    options           = state.options,
-                    selectedEmotion   = state.selectedEmotion,
-                    isAnswerSubmitted  = state.isAnswerSubmitted,
-                    isCorrect         = state.isCorrect,
-                    feedbackMessage   = state.feedbackMessage,
-                    currentQuestion   = state.questionIndex + 1,
-                    totalQuestions    = state.totalQuestions,
-                    tts               = tts,
-                    onSelectAnswer    = viewModel::selectAnswer,
-                    onSubmit          = viewModel::submitAnswer,
-                    onNext            = viewModel::nextQuestion,
-                    modifier          = modifier
+                    cardId                = card.id,
+                    cardDescription       = card.description,
+                    options               = state.options,
+                    selectedEmotion       = state.selectedEmotion,
+                    isAnswerSubmitted      = state.isAnswerSubmitted,
+                    isCorrect             = state.isCorrect,
+                    feedbackMessage       = state.feedbackMessage,
+                    currentQuestion       = state.questionIndex + 1,
+                    totalQuestions        = state.totalQuestions,
+                    isChallengeMode       = state.isChallengeMode,
+                    tts                   = tts,
+                    onSelectAnswer        = viewModel::selectAnswer,
+                    onSubmit              = viewModel::submitAnswer,
+                    onNext                = viewModel::nextQuestion,
+                    onToggleChallengeMode = viewModel::toggleChallengeMode,
+                    modifier              = modifier
                 )
             }
         }
@@ -133,10 +137,12 @@ private fun QuestionContent(
     feedbackMessage: String,
     currentQuestion: Int,
     totalQuestions: Int,
+    isChallengeMode: Boolean,
     tts: TtsPlayer,
     onSelectAnswer: (EmotionType) -> Unit,
     onSubmit: () -> Unit,
     onNext: () -> Unit,
+    onToggleChallengeMode: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     // Auto-play the description when a new card loads
@@ -145,92 +151,123 @@ private fun QuestionContent(
         tts.speak("$cardDescription. Bạn này đang cảm thấy gì?")
     }
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(bottom = 24.dp),
-        verticalArrangement = Arrangement.spacedBy(20.dp)
-    ) {
-
-        // --- Progress pill ---------------------------------------------------
-        ProgressPill(
-            current  = currentQuestion,
-            total    = totalQuestions
-        )
-
-        // --- Audio player card (replaces emoji flashcard) --------------------
-        EmotionCard {
-            Column(
-                modifier            = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text  = "🔊",
-                    style = MaterialTheme.typography.displayMedium,
-                )
-                Spacer(Modifier.height(8.dp))
-                Text(
-                    text      = "Bạn này đang cảm thấy gì?",
-                    style     = MaterialTheme.typography.headlineSmall,
-                    textAlign = TextAlign.Center,
-                    modifier  = Modifier.fillMaxWidth(),
-                )
-                Spacer(Modifier.height(4.dp))
-                TextButton(
-                    onClick = { tts.speak("$cardDescription. Bạn này đang cảm thấy gì?") }
-                ) {
-                    Text("🔊 Nghe lại")
-                }
-            }
+    // Read diverse feedback aloud after submission
+    LaunchedEffect(isAnswerSubmitted) {
+        if (isAnswerSubmitted) {
+            delay(300)
+            if (isCorrect == true)
+                tts.speak(FeedbackPhrases.randomCorrect())
+            else
+                tts.speak(FeedbackPhrases.randomIncorrect())
         }
+    }
 
-        // --- Options grid — emoji only, TTS on tap ---------------------------
-        options.chunked(2).forEach { row ->
+    Box(modifier = modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp)
+        ) {
+
+            // --- Challenge mode toggle + Progress pill row -------------------
             Row(
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                modifier              = Modifier.fillMaxWidth()
+                verticalAlignment = Alignment.CenterVertically,
+                modifier          = Modifier.fillMaxWidth()
             ) {
-                row.forEach { type ->
-                    val visuals = type.toOptionVisuals()
-                    EmotionOptionButton(
-                        label          = visuals.label,
-                        emoji          = visuals.emoji,
-                        selected       = selectedEmotion == type,
-                        containerColor = visuals.bg,
-                        borderColor    = visuals.accent,
-                        showLabel      = false,
-                        onClick        = {
-                            onSelectAnswer(type)
-                            tts.speak(visuals.label)
-                        },
-                        modifier       = Modifier.weight(1f)
+                ProgressPill(
+                    current  = currentQuestion,
+                    total    = totalQuestions,
+                    modifier = Modifier.weight(1f)
+                )
+                TextButton(onClick = onToggleChallengeMode) {
+                    Text(
+                        text  = if (isChallengeMode) "⚡ Thử thách" else "📖 Thường",
+                        style = MaterialTheme.typography.labelLarge
                     )
                 }
-                if (row.size == 1) Spacer(Modifier.weight(1f))
+            }
+
+            // --- Audio player card (replaces emoji flashcard) ----------------
+            EmotionCard {
+                Column(
+                    modifier            = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text  = "🔊",
+                        style = MaterialTheme.typography.displayMedium,
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        text      = "Bạn này đang cảm thấy gì?",
+                        style     = MaterialTheme.typography.headlineSmall,
+                        textAlign = TextAlign.Center,
+                        modifier  = Modifier.fillMaxWidth(),
+                    )
+                    Spacer(Modifier.height(4.dp))
+                    TextButton(
+                        onClick = { tts.speak("$cardDescription. Bạn này đang cảm thấy gì?") }
+                    ) {
+                        Text("🔊 Nghe lại")
+                    }
+                }
+            }
+
+            // --- Options grid — emoji only, TTS on tap -----------------------
+            options.chunked(2).forEach { row ->
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier              = Modifier.fillMaxWidth()
+                ) {
+                    row.forEach { type ->
+                        val visuals = type.toOptionVisuals()
+                        EmotionOptionButton(
+                            label          = visuals.label,
+                            emoji          = visuals.emoji,
+                            selected       = selectedEmotion == type,
+                            containerColor = visuals.bg,
+                            borderColor    = visuals.accent,
+                            showLabel      = false,
+                            onClick        = {
+                                onSelectAnswer(type)
+                                tts.speak(visuals.label)
+                            },
+                            modifier       = Modifier.weight(1f)
+                        )
+                    }
+                    if (row.size == 1) Spacer(Modifier.weight(1f))
+                }
+            }
+
+            // --- Feedback --------------------------------------------------------
+            FeedbackBanner(
+                visible = isAnswerSubmitted,
+                type    = if (isCorrect == true) FeedbackType.CORRECT else FeedbackType.WRONG,
+                message = feedbackMessage
+            )
+
+            // --- Action button ---------------------------------------------------
+            if (!isAnswerSubmitted) {
+                EmotionPrimaryButton(
+                    text    = "Xác nhận",
+                    onClick = onSubmit,
+                    enabled = selectedEmotion != null
+                )
+            } else {
+                EmotionPrimaryButton(
+                    text    = "Câu tiếp theo →",
+                    onClick = onNext
+                )
             }
         }
 
-        // --- Feedback --------------------------------------------------------
-        FeedbackBanner(
-            visible = isAnswerSubmitted,
-            type    = if (isCorrect == true) FeedbackType.CORRECT else FeedbackType.WRONG,
-            message = feedbackMessage
+        // --- Confetti burst on correct answer --------------------------------
+        ConfettiOverlay(
+            active   = isAnswerSubmitted && isCorrect == true,
+            modifier = Modifier.fillMaxSize()
         )
-
-        // --- Action button ---------------------------------------------------
-        if (!isAnswerSubmitted) {
-            EmotionPrimaryButton(
-                text    = "Xác nhận",
-                onClick = onSubmit,
-                enabled = selectedEmotion != null
-            )
-        } else {
-            EmotionPrimaryButton(
-                text    = "Câu tiếp theo →",
-                onClick = onNext
-            )
-        }
     }
 }
 

@@ -1,5 +1,6 @@
 package com.emotionfriend.feature.home
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
@@ -66,8 +68,11 @@ fun HomeScreen(
     onNavigateToJournal: () -> Unit,
     onNavigateToProgress: () -> Unit,
     onNavigateToProfile: () -> Unit,
+    userName: String = "",
     modifier: Modifier = Modifier
 ) {
+    // Intercept system back press — prevents white/blank screen when back stack is empty
+    BackHandler {}
     val activities = listOf(
         HomeActivity("📚", "Học cảm xúc",     EmotionHappyBg,  onNavigateToLearn),
         HomeActivity("🤝", "Tình huống",       EmotionSadBg,    onNavigateToSituation),
@@ -89,19 +94,43 @@ fun HomeScreen(
         Column(
             modifier            = modifier
                 .fillMaxSize()
-                .padding(vertical = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp),
+                .padding(vertical = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            // ── Swipe hint ────────────────────────────────────────────────
-            Text(
-                text  = "Vuốt sang để chọn hoạt động 👉",
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                ),
-                textAlign = TextAlign.Center,
-                modifier  = Modifier.fillMaxWidth(),
-            )
+            // ── Avatar + Greeting ─────────────────────────────────────────
+            Row(
+                verticalAlignment     = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Start,
+                modifier              = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp),
+            ) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier         = Modifier
+                        .size(64.dp)
+                        .clip(CircleShape)
+                        .background(SkyBlueLight),
+                ) {
+                    Text(text = "🧒", fontSize = 32.sp)
+                }
+                Spacer(modifier = Modifier.width(16.dp))
+                Column {
+                    Text(
+                        text  = "Chào ${if (userName.isNotBlank()) userName else "bạn nhỏ"}! 👋",
+                        style = MaterialTheme.typography.headlineSmall.copy(
+                            fontWeight = FontWeight.Bold
+                        ),
+                    )
+                    Text(
+                        text  = "Hôm nay con muốn làm gì?",
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        ),
+                    )
+                }
+            }
 
             // ── Carousel ──────────────────────────────────────────────────
             HorizontalPager(
@@ -139,7 +168,17 @@ fun HomeScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            // ── Swipe hint (bottom) ───────────────────────────────────────
+            Text(
+                text  = "Vuốt sang để chọn hoạt động 👉",
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                ),
+                textAlign = TextAlign.Center,
+                modifier  = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp),
+            )
         }
     }
 }

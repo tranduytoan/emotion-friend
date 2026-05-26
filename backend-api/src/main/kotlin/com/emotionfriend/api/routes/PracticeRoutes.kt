@@ -17,6 +17,24 @@ fun Route.practiceRoutes(service: PracticeService) {
     route("/api/practice-attempts") {
         post {
             val req = call.receive<CreatePracticeAttemptRequest>()
+            if (req.childId.isBlank()) {
+                return@post call.respond(
+                    HttpStatusCode.BadRequest,
+                    ApiResponse<Unit>(success = false, error = "childId must not be blank"),
+                )
+            }
+            if (req.scenarioId.isBlank()) {
+                return@post call.respond(
+                    HttpStatusCode.BadRequest,
+                    ApiResponse<Unit>(success = false, error = "scenarioId must not be blank"),
+                )
+            }
+            if (req.selectedIndex < 0) {
+                return@post call.respond(
+                    HttpStatusCode.BadRequest,
+                    ApiResponse<Unit>(success = false, error = "selectedIndex must be >= 0"),
+                )
+            }
             val attempt = service.create(
                 PracticeAttempt(
                     childId       = req.childId,

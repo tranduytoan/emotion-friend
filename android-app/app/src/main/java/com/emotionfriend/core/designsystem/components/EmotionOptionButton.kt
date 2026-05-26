@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
@@ -61,7 +62,10 @@ fun EmotionOptionButton(
         ),
         modifier = modifier
             .heightIn(min = 100.dp)
-            .semantics { role = Role.Button }
+            .semantics {
+                role = Role.Button
+                contentDescription = if (selected) "$label, đã chọn" else label
+            }
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,

@@ -9,9 +9,21 @@ import io.ktor.server.routing.*
 
 fun Route.emotionRoutes(service: EmotionService) {
     route("/api/emotions") {
+        // GET /api/emotions — list all
         get {
             val emotions = service.getAll()
             call.respond(HttpStatusCode.OK, ApiResponse(success = true, data = emotions))
+        }
+
+        // GET /api/emotions/{id} — single by ID
+        get("/{id}") {
+            val id = call.parameters["id"]
+                ?: return@get call.respond(
+                    HttpStatusCode.BadRequest,
+                    ApiResponse<Unit>(success = false, error = "id is required"),
+                )
+            val emotion = service.getById(id)
+            call.respond(HttpStatusCode.OK, ApiResponse(success = true, data = emotion))
         }
     }
 }

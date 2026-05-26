@@ -20,6 +20,7 @@ import com.emotionfriend.feature.auth.RegisterScreen
 import com.emotionfriend.feature.auth.VerifyEmailScreen
 import com.emotionfriend.feature.express.ExpressScreen
 import com.emotionfriend.feature.home.HomeScreen
+import com.emotionfriend.feature.journal.DailyCheckInScreen
 import com.emotionfriend.feature.journal.JournalScreen
 import com.emotionfriend.feature.learn.LearnScreen
 import com.emotionfriend.feature.parent.ParentDashboardScreen
@@ -66,8 +67,12 @@ fun EmotionFriendNavHost(
 
     // Determine initial destination from persisted session.
     val startDestination = when (authState) {
-        is AuthState.Authenticated -> AppRoute.Home.route
-        else                       -> AppRoute.Login.route
+        is AuthState.Authenticated -> {
+            val user = (authState as AuthState.Authenticated).user
+            if (user.role == UserRole.CHILD) AppRoute.DailyCheckIn.route
+            else AppRoute.Home.route
+        }
+        else -> AppRoute.Login.route
     }
 
     NavHost(
@@ -83,8 +88,10 @@ fun EmotionFriendNavHost(
                 viewModel              = authViewModel,
                 onLoginSuccess         = {
                     val user = (authViewModel.authState.value as? AuthState.Authenticated)?.user
-                    val dest = if (user?.role == UserRole.CHILD) AppRoute.Home.route
-                               else AppRoute.ParentDashboard.route
+                    val dest = when (user?.role) {
+                        UserRole.CHILD -> AppRoute.DailyCheckIn.route
+                        else           -> AppRoute.ParentDashboard.route
+                    }
                     navController.navigate(dest) {
                         popUpTo(AppRoute.Login.route) { inclusive = true }
                         launchSingleTop = true
@@ -123,14 +130,29 @@ fun EmotionFriendNavHost(
                 email           = email,
                 viewModel       = authViewModel,
                 onVerifySuccess = { user ->
-                    val dest = if (user.role == UserRole.CHILD) AppRoute.Home.route
-                               else AppRoute.ParentDashboard.route
+                    val dest = when (user.role) {
+                        UserRole.CHILD -> AppRoute.DailyCheckIn.route
+                        else           -> AppRoute.ParentDashboard.route
+                    }
                     navController.navigate(dest) {
                         popUpTo(AppRoute.Login.route) { inclusive = true }
                         launchSingleTop = true
                     }
                 },
                 onNavigateBack  = { navController.popBackStack() },
+            )
+        }
+
+        // ── Daily check-in (first screen for CHILD) ──────────────────────────
+
+        composable(AppRoute.DailyCheckIn.route) {
+            DailyCheckInScreen(
+                onComplete = {
+                    navController.navigate(AppRoute.Home.route) {
+                        popUpTo(AppRoute.DailyCheckIn.route) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                }
             )
         }
 

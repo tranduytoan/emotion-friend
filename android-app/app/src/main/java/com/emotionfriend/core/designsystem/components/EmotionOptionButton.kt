@@ -34,6 +34,7 @@ import com.emotionfriend.core.designsystem.theme.EmotionHappyBg
  * @param selected     Whether this option is currently selected
  * @param containerColor Background color (emotion-specific, e.g. EmotionHappyBg)
  * @param borderColor  Border / accent color (emotion-specific, e.g. EmotionHappy)
+ * @param showLabel    When false only the emoji is shown — use for audio-first screens
  * @param onClick      Callback when tapped
  */
 @Composable
@@ -44,6 +45,7 @@ fun EmotionOptionButton(
     containerColor: Color,
     borderColor: Color,
     onClick: () -> Unit,
+    showLabel: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     OutlinedButton(
@@ -66,8 +68,10 @@ fun EmotionOptionButton(
             modifier = Modifier.padding(vertical = 12.dp)
         ) {
             Text(text = emoji, style = MaterialTheme.typography.displayMedium)
-            Spacer(modifier = Modifier.size(6.dp))
-            Text(text = label, style = MaterialTheme.typography.titleLarge)
+            if (showLabel) {
+                Spacer(modifier = Modifier.size(6.dp))
+                Text(text = label, style = MaterialTheme.typography.titleLarge)
+            }
         }
     }
 }

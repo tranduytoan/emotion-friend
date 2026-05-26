@@ -380,3 +380,4 @@ docker compose down -v       # xoá cả volume (reset DB)
 
 *Cập nhật lần cuối: 12/05/2026 — Phiên bản P6*
 
+fdgdfgdfg

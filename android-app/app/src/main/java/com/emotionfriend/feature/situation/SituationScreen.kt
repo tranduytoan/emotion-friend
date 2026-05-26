@@ -1,6 +1,5 @@
 package com.emotionfriend.feature.situation
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,17 +14,20 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.emotionfriend.core.audio.TtsPlayer
+import com.emotionfriend.core.audio.rememberTtsPlayer
 import com.emotionfriend.core.designsystem.components.EmotionCard
 import com.emotionfriend.core.designsystem.components.EmotionOptionButton
 import com.emotionfriend.core.designsystem.components.EmotionPrimaryButton
@@ -46,9 +48,8 @@ import com.emotionfriend.core.designsystem.theme.EmotionSad
 import com.emotionfriend.core.designsystem.theme.EmotionSadBg
 import com.emotionfriend.core.designsystem.theme.EmotionSurprised
 import com.emotionfriend.core.designsystem.theme.EmotionSurprisedBg
-import com.emotionfriend.core.designsystem.theme.FeedbackCorrectBg
-import com.emotionfriend.core.designsystem.theme.SkyBlueLight
 import com.emotionfriend.domain.model.EmotionType
+import kotlinx.coroutines.delay
 
 // ---------------------------------------------------------------------------
 // Screen entry point
@@ -61,6 +62,7 @@ fun SituationScreen(
     viewModel: SituationViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
+    val tts   = rememberTtsPlayer()
 
     EmotionScreenScaffold(title = "Tình huống xã hội", onBack = onBack) {
         when {
@@ -97,18 +99,18 @@ fun SituationScreen(
             else -> {
                 val scenario = state.currentScenario!!
                 ScenarioContent(
-                    situationText     = scenario.situationText,
-                    options           = scenario.options,
-                    selectedEmotion   = state.selectedEmotion,
-                    isAnswerSubmitted  = state.isAnswerSubmitted,
-                    isCorrect         = state.isCorrect,
-                    explanation       = state.explanation,
-                    currentQuestion   = state.questionIndex + 1,
-                    totalQuestions    = state.totalQuestions,
-                    onSelectEmotion   = viewModel::selectEmotion,
-                    onSubmit          = viewModel::submitAnswer,
-                    onNext            = viewModel::nextScenario,
-                    modifier          = modifier
+                    situationText    = scenario.situationText,
+                    options          = scenario.options,
+                    selectedEmotion  = state.selectedEmotion,
+                    isAnswerSubmitted = state.isAnswerSubmitted,
+                    isCorrect        = state.isCorrect,
+                    currentQuestion  = state.questionIndex + 1,
+                    totalQuestions   = state.totalQuestions,
+                    tts              = tts,
+                    onSelectEmotion  = viewModel::selectEmotion,
+                    onSubmit         = viewModel::submitAnswer,
+                    onNext           = viewModel::nextScenario,
+                    modifier         = modifier
                 )
             }
         }
@@ -116,7 +118,7 @@ fun SituationScreen(
 }
 
 // ---------------------------------------------------------------------------
-// Scenario content
+// Scenario content — audio-first: text replaced by TTS playback
 // ---------------------------------------------------------------------------
 
 @Composable
@@ -126,14 +128,31 @@ private fun ScenarioContent(
     selectedEmotion: EmotionType?,
     isAnswerSubmitted: Boolean,
     isCorrect: Boolean?,
-    explanation: String,
     currentQuestion: Int,
     totalQuestions: Int,
+    tts: TtsPlayer,
     onSelectEmotion: (EmotionType) -> Unit,
     onSubmit: () -> Unit,
     onNext: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // Auto-play situation audio when a new scenario loads
+    LaunchedEffect(situationText) {
+        delay(400)
+        tts.speak("$situationText. Bạn trong câu chuyện cảm thấy thế nào?")
+    }
+
+    // Read feedback aloud after submission
+    LaunchedEffect(isAnswerSubmitted) {
+        if (isAnswerSubmitted) {
+            delay(300)
+            if (isCorrect == true)
+                tts.speak("Chính xác! Con làm tốt lắm.")
+            else
+                tts.speak("Chưa đúng. Không sao, con thử lại lần sau nhé.")
+        }
+    }
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -142,49 +161,38 @@ private fun ScenarioContent(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
 
-        // --- Progress pill -------------------------------------------------------
-        ProgressPill(
-            current = currentQuestion,
-            total   = totalQuestions
-        )
+        // --- Progress pill ---------------------------------------------------
+        ProgressPill(current = currentQuestion, total = totalQuestions)
 
-        // --- Story panel -------------------------------------------------------
+        // --- Audio player card (replaces the text story panel) ---------------
         EmotionCard {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        color = SkyBlueLight,
-                        shape = MaterialTheme.shapes.medium
-                    )
-                    .padding(16.dp)
+            Column(
+                modifier            = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text     = "📖",
-                    style    = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.align(Alignment.TopStart)
+                    text  = "🔊",
+                    style = MaterialTheme.typography.displayMedium,
                 )
+                Spacer(Modifier.height(8.dp))
                 Text(
-                    text      = situationText,
-                    style     = MaterialTheme.typography.titleMedium,
+                    text      = "Bạn trong câu chuyện cảm thấy thế nào?",
+                    style     = MaterialTheme.typography.headlineSmall,
                     textAlign = TextAlign.Center,
-                    modifier  = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 4.dp, start = 36.dp, end = 8.dp)
+                    modifier  = Modifier.fillMaxWidth(),
                 )
+                Spacer(Modifier.height(4.dp))
+                TextButton(
+                    onClick = {
+                        tts.speak("$situationText. Bạn trong câu chuyện cảm thấy thế nào?")
+                    }
+                ) {
+                    Text("🔊 Nghe lại tình huống")
+                }
             }
-
-            Spacer(Modifier.height(12.dp))
-
-            Text(
-                text      = "Bạn trong câu chuyện cảm thấy thế nào?",
-                style     = MaterialTheme.typography.headlineSmall,
-                textAlign = TextAlign.Center,
-                modifier  = Modifier.fillMaxWidth()
-            )
         }
 
-        // --- Emotion options (2-column grid) -----------------------------------
+        // --- Emotion options — emoji only, TTS on tap ------------------------
         options.chunked(2).forEach { row ->
             Row(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -198,7 +206,11 @@ private fun ScenarioContent(
                         selected       = selectedEmotion == type,
                         containerColor = visuals.bg,
                         borderColor    = visuals.accent,
-                        onClick        = { onSelectEmotion(type) },
+                        showLabel      = false,
+                        onClick        = {
+                            onSelectEmotion(type)
+                            tts.speak(visuals.label)
+                        },
                         modifier       = Modifier.weight(1f)
                     )
                 }
@@ -206,7 +218,7 @@ private fun ScenarioContent(
             }
         }
 
-        // --- Feedback banner ---------------------------------------------------
+        // --- Feedback banner -------------------------------------------------
         FeedbackBanner(
             visible = isAnswerSubmitted,
             type    = if (isCorrect == true) FeedbackType.CORRECT else FeedbackType.WRONG,
@@ -216,26 +228,7 @@ private fun ScenarioContent(
                 "Không sao, mình thử lại nhé. 💪"
         )
 
-        // --- Explanation card (visible after submission) -----------------------
-        if (isAnswerSubmitted && explanation.isNotBlank()) {
-            EmotionCard(
-                modifier = Modifier.background(
-                    color  = FeedbackCorrectBg,
-                    shape  = MaterialTheme.shapes.large
-                )
-            ) {
-                Row(verticalAlignment = Alignment.Top) {
-                    Text(text = "💡", style = MaterialTheme.typography.titleLarge)
-                    Text(
-                        text     = explanation,
-                        style    = MaterialTheme.typography.bodyMedium.copy(fontStyle = FontStyle.Italic),
-                        modifier = Modifier.padding(start = 8.dp)
-                    )
-                }
-            }
-        }
-
-        // --- Action button -----------------------------------------------------
+        // --- Action button ---------------------------------------------------
         if (!isAnswerSubmitted) {
             EmotionPrimaryButton(
                 text    = "Xác nhận",
@@ -295,28 +288,4 @@ private fun EmotionType.toOptionVisuals(): OptionVisuals = when (this) {
     EmotionType.SURPRISED -> OptionVisuals("Ngạc nhiên", "😲", EmotionSurprised, EmotionSurprisedBg)
     EmotionType.CALM      -> OptionVisuals("Bình tĩnh",  "😌", EmotionCalm,      EmotionCalmBg)
     EmotionType.TIRED     -> OptionVisuals("Mệt mỏi",    "😴", EmotionTired,     EmotionTiredBg)
-}
-
-// ---------------------------------------------------------------------------
-// Preview
-// ---------------------------------------------------------------------------
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-private fun SituationScreenPreview() {
-    EmotionFriendTheme {
-        ScenarioContent(
-            situationText     = "Lan bị mất quả bóng bay. Lan cảm thấy thế nào?",
-            options           = listOf(EmotionType.HAPPY, EmotionType.SAD, EmotionType.ANGRY, EmotionType.SURPRISED),
-            selectedEmotion   = EmotionType.SAD,
-            isAnswerSubmitted  = false,
-            isCorrect         = null,
-            explanation       = "",
-            onSelectEmotion   = {},
-            onSubmit          = {},
-            onNext            = {},
-            currentQuestion   = 1,
-            totalQuestions    = 5
-        )
-    }
 }

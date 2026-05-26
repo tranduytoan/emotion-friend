@@ -1,7 +1,6 @@
 package com.emotionfriend.feature.home
 
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -15,16 +14,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
@@ -32,6 +31,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.emotionfriend.core.audio.rememberTtsPlayer
 import com.emotionfriend.core.designsystem.components.EmotionScreenScaffold
 import com.emotionfriend.core.designsystem.theme.EmotionAngryBg
 import com.emotionfriend.core.designsystem.theme.EmotionCalmBg
@@ -40,7 +40,6 @@ import com.emotionfriend.core.designsystem.theme.EmotionSadBg
 import com.emotionfriend.core.designsystem.theme.EmotionFriendTheme
 import com.emotionfriend.core.designsystem.theme.MintGreen80
 import com.emotionfriend.core.designsystem.theme.SkyBlueLight
-import com.emotionfriend.core.designsystem.theme.SurfaceVariant
 
 // ---------------------------------------------------------------------------
 // Data model (private, UI-only)
@@ -57,6 +56,7 @@ private data class HomeActivity(
 // Screen
 // ---------------------------------------------------------------------------
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreen(
     onNavigateToLearn: () -> Unit,
@@ -68,67 +68,73 @@ fun HomeScreen(
     onNavigateToProfile: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // 4 primary activities — one task per tile, no description text
-    val primary = listOf(
-        HomeActivity("📚", "Học cảm xúc",   EmotionHappyBg,  onNavigateToLearn),
-        HomeActivity("🤝", "Tình huống",    EmotionSadBg,    onNavigateToSituation),
-        HomeActivity("📓", "Cảm xúc của con", EmotionCalmBg, onNavigateToJournal),
-        HomeActivity("🌈", "Thư giãn",      EmotionAngryBg,  onNavigateToRelax),
+    val activities = listOf(
+        HomeActivity("📚", "Học cảm xúc",     EmotionHappyBg,  onNavigateToLearn),
+        HomeActivity("🤝", "Tình huống",       EmotionSadBg,    onNavigateToSituation),
+        HomeActivity("📓", "Cảm xúc của con",  EmotionCalmBg,   onNavigateToJournal),
+        HomeActivity("🌈", "Thư giãn",         EmotionAngryBg,  onNavigateToRelax),
+        HomeActivity("🌟", "Tiến trình",       MintGreen80,     onNavigateToProgress),
+        HomeActivity("🧒", "Hồ sơ",            SkyBlueLight,    onNavigateToProfile),
     )
-    // 2 secondary activities
-    val secondary = listOf(
-        HomeActivity("🌟", "Tiến trình", MintGreen80, onNavigateToProgress),
-        HomeActivity("🧒", "Hồ sơ",     SkyBlueLight, onNavigateToProfile),
-    )
+
+    val pagerState = rememberPagerState(pageCount = { activities.size })
+    val tts = rememberTtsPlayer()
+
+    // Read activity name aloud when the page changes
+    LaunchedEffect(pagerState.currentPage) {
+        tts.speak(activities[pagerState.currentPage].label)
+    }
 
     EmotionScreenScaffold {
         Column(
-            modifier = modifier
+            modifier            = modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
                 .padding(vertical = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
+            verticalArrangement = Arrangement.spacedBy(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            // ── Greeting ──────────────────────────────────────────────────
+            // ── Swipe hint ────────────────────────────────────────────────
             Text(
-                text  = "Xin chào! 👋",
-                style = MaterialTheme.typography.displaySmall,
-            )
-            Text(
-                text  = "Hôm nay muốn làm gì?",
-                style = MaterialTheme.typography.titleLarge.copy(
+                text  = "Vuốt sang để chọn hoạt động 👉",
+                style = MaterialTheme.typography.bodyMedium.copy(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                ),
+                textAlign = TextAlign.Center,
+                modifier  = Modifier.fillMaxWidth(),
             )
 
-            Spacer(modifier = Modifier.height(4.dp))
-
-            // ── Primary 2×2 grid ──────────────────────────────────────────
-            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                primary.chunked(2).forEach { row ->
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                        modifier              = Modifier.fillMaxWidth()
-                    ) {
-                        row.forEach { activity ->
-                            ActivityTile(
-                                activity = activity,
-                                modifier = Modifier.weight(1f)
-                            )
-                        }
-                    }
-                }
+            // ── Carousel ──────────────────────────────────────────────────
+            HorizontalPager(
+                state    = pagerState,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+            ) { page ->
+                ActivityCard(
+                    activity = activities[page],
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 12.dp),
+                )
             }
 
-            // ── Secondary row ─────────────────────────────────────────────
+            // ── Dot indicators ────────────────────────────────────────────
             Row(
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                modifier              = Modifier.fillMaxWidth()
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment     = Alignment.CenterVertically,
             ) {
-                secondary.forEach { activity ->
-                    SecondaryTile(
-                        activity = activity,
-                        modifier = Modifier.weight(1f)
+                repeat(activities.size) { index ->
+                    val isSelected = pagerState.currentPage == index
+                    Box(
+                        modifier = Modifier
+                            .size(if (isSelected) 12.dp else 8.dp)
+                            .clip(CircleShape)
+                            .background(
+                                if (isSelected)
+                                    MaterialTheme.colorScheme.primary
+                                else
+                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
+                            ),
                     )
                 }
             }
@@ -139,77 +145,40 @@ fun HomeScreen(
 }
 
 // ---------------------------------------------------------------------------
-// Primary activity tile — large, image-first, no description
+// Full-screen activity card shown inside the pager
 // ---------------------------------------------------------------------------
 
 @Composable
-private fun ActivityTile(
+private fun ActivityCard(
     activity: HomeActivity,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Box(
         contentAlignment = Alignment.Center,
         modifier         = modifier
-            .heightIn(min = 130.dp)
-            .clip(MaterialTheme.shapes.large)
+            .heightIn(min = 320.dp)
+            .clip(MaterialTheme.shapes.extraLarge)
             .background(activity.background)
             .clickable(
                 role         = Role.Button,
                 onClickLabel = activity.label,
-                onClick      = activity.onClick
+                onClick      = activity.onClick,
             )
-            .padding(20.dp)
+            .padding(32.dp),
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Center,
         ) {
             Text(
                 text     = activity.emoji,
-                fontSize = 52.sp,
-                modifier = Modifier.size(72.dp),
+                fontSize = 96.sp,
             )
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(24.dp))
             Text(
                 text      = activity.label,
-                style     = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                textAlign = TextAlign.Center
-            )
-        }
-    }
-}
-
-// ---------------------------------------------------------------------------
-// Secondary tile — smaller, for progress & profile
-// ---------------------------------------------------------------------------
-
-@Composable
-private fun SecondaryTile(
-    activity: HomeActivity,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier         = modifier
-            .heightIn(min = 72.dp)
-            .clip(MaterialTheme.shapes.large)
-            .background(activity.background)
-            .clickable(
-                role         = Role.Button,
-                onClickLabel = activity.label,
-                onClick      = activity.onClick
-            )
-            .padding(horizontal = 16.dp, vertical = 12.dp)
-    ) {
-        Row(
-            verticalAlignment     = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Text(text = activity.emoji, fontSize = 28.sp)
-            Spacer(modifier = Modifier.size(8.dp))
-            Text(
-                text  = activity.label,
-                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold)
+                style     = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
+                textAlign = TextAlign.Center,
             )
         }
     }

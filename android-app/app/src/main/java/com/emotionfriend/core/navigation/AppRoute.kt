@@ -38,6 +38,7 @@ sealed class AppRoute(val route: String) {
     }
 
     // ── Main app ──────────────────────────────────────────────────────────────
+    data object DailyCheckIn   : AppRoute("daily_check_in")
     data object Home          : AppRoute("home")
     data object LearnEmotion  : AppRoute("learn_emotion")
     data object Situation     : AppRoute("situation")

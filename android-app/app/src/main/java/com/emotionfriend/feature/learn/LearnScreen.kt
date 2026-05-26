@@ -14,16 +14,19 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.emotionfriend.core.audio.TtsPlayer
+import com.emotionfriend.core.audio.rememberTtsPlayer
 import com.emotionfriend.core.designsystem.components.EmotionCard
 import com.emotionfriend.core.designsystem.components.EmotionOptionButton
 import com.emotionfriend.core.designsystem.components.EmotionPrimaryButton
@@ -45,6 +48,7 @@ import com.emotionfriend.core.designsystem.theme.EmotionSurprisedBg
 import com.emotionfriend.core.designsystem.theme.EmotionTired
 import com.emotionfriend.core.designsystem.theme.EmotionTiredBg
 import com.emotionfriend.domain.model.EmotionType
+import kotlinx.coroutines.delay
 
 // ---------------------------------------------------------------------------
 // Screen entry point
@@ -57,6 +61,7 @@ fun LearnScreen(
     viewModel: LearnEmotionViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
+    val tts   = rememberTtsPlayer()
 
     EmotionScreenScaffold(title = "Học cảm xúc", onBack = onBack) {
         when {
@@ -93,7 +98,8 @@ fun LearnScreen(
             else -> {
                 val card = state.currentCard!!
                 QuestionContent(
-                    emoji             = card.emoji,
+                    cardId            = card.id,
+                    cardDescription   = card.description,
                     options           = state.options,
                     selectedEmotion   = state.selectedEmotion,
                     isAnswerSubmitted  = state.isAnswerSubmitted,
@@ -101,6 +107,7 @@ fun LearnScreen(
                     feedbackMessage   = state.feedbackMessage,
                     currentQuestion   = state.questionIndex + 1,
                     totalQuestions    = state.totalQuestions,
+                    tts               = tts,
                     onSelectAnswer    = viewModel::selectAnswer,
                     onSubmit          = viewModel::submitAnswer,
                     onNext            = viewModel::nextQuestion,
@@ -112,12 +119,13 @@ fun LearnScreen(
 }
 
 // ---------------------------------------------------------------------------
-// Question content
+// Question content — audio-first: TTS replaces emoji flashcard
 // ---------------------------------------------------------------------------
 
 @Composable
 private fun QuestionContent(
-    emoji: String,
+    cardId: String,
+    cardDescription: String,
     options: List<EmotionType>,
     selectedEmotion: EmotionType?,
     isAnswerSubmitted: Boolean,
@@ -125,11 +133,18 @@ private fun QuestionContent(
     feedbackMessage: String,
     currentQuestion: Int,
     totalQuestions: Int,
+    tts: TtsPlayer,
     onSelectAnswer: (EmotionType) -> Unit,
     onSubmit: () -> Unit,
     onNext: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // Auto-play the description when a new card loads
+    LaunchedEffect(cardId) {
+        delay(400)
+        tts.speak("$cardDescription. Bạn này đang cảm thấy gì?")
+    }
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -144,26 +159,33 @@ private fun QuestionContent(
             total    = totalQuestions
         )
 
-        // --- Flashcard -------------------------------------------------------
+        // --- Audio player card (replaces emoji flashcard) --------------------
         EmotionCard {
             Column(
                 modifier            = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text     = emoji,
-                    style    = MaterialTheme.typography.displayLarge,
-                    modifier = Modifier.padding(bottom = 12.dp)
+                    text  = "🔊",
+                    style = MaterialTheme.typography.displayMedium,
                 )
+                Spacer(Modifier.height(8.dp))
                 Text(
                     text      = "Bạn này đang cảm thấy gì?",
                     style     = MaterialTheme.typography.headlineSmall,
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
+                    modifier  = Modifier.fillMaxWidth(),
                 )
+                Spacer(Modifier.height(4.dp))
+                TextButton(
+                    onClick = { tts.speak("$cardDescription. Bạn này đang cảm thấy gì?") }
+                ) {
+                    Text("🔊 Nghe lại")
+                }
             }
         }
 
-        // --- Options grid (2 columns) -----------------------------------------
+        // --- Options grid — emoji only, TTS on tap ---------------------------
         options.chunked(2).forEach { row ->
             Row(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -177,7 +199,11 @@ private fun QuestionContent(
                         selected       = selectedEmotion == type,
                         containerColor = visuals.bg,
                         borderColor    = visuals.accent,
-                        onClick        = { onSelectAnswer(type) },
+                        showLabel      = false,
+                        onClick        = {
+                            onSelectAnswer(type)
+                            tts.speak(visuals.label)
+                        },
                         modifier       = Modifier.weight(1f)
                     )
                 }
@@ -257,28 +283,4 @@ private fun EmotionType.toOptionVisuals(): OptionVisuals = when (this) {
     EmotionType.SURPRISED -> OptionVisuals("Ngạc nhiên", "😲", EmotionSurprised, EmotionSurprisedBg)
     EmotionType.CALM      -> OptionVisuals("Bình tĩnh",  "😌", EmotionCalm,      EmotionCalmBg)
     EmotionType.TIRED     -> OptionVisuals("Mệt mỏi",    "😴", EmotionTired,     EmotionTiredBg)
-}
-
-// ---------------------------------------------------------------------------
-// Preview
-// ---------------------------------------------------------------------------
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-private fun LearnScreenPreview() {
-    EmotionFriendTheme {
-        QuestionContent(
-            emoji             = "😊",
-            options           = listOf(EmotionType.HAPPY, EmotionType.SAD, EmotionType.ANGRY, EmotionType.CALM),
-            selectedEmotion   = EmotionType.HAPPY,
-            isAnswerSubmitted  = false,
-            isCorrect         = null,
-            feedbackMessage   = "",
-            currentQuestion   = 2,
-            totalQuestions    = 5,
-            onSelectAnswer    = {},
-            onSubmit          = {},
-            onNext            = {}
-        )
-    }
 }

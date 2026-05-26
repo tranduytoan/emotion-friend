@@ -4,10 +4,9 @@ on:
   push:
     branches: [ "main" ]
     paths:
-      - "backend/**"
+      - "backend-api/**"
       - "docker-compose.yml"
       - "nginx/**"
-      - "database/schema.sql"
       - ".github/workflows/deploy-backend.yml"
 
   # Allow manual trigger from the Actions UI
@@ -38,6 +37,10 @@ jobs:
             echo "==> Navigating to project directory ..."
             cd "${{ secrets.VPS_PROJECT_PATH }}"
 
+            # ── Save current image tag for rollback ─────────────────────────
+            PREV_BACKEND_IMAGE=$(docker inspect --format='{{.Image}}' emotion_friend_backend 2>/dev/null || echo "")
+            echo "==> Previous backend image: ${PREV_BACKEND_IMAGE:-none}"
+
             echo "==> Pulling latest code from main ..."
             git fetch origin main
             git reset --hard origin/main
@@ -46,20 +49,42 @@ jobs:
             docker compose down --remove-orphans
 
             echo "==> Building and starting containers ..."
-            docker compose up -d --build
+            if ! docker compose up -d --build; then
+              echo "ERROR: docker compose up failed — attempting rollback ..."
+              docker compose down --remove-orphans
+              git reset --hard HEAD~1
+              docker compose up -d
+              echo "Rollback completed. Deployment failed."
+              exit 1
+            fi
 
-            echo "==> Waiting for backend health check ..."
+            echo "==> Waiting for backend /health check ..."
             attempt=0
             until curl -sf http://localhost/health; do
               attempt=$((attempt + 1))
               if [ $attempt -ge 12 ]; then
-                echo "Health check timed out after 60 s — deployment failed"
-                docker compose logs --tail=50
+                echo "ERROR: Health check timed out after 60s — rolling back ..."
+                docker compose down --remove-orphans
+                git reset --hard HEAD~1
+                docker compose up -d
+                echo "Rollback completed. Deployment failed."
                 exit 1
               fi
               echo "  ... waiting (attempt $attempt/12)"
               sleep 5
             done
+
+            echo "==> Running smoke test against /api/emotions ..."
+            SMOKE=$(curl -sf -o /dev/null -w "%{http_code}" http://localhost/api/emotions || echo "000")
+            if [ "$SMOKE" != "200" ]; then
+              echo "ERROR: Smoke test returned HTTP $SMOKE — rolling back ..."
+              docker compose down --remove-orphans
+              git reset --hard HEAD~1
+              docker compose up -d
+              echo "Rollback completed. Deployment failed."
+              exit 1
+            fi
+            echo "  Smoke test passed (HTTP 200)."
 
             echo "==> Cleaning up dangling images ..."
             docker image prune -f

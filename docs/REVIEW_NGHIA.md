@@ -88,7 +88,7 @@
 
 ### 10. CI/CD GitHub Actions
 - `.github/workflows/android-ci.yml` — trigger: push/PR to main/develop; steps: checkout → JDK 17 → Gradle cache → detekt (ignoreFailures=true, upload report) → testDebugUnitTest → assembleDebug → upload APK artifact (14 days)
-- `.github/workflows/backend-ci.yml` — trigger: push/PR to main/develop; steps: checkout → JDK 17 → Gradle cache → test → build
+- `.github/workflows/backend-ci.yml` — trigger: push/PR to main/develop (path: backend-api/**); steps: checkout → JDK 21 → Gradle cache → test → build
 - `.github/workflows/pr-validation.yml` — branch name regex check + PR title Conventional Commits check
 - Gradle cache key: hash of `*.gradle*` + `libs.versions.toml`
 - Commits: `b7d5872`, `3700791`, `f6b14e4`

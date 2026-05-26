@@ -26,4 +26,10 @@ class Converters {
     fun toEmotionTypeList(value: String): List<EmotionType> =
         if (value.isBlank()) emptyList()
         else value.split(",").map { EmotionType.valueOf(it.trim()) }
+
+    @TypeConverter
+    fun fromSyncStatus(value: SyncStatus): String = value.name
+
+    @TypeConverter
+    fun toSyncStatus(value: String): SyncStatus = SyncStatus.valueOf(value)
 }

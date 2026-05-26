@@ -17,4 +17,11 @@ interface PracticeAttemptDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(attempt: PracticeAttemptEntity)
+
+    /** Returns attempts not yet pushed to backend. */
+    @Query("SELECT * FROM practice_attempts WHERE syncStatus = 'PENDING' ORDER BY createdAt ASC")
+    suspend fun getPending(): List<PracticeAttemptEntity>
+
+    @Query("UPDATE practice_attempts SET syncStatus = :status, lastModifiedAt = :ts WHERE id = :id")
+    suspend fun updateSyncStatus(id: String, status: SyncStatus, ts: Long = System.currentTimeMillis())
 }

@@ -2,6 +2,7 @@ package com.emotionfriend.core.di
 
 import android.content.Context
 import androidx.room.Room
+import com.emotionfriend.data.local.DatabaseMigrations
 import com.emotionfriend.data.local.EmotionCardDao
 import com.emotionfriend.data.local.EmotionFriendDatabase
 import com.emotionfriend.data.local.JournalEntryDao
@@ -25,7 +26,9 @@ object DatabaseModule {
             context,
             EmotionFriendDatabase::class.java,
             EmotionFriendDatabase.DATABASE_NAME
-        ).build()
+        )
+            .addMigrations(DatabaseMigrations.MIGRATION_1_2)
+            .build()
 
     @Provides
     fun provideEmotionCardDao(db: EmotionFriendDatabase): EmotionCardDao =

@@ -9,7 +9,6 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import java.time.Instant
-import java.util.UUID
 
 class DbJournalRepository : JournalRepository {
 
@@ -25,16 +24,14 @@ class DbJournalRepository : JournalRepository {
     }
 
     override suspend fun create(entry: JournalEntry): JournalEntry = dbQuery {
-        val id = UUID.randomUUID().toString()
         val now = Instant.now()
-        JournalEntryTable.insert {
-            it[JournalEntryTable.id]          = id
+        val generatedId = JournalEntryTable.insert {
             it[JournalEntryTable.childId]     = entry.childId
             it[JournalEntryTable.emotionType] = entry.emotionType.name
             it[JournalEntryTable.note]        = entry.note.ifBlank { null }
             it[JournalEntryTable.createdAt]   = now
-        }
-        entry.copy(id = id, createdAt = now.toString())
+        }[JournalEntryTable.id]
+        entry.copy(id = generatedId, createdAt = now.toString())
     }
 
     override suspend fun countByChildId(childId: String): Int = dbQuery {

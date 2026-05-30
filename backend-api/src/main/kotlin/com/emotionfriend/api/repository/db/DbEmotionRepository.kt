@@ -23,7 +23,7 @@ class DbEmotionRepository : EmotionRepository {
             .map { it.toEmotionCard() }
     }
 
-    override suspend fun getById(id: String): EmotionCard? = dbQuery {
+    override suspend fun getById(id: Int): EmotionCard? = dbQuery {
         EmotionCardTable
             .selectAll()
             .where { EmotionCardTable.id eq id }

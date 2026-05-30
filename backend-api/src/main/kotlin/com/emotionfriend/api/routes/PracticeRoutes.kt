@@ -23,23 +23,10 @@ fun Route.practiceRoutes(service: PracticeService) {
                     ApiResponse<Unit>(success = false, error = "childId must not be blank"),
                 )
             }
-            if (req.scenarioId.isBlank()) {
-                return@post call.respond(
-                    HttpStatusCode.BadRequest,
-                    ApiResponse<Unit>(success = false, error = "scenarioId must not be blank"),
-                )
-            }
-            if (req.selectedIndex < 0) {
-                return@post call.respond(
-                    HttpStatusCode.BadRequest,
-                    ApiResponse<Unit>(success = false, error = "selectedIndex must be >= 0"),
-                )
-            }
             val attempt = service.create(
                 PracticeAttempt(
                     childId       = req.childId,
                     scenarioId    = req.scenarioId,
-                    selectedIndex = req.selectedIndex,
                     isCorrect     = req.isCorrect,
                     promptEmotion = req.promptEmotion,
                 ),

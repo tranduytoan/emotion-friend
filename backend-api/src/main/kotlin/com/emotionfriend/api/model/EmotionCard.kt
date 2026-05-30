@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class EmotionCard(
-    val id: String,
+    val id: Int,
     val emotionType: EmotionType,
     val emoji: String,
     val label: String,

@@ -13,8 +13,7 @@ data class CreateJournalEntryRequest(
 @Serializable
 data class CreatePracticeAttemptRequest(
     val childId: String,
-    val scenarioId: String,
-    val selectedIndex: Int,
+    val scenarioId: Int? = null,
     val isCorrect: Boolean,
     val promptEmotion: String? = null,
 )

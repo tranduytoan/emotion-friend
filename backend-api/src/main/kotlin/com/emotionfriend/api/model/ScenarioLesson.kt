@@ -4,22 +4,21 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ScenarioLesson(
-    val id: String,
+    val id: Int = 0,
     val title: String,
     val situation: String,
-    val options: List<String>,
-    val correctIndex: Int,
+    val options: List<String>,       // EmotionType codes: ["HAPPY","ANGRY","CALM","SURPRISED"]
+    val correctEmotion: String,      // EmotionType code of the correct answer
     val explanation: String,
     val sortOrder: Int = 0,
 )
 
 @Serializable
 data class ScenarioLessonRequest(
-    val id: String? = null,
     val title: String,
     val situation: String,
     val options: List<String>,
-    val correctIndex: Int,
+    val correctEmotion: String,
     val explanation: String,
     val sortOrder: Int = 0,
 )

@@ -17,10 +17,10 @@ fun Route.scenarioRoutes(service: ScenarioService) {
 
         // GET /api/scenarios/{id} — single by ID
         get("/{id}") {
-            val id = call.parameters["id"]
+            val id = call.parameters["id"]?.toIntOrNull()
                 ?: return@get call.respond(
                     HttpStatusCode.BadRequest,
-                    ApiResponse<Unit>(success = false, error = "id is required"),
+                    ApiResponse<Unit>(success = false, error = "id must be an integer"),
                 )
             val scenario = service.getById(id)
             call.respond(HttpStatusCode.OK, ApiResponse(success = true, data = scenario))

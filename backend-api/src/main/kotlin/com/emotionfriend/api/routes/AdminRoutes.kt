@@ -15,15 +15,10 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import java.util.UUID
 
 /**
  * Admin CRUD routes — protected by a simple Bearer token.
- *
  * Token is read from the ADMIN_TOKEN environment variable.
- * If not set, defaults to "admin-secret-token" for development.
- *
- * All admin routes are prefixed with /admin/
  */
 fun Route.adminRoutes(
     scenarioService: ScenarioService,
@@ -54,8 +49,8 @@ fun Route.adminRoutes(
             }
 
             get("/{id}") {
-                val id = call.parameters["id"] ?: return@get call.respond(
-                    HttpStatusCode.BadRequest, ApiResponse<Unit>(success = false, error = "id required")
+                val id = call.parameters["id"]?.toIntOrNull() ?: return@get call.respond(
+                    HttpStatusCode.BadRequest, ApiResponse<Unit>(success = false, error = "id must be an integer")
                 )
                 runCatching { scenarioService.getById(id) }
                     .onSuccess { call.respond(HttpStatusCode.OK, ApiResponse(success = true, data = it)) }
@@ -67,33 +62,32 @@ fun Route.adminRoutes(
                     return@post call.respond(HttpStatusCode.BadRequest, ApiResponse<Unit>(success = false, error = "Invalid request body"))
                 }
                 val lesson = ScenarioLesson(
-                    id           = req.id ?: UUID.randomUUID().toString(),
-                    title        = req.title,
-                    situation    = req.situation,
-                    options      = req.options,
-                    correctIndex = req.correctIndex,
-                    explanation  = req.explanation,
-                    sortOrder    = req.sortOrder,
+                    title          = req.title,
+                    situation      = req.situation,
+                    options        = req.options,
+                    correctEmotion = req.correctEmotion,
+                    explanation    = req.explanation,
+                    sortOrder      = req.sortOrder,
                 )
                 val created = scenarioService.create(lesson)
                 call.respond(HttpStatusCode.Created, ApiResponse(success = true, data = created))
             }
 
             put("/{id}") {
-                val id = call.parameters["id"] ?: return@put call.respond(
-                    HttpStatusCode.BadRequest, ApiResponse<Unit>(success = false, error = "id required")
+                val id = call.parameters["id"]?.toIntOrNull() ?: return@put call.respond(
+                    HttpStatusCode.BadRequest, ApiResponse<Unit>(success = false, error = "id must be an integer")
                 )
                 val req = runCatching { call.receive<ScenarioLessonRequest>() }.getOrElse {
                     return@put call.respond(HttpStatusCode.BadRequest, ApiResponse<Unit>(success = false, error = "Invalid request body"))
                 }
                 val lesson = ScenarioLesson(
-                    id           = id,
-                    title        = req.title,
-                    situation    = req.situation,
-                    options      = req.options,
-                    correctIndex = req.correctIndex,
-                    explanation  = req.explanation,
-                    sortOrder    = req.sortOrder,
+                    id             = id,
+                    title          = req.title,
+                    situation      = req.situation,
+                    options        = req.options,
+                    correctEmotion = req.correctEmotion,
+                    explanation    = req.explanation,
+                    sortOrder      = req.sortOrder,
                 )
                 runCatching { scenarioService.update(id, lesson) }
                     .onSuccess { call.respond(HttpStatusCode.OK, ApiResponse(success = true, data = it)) }
@@ -101,8 +95,8 @@ fun Route.adminRoutes(
             }
 
             delete("/{id}") {
-                val id = call.parameters["id"] ?: return@delete call.respond(
-                    HttpStatusCode.BadRequest, ApiResponse<Unit>(success = false, error = "id required")
+                val id = call.parameters["id"]?.toIntOrNull() ?: return@delete call.respond(
+                    HttpStatusCode.BadRequest, ApiResponse<Unit>(success = false, error = "id must be an integer")
                 )
                 val deleted = scenarioService.delete(id)
                 if (deleted) call.respond(HttpStatusCode.OK, ApiResponse(success = true, data = "Deleted"))
@@ -117,8 +111,8 @@ fun Route.adminRoutes(
             }
 
             get("/{id}") {
-                val id = call.parameters["id"] ?: return@get call.respond(
-                    HttpStatusCode.BadRequest, ApiResponse<Unit>(success = false, error = "id required")
+                val id = call.parameters["id"]?.toIntOrNull() ?: return@get call.respond(
+                    HttpStatusCode.BadRequest, ApiResponse<Unit>(success = false, error = "id must be an integer")
                 )
                 runCatching { storyService.getById(id) }
                     .onSuccess { call.respond(HttpStatusCode.OK, ApiResponse(success = true, data = it)) }
@@ -130,7 +124,6 @@ fun Route.adminRoutes(
                     return@post call.respond(HttpStatusCode.BadRequest, ApiResponse<Unit>(success = false, error = "Invalid request body"))
                 }
                 val story = Story(
-                    id        = req.id ?: UUID.randomUUID().toString(),
                     title     = req.title,
                     content   = req.content,
                     category  = req.category,
@@ -142,8 +135,8 @@ fun Route.adminRoutes(
             }
 
             put("/{id}") {
-                val id = call.parameters["id"] ?: return@put call.respond(
-                    HttpStatusCode.BadRequest, ApiResponse<Unit>(success = false, error = "id required")
+                val id = call.parameters["id"]?.toIntOrNull() ?: return@put call.respond(
+                    HttpStatusCode.BadRequest, ApiResponse<Unit>(success = false, error = "id must be an integer")
                 )
                 val req = runCatching { call.receive<StoryRequest>() }.getOrElse {
                     return@put call.respond(HttpStatusCode.BadRequest, ApiResponse<Unit>(success = false, error = "Invalid request body"))
@@ -162,8 +155,8 @@ fun Route.adminRoutes(
             }
 
             delete("/{id}") {
-                val id = call.parameters["id"] ?: return@delete call.respond(
-                    HttpStatusCode.BadRequest, ApiResponse<Unit>(success = false, error = "id required")
+                val id = call.parameters["id"]?.toIntOrNull() ?: return@delete call.respond(
+                    HttpStatusCode.BadRequest, ApiResponse<Unit>(success = false, error = "id must be an integer")
                 )
                 val deleted = storyService.delete(id)
                 if (deleted) call.respond(HttpStatusCode.OK, ApiResponse(success = true, data = "Deleted"))
@@ -178,8 +171,8 @@ fun Route.adminRoutes(
             }
 
             get("/{id}") {
-                val id = call.parameters["id"] ?: return@get call.respond(
-                    HttpStatusCode.BadRequest, ApiResponse<Unit>(success = false, error = "id required")
+                val id = call.parameters["id"]?.toIntOrNull() ?: return@get call.respond(
+                    HttpStatusCode.BadRequest, ApiResponse<Unit>(success = false, error = "id must be an integer")
                 )
                 runCatching { musicService.getById(id) }
                     .onSuccess { call.respond(HttpStatusCode.OK, ApiResponse(success = true, data = it)) }
@@ -191,7 +184,6 @@ fun Route.adminRoutes(
                     return@post call.respond(HttpStatusCode.BadRequest, ApiResponse<Unit>(success = false, error = "Invalid request body"))
                 }
                 val track = MusicTrack(
-                    id        = req.id ?: UUID.randomUUID().toString(),
                     title     = req.title,
                     artist    = req.artist,
                     filename  = req.filename,
@@ -202,8 +194,8 @@ fun Route.adminRoutes(
             }
 
             put("/{id}") {
-                val id = call.parameters["id"] ?: return@put call.respond(
-                    HttpStatusCode.BadRequest, ApiResponse<Unit>(success = false, error = "id required")
+                val id = call.parameters["id"]?.toIntOrNull() ?: return@put call.respond(
+                    HttpStatusCode.BadRequest, ApiResponse<Unit>(success = false, error = "id must be an integer")
                 )
                 val req = runCatching { call.receive<MusicTrackRequest>() }.getOrElse {
                     return@put call.respond(HttpStatusCode.BadRequest, ApiResponse<Unit>(success = false, error = "Invalid request body"))
@@ -221,8 +213,8 @@ fun Route.adminRoutes(
             }
 
             delete("/{id}") {
-                val id = call.parameters["id"] ?: return@delete call.respond(
-                    HttpStatusCode.BadRequest, ApiResponse<Unit>(success = false, error = "id required")
+                val id = call.parameters["id"]?.toIntOrNull() ?: return@delete call.respond(
+                    HttpStatusCode.BadRequest, ApiResponse<Unit>(success = false, error = "id must be an integer")
                 )
                 val deleted = musicService.delete(id)
                 if (deleted) call.respond(HttpStatusCode.OK, ApiResponse(success = true, data = "Deleted"))

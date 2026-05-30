@@ -17,10 +17,10 @@ fun Route.storyRoutes(service: StoryService) {
 
         // GET /api/stories/{id} — single story by ID
         get("/{id}") {
-            val id = call.parameters["id"]
+            val id = call.parameters["id"]?.toIntOrNull()
                 ?: return@get call.respond(
                     HttpStatusCode.BadRequest,
-                    ApiResponse<Unit>(success = false, error = "id is required"),
+                    ApiResponse<Unit>(success = false, error = "id must be an integer"),
                 )
             runCatching { service.getById(id) }
                 .onSuccess { call.respond(HttpStatusCode.OK, ApiResponse(success = true, data = it)) }

@@ -17,22 +17,21 @@ class DbMusicRepository : MusicRepository {
         MusicTrackTable.selectAll().orderBy(MusicTrackTable.sortOrder, SortOrder.ASC).map { it.toTrack() }
     }
 
-    override suspend fun getById(id: String): MusicTrack? = dbQuery {
+    override suspend fun getById(id: Int): MusicTrack? = dbQuery {
         MusicTrackTable.selectAll().where { MusicTrackTable.id eq id }.singleOrNull()?.toTrack()
     }
 
     override suspend fun create(track: MusicTrack): MusicTrack = dbQuery {
-        MusicTrackTable.insert {
-            it[id]        = track.id
+        val generatedId = MusicTrackTable.insert {
             it[title]     = track.title
             it[artist]    = track.artist
             it[filename]  = track.filename
             it[sortOrder] = track.sortOrder
-        }
-        track
+        }[MusicTrackTable.id]
+        track.copy(id = generatedId)
     }
 
-    override suspend fun update(id: String, track: MusicTrack): MusicTrack? = dbQuery {
+    override suspend fun update(id: Int, track: MusicTrack): MusicTrack? = dbQuery {
         val updated = MusicTrackTable.update({ MusicTrackTable.id eq id }) {
             it[title]     = track.title
             it[artist]    = track.artist
@@ -42,7 +41,7 @@ class DbMusicRepository : MusicRepository {
         if (updated > 0) track.copy(id = id) else null
     }
 
-    override suspend fun delete(id: String): Boolean = dbQuery {
+    override suspend fun delete(id: Int): Boolean = dbQuery {
         MusicTrackTable.deleteWhere { MusicTrackTable.id eq id } > 0
     }
 

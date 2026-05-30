@@ -17,10 +17,10 @@ fun Route.emotionRoutes(service: EmotionService) {
 
         // GET /api/emotions/{id} — single by ID
         get("/{id}") {
-            val id = call.parameters["id"]
+            val id = call.parameters["id"]?.toIntOrNull()
                 ?: return@get call.respond(
                     HttpStatusCode.BadRequest,
-                    ApiResponse<Unit>(success = false, error = "id is required"),
+                    ApiResponse<Unit>(success = false, error = "id must be an integer"),
                 )
             val emotion = service.getById(id)
             call.respond(HttpStatusCode.OK, ApiResponse(success = true, data = emotion))

@@ -24,7 +24,7 @@ class DbScenarioRepository : ScenarioRepository {
             .map { it.toScenarioLesson() }
     }
 
-    override suspend fun getById(id: String): ScenarioLesson? = dbQuery {
+    override suspend fun getById(id: Int): ScenarioLesson? = dbQuery {
         ScenarioLessonTable
             .selectAll()
             .where { ScenarioLessonTable.id eq id }
@@ -33,31 +33,30 @@ class DbScenarioRepository : ScenarioRepository {
     }
 
     override suspend fun create(lesson: ScenarioLesson): ScenarioLesson = dbQuery {
-        ScenarioLessonTable.insert {
-            it[id]           = lesson.id
-            it[title]        = lesson.title
-            it[situation]    = lesson.situation
-            it[options]      = json.encodeToString(lesson.options)
-            it[correctIndex] = lesson.correctIndex
-            it[explanation]  = lesson.explanation
-            it[sortOrder]    = lesson.sortOrder
-        }
-        lesson
+        val generatedId = ScenarioLessonTable.insert {
+            it[title]          = lesson.title
+            it[situation]      = lesson.situation
+            it[options]        = json.encodeToString(lesson.options)
+            it[correctEmotion] = lesson.correctEmotion
+            it[explanation]    = lesson.explanation
+            it[sortOrder]      = lesson.sortOrder
+        }[ScenarioLessonTable.id]
+        lesson.copy(id = generatedId)
     }
 
-    override suspend fun update(id: String, lesson: ScenarioLesson): ScenarioLesson? = dbQuery {
+    override suspend fun update(id: Int, lesson: ScenarioLesson): ScenarioLesson? = dbQuery {
         val updated = ScenarioLessonTable.update({ ScenarioLessonTable.id eq id }) {
-            it[title]        = lesson.title
-            it[situation]    = lesson.situation
-            it[options]      = json.encodeToString(lesson.options)
-            it[correctIndex] = lesson.correctIndex
-            it[explanation]  = lesson.explanation
-            it[sortOrder]    = lesson.sortOrder
+            it[title]          = lesson.title
+            it[situation]      = lesson.situation
+            it[options]        = json.encodeToString(lesson.options)
+            it[correctEmotion] = lesson.correctEmotion
+            it[explanation]    = lesson.explanation
+            it[sortOrder]      = lesson.sortOrder
         }
         if (updated > 0) lesson.copy(id = id) else null
     }
 
-    override suspend fun delete(id: String): Boolean = dbQuery {
+    override suspend fun delete(id: Int): Boolean = dbQuery {
         ScenarioLessonTable.deleteWhere { ScenarioLessonTable.id eq id } > 0
     }
 
@@ -65,13 +64,13 @@ class DbScenarioRepository : ScenarioRepository {
         val optionsJson = this[ScenarioLessonTable.options]
         val options = json.decodeFromString<List<String>>(optionsJson)
         return ScenarioLesson(
-            id           = this[ScenarioLessonTable.id],
-            title        = this[ScenarioLessonTable.title],
-            situation    = this[ScenarioLessonTable.situation],
-            options      = options,
-            correctIndex = this[ScenarioLessonTable.correctIndex],
-            explanation  = this[ScenarioLessonTable.explanation],
-            sortOrder    = this[ScenarioLessonTable.sortOrder],
+            id             = this[ScenarioLessonTable.id],
+            title          = this[ScenarioLessonTable.title],
+            situation      = this[ScenarioLessonTable.situation],
+            options        = options,
+            correctEmotion = this[ScenarioLessonTable.correctEmotion],
+            explanation    = this[ScenarioLessonTable.explanation],
+            sortOrder      = this[ScenarioLessonTable.sortOrder],
         )
     }
 }

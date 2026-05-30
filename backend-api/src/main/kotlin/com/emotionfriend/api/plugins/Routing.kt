@@ -1,20 +1,19 @@
 package com.emotionfriend.api.plugins
 
 import com.emotionfriend.api.repository.db.*
-import com.emotionfriend.api.repository.fake.*
 import com.emotionfriend.api.routes.*
 import com.emotionfriend.api.service.*
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
 
-fun Application.configureRouting(useDatabase: Boolean = false) {
-    val emotionRepo   = if (useDatabase) DbEmotionRepository()   else FakeEmotionRepository()
-    val scenarioRepo  = if (useDatabase) DbScenarioRepository()  else FakeScenarioRepository()
-    val journalRepo   = if (useDatabase) DbJournalRepository()   else FakeJournalRepository()
-    val practiceRepo  = if (useDatabase) DbPracticeRepository()  else FakePracticeRepository()
-    val progressRepo  = if (useDatabase) DbProgressRepository()  else FakeProgressRepository(journalRepo, practiceRepo)
-    val storyRepo     = if (useDatabase) DbStoryRepository()     else FakeStoryRepository()
-    val musicRepo     = if (useDatabase) DbMusicRepository()     else FakeMusicRepository()
+fun Application.configureRouting() {
+    val emotionRepo   = DbEmotionRepository()
+    val scenarioRepo  = DbScenarioRepository()
+    val journalRepo   = DbJournalRepository()
+    val practiceRepo  = DbPracticeRepository()
+    val progressRepo  = DbProgressRepository()
+    val storyRepo     = DbStoryRepository()
+    val musicRepo     = DbMusicRepository()
 
     val emotionService  = EmotionService(emotionRepo)
     val scenarioService = ScenarioService(scenarioRepo)

@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Story(
-    val id: String,
+    val id: Int = 0,
     val title: String,
     val content: String,
     val category: String,
@@ -14,7 +14,6 @@ data class Story(
 
 @Serializable
 data class StoryRequest(
-    val id: String? = null,
     val title: String,
     val content: String,
     val category: String,

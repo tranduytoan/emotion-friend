@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class MusicTrack(
-    val id: String,
+    val id: Int = 0,
     val title: String,
     val artist: String,
     val filename: String,
@@ -13,7 +13,6 @@ data class MusicTrack(
 
 @Serializable
 data class MusicTrackRequest(
-    val id: String? = null,
     val title: String,
     val artist: String,
     val filename: String,

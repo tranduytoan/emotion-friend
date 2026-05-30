@@ -1,10 +1,16 @@
 import { useState, useEffect, useCallback } from 'react'
 import { scenariosApi, ScenarioLesson } from '../api'
 
-type FormData = Omit<ScenarioLesson, 'id'> & { id?: string }
+const EMOTION_TYPES = ['HAPPY', 'SAD', 'ANGRY', 'SURPRISED', 'CALM', 'TIRED']
+const EMOTION_LABELS: Record<string, string> = {
+  HAPPY: '😊 Vui', SAD: '😢 Buồn', ANGRY: '😠 Tức giận',
+  SURPRISED: '😮 Ngạc nhiên', CALM: '😌 Bình tĩnh', TIRED: '😴 Mệt mỏi',
+}
+
+type FormData = Omit<ScenarioLesson, 'id'>
 
 const EMPTY_FORM: FormData = {
-  title: '', situation: '', options: ['', '', '', ''], correctIndex: 0, explanation: '', sortOrder: 0,
+  title: '', situation: '', options: ['HAPPY', 'SAD', 'ANGRY', 'SURPRISED'], correctEmotion: 'HAPPY', explanation: '', sortOrder: 0,
 }
 
 export default function ScenariosPage() {
@@ -41,7 +47,7 @@ export default function ScenariosPage() {
   }
 
   function openEdit(item: ScenarioLesson) {
-    setForm({ ...item })
+    setForm({ title: item.title, situation: item.situation, options: item.options, correctEmotion: item.correctEmotion, explanation: item.explanation, sortOrder: item.sortOrder })
     setModal({ open: true, editing: item })
   }
 
@@ -50,7 +56,7 @@ export default function ScenariosPage() {
     setSaving(true)
     try {
       if (modal.editing) {
-        await scenariosApi.update(modal.editing.id, form as Omit<ScenarioLesson, 'id'>)
+        await scenariosApi.update(modal.editing.id, form)
         showToast('Đã cập nhật bài học!')
       } else {
         await scenariosApi.create(form)
@@ -119,7 +125,7 @@ export default function ScenariosPage() {
                     <td><strong>{item.title}</strong></td>
                     <td className="td-truncate">{item.situation}</td>
                     <td><span className="badge badge-blue">{item.options.length} lựa chọn</span></td>
-                    <td><span className="badge badge-green">#{item.correctIndex + 1}</span></td>
+                    <td><span className="badge badge-green">{EMOTION_LABELS[item.correctEmotion] ?? item.correctEmotion}</span></td>
                     <td>{item.sortOrder}</td>
                     <td>
                       <div className="td-actions">
@@ -154,29 +160,40 @@ export default function ScenariosPage() {
                   <textarea className="form-textarea" value={form.situation} onChange={e => setForm(f => ({ ...f, situation: e.target.value }))} required rows={3} />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Các lựa chọn *</label>
+                  <label className="form-label">Các lựa chọn * (chọn EmotionType cho mỗi ô)</label>
                   <div className="options-list">
                     {form.options.map((opt, i) => (
                       <div className="option-row" key={i}>
                         <div
-                          className={`option-index${form.correctIndex === i ? ' correct' : ''}`}
-                          title="Nhấn để chọn đáp án đúng"
+                          className={`option-index${form.correctEmotion === opt ? ' correct' : ''}`}
+                          title="Nhấn để chọn đây là đáp án đúng"
                           style={{ cursor: 'pointer' }}
-                          onClick={() => setForm(f => ({ ...f, correctIndex: i }))}
+                          onClick={() => setForm(f => ({ ...f, correctEmotion: opt }))}
                         >
-                          {form.correctIndex === i ? '✓' : i + 1}
+                          {form.correctEmotion === opt ? '✓' : i + 1}
                         </div>
-                        <input
+                        <select
                           className="form-input"
                           value={opt}
                           onChange={e => setOption(i, e.target.value)}
-                          placeholder={`Lựa chọn ${i + 1}...`}
                           required
-                        />
+                        >
+                          {EMOTION_TYPES.map(et => (
+                            <option key={et} value={et}>{EMOTION_LABELS[et]}</option>
+                          ))}
+                        </select>
                       </div>
                     ))}
                   </div>
-                  <div className="form-hint">Nhấn vào số thứ tự để chọn đáp án đúng (hiển thị màu xanh)</div>
+                  <div className="form-hint">Nhấn vào số thứ tự để đánh dấu đáp án đúng (hiển thị màu xanh)</div>
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Đáp án đúng *</label>
+                  <select className="form-input" value={form.correctEmotion} onChange={e => setForm(f => ({ ...f, correctEmotion: e.target.value }))} required>
+                    {EMOTION_TYPES.map(et => (
+                      <option key={et} value={et}>{EMOTION_LABELS[et]}</option>
+                    ))}
+                  </select>
                 </div>
                 <div className="form-group">
                   <label className="form-label">Giải thích *</label>

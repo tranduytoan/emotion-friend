@@ -25,17 +25,17 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 // ── Types ──────────────────────────────────────────────────────────────────
 
 export interface ScenarioLesson {
-  id: string
+  id: number
   title: string
   situation: string
-  options: string[]
-  correctIndex: number
+  options: string[]         // EmotionType codes: HAPPY, SAD, ANGRY, SURPRISED, CALM, TIRED
+  correctEmotion: string   // EmotionType code of correct answer
   explanation: string
   sortOrder: number
 }
 
 export interface Story {
-  id: string
+  id: number
   title: string
   content: string
   category: string
@@ -44,7 +44,7 @@ export interface Story {
 }
 
 export interface MusicTrack {
-  id: string
+  id: number
   title: string
   artist: string
   filename: string
@@ -55,33 +55,33 @@ export interface MusicTrack {
 
 export const scenariosApi = {
   list: () => request<ScenarioLesson[]>('/admin/scenarios'),
-  create: (data: Omit<ScenarioLesson, 'id'> & { id?: string }) =>
+  create: (data: Omit<ScenarioLesson, 'id'>) =>
     request<ScenarioLesson>('/admin/scenarios', { method: 'POST', body: JSON.stringify(data) }),
-  update: (id: string, data: Omit<ScenarioLesson, 'id'>) =>
+  update: (id: number, data: Omit<ScenarioLesson, 'id'>) =>
     request<ScenarioLesson>(`/admin/scenarios/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
-  delete: (id: string) => request<string>(`/admin/scenarios/${id}`, { method: 'DELETE' }),
+  delete: (id: number) => request<string>(`/admin/scenarios/${id}`, { method: 'DELETE' }),
 }
 
 // ── Story API ──────────────────────────────────────────────────────────────
 
 export const storiesApi = {
   list: () => request<Story[]>('/admin/stories'),
-  create: (data: Omit<Story, 'id'> & { id?: string }) =>
+  create: (data: Omit<Story, 'id'>) =>
     request<Story>('/admin/stories', { method: 'POST', body: JSON.stringify(data) }),
-  update: (id: string, data: Omit<Story, 'id'>) =>
+  update: (id: number, data: Omit<Story, 'id'>) =>
     request<Story>(`/admin/stories/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
-  delete: (id: string) => request<string>(`/admin/stories/${id}`, { method: 'DELETE' }),
+  delete: (id: number) => request<string>(`/admin/stories/${id}`, { method: 'DELETE' }),
 }
 
 // ── Music API ──────────────────────────────────────────────────────────────
 
 export const musicApi = {
   list: () => request<MusicTrack[]>('/admin/music'),
-  create: (data: Omit<MusicTrack, 'id'> & { id?: string }) =>
+  create: (data: Omit<MusicTrack, 'id'>) =>
     request<MusicTrack>('/admin/music', { method: 'POST', body: JSON.stringify(data) }),
-  update: (id: string, data: Omit<MusicTrack, 'id'>) =>
+  update: (id: number, data: Omit<MusicTrack, 'id'>) =>
     request<MusicTrack>(`/admin/music/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
-  delete: (id: string) => request<string>(`/admin/music/${id}`, { method: 'DELETE' }),
+  delete: (id: number) => request<string>(`/admin/music/${id}`, { method: 'DELETE' }),
 }
 
 // ── Auth helper ────────────────────────────────────────────────────────────

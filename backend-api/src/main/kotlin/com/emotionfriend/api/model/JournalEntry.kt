@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class JournalEntry(
-    val id: String = "",
+    val id: Long = 0L,
     val childId: String,
     val emotionType: EmotionType,
     val note: String,

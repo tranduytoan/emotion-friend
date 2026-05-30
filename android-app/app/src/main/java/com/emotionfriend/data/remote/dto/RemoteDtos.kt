@@ -15,7 +15,7 @@ data class ApiResponseDto<T>(
 
 @Serializable
 data class EmotionCardDto(
-    val id: String,
+    val id: Int,
     @SerialName("emotionType") val emotionType: String,
     val emoji: String,
     val label: String,
@@ -24,17 +24,17 @@ data class EmotionCardDto(
 
 @Serializable
 data class ScenarioLessonDto(
-    val id: String,
+    val id: Int,
     val title: String,
     val situation: String,
-    val options: List<String>,
-    val correctIndex: Int,
+    val options: List<String>,       // EmotionType codes
+    val correctEmotion: String,      // EmotionType code of correct answer
     val explanation: String,
 )
 
 @Serializable
 data class JournalEntryDto(
-    val id: String,
+    val id: Long,
     val childId: String,
     val emotionType: String,
     val note: String? = null,
@@ -43,10 +43,9 @@ data class JournalEntryDto(
 
 @Serializable
 data class PracticeAttemptDto(
-    val id: String,
+    val id: Long,
     val childId: String,
-    val scenarioId: String,
-    val selectedIndex: Int,
+    val scenarioId: Int? = null,
     val isCorrect: Boolean,
     val promptEmotion: String? = null,
     val createdAt: String,
@@ -73,8 +72,7 @@ data class CreateJournalEntryRequest(
 @Serializable
 data class CreatePracticeAttemptRequest(
     val childId: String,
-    val scenarioId: String,
-    val selectedIndex: Int,
+    val scenarioId: Int? = null,
     val isCorrect: Boolean,
     val promptEmotion: String? = null,
 )
@@ -111,7 +109,7 @@ data class CreateEmotionLogRequest(
 /** Mirrors backend Story model — GET /api/stories. */
 @Serializable
 data class StoryDto(
-    val id: String,
+    val id: Int,
     val title: String,
     val content: String,
     val category: String,

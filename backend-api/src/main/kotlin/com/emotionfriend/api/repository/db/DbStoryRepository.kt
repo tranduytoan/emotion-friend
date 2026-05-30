@@ -17,23 +17,22 @@ class DbStoryRepository : StoryRepository {
         StoryTable.selectAll().orderBy(StoryTable.sortOrder, SortOrder.ASC).map { it.toStory() }
     }
 
-    override suspend fun getById(id: String): Story? = dbQuery {
+    override suspend fun getById(id: Int): Story? = dbQuery {
         StoryTable.selectAll().where { StoryTable.id eq id }.singleOrNull()?.toStory()
     }
 
     override suspend fun create(story: Story): Story = dbQuery {
-        StoryTable.insert {
-            it[id]        = story.id
+        val generatedId = StoryTable.insert {
             it[title]     = story.title
             it[content]   = story.content
             it[category]  = story.category
             it[imageUrl]  = story.imageUrl
             it[sortOrder] = story.sortOrder
-        }
-        story
+        }[StoryTable.id]
+        story.copy(id = generatedId)
     }
 
-    override suspend fun update(id: String, story: Story): Story? = dbQuery {
+    override suspend fun update(id: Int, story: Story): Story? = dbQuery {
         val updated = StoryTable.update({ StoryTable.id eq id }) {
             it[title]     = story.title
             it[content]   = story.content
@@ -44,7 +43,7 @@ class DbStoryRepository : StoryRepository {
         if (updated > 0) story.copy(id = id) else null
     }
 
-    override suspend fun delete(id: String): Boolean = dbQuery {
+    override suspend fun delete(id: Int): Boolean = dbQuery {
         StoryTable.deleteWhere { StoryTable.id eq id } > 0
     }
 

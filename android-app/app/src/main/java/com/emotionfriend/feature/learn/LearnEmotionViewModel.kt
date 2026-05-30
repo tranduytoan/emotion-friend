@@ -1,12 +1,18 @@
 package com.emotionfriend.feature.learn
 
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.emotionfriend.data.repository.EmotionRepository
 import com.emotionfriend.data.repository.PracticeRepository
+import com.emotionfriend.data.repository.ScenarioRepository
 import com.emotionfriend.domain.model.EmotionCard
 import com.emotionfriend.domain.model.EmotionType
 import com.emotionfriend.domain.model.PracticeAttempt
+import com.emotionfriend.domain.model.ScenarioLesson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,46 +24,174 @@ import java.util.UUID
 import javax.inject.Inject
 
 // ---------------------------------------------------------------------------
+// Domain types used only within this feature
+// ---------------------------------------------------------------------------
+
+enum class LessonType { EMOTION, SCENARIO }
+enum class LearnPhase { SETS_LIST, QUESTION, SET_COMPLETE }
+
+data class LessonSetInfo(
+    val id: String,
+    val title: String,
+    val type: LessonType,
+    val totalCount: Int,
+    val correctCount: Int,
+) {
+    val isComplete: Boolean get() = correctCount >= totalCount
+    val progressFraction: Float get() = if (totalCount == 0) 0f else correctCount.toFloat() / totalCount
+}
+
+/** Normalised question regardless of type (emotion card or scenario). */
+data class ActiveQuestion(
+    val id: String,
+    val prompt: String,
+    val options: List<EmotionType>,
+    val correctAnswer: EmotionType,
+    val subtitle: String = "",          // used for scenario title
+)
+
+// ---------------------------------------------------------------------------
 // UI state
 // ---------------------------------------------------------------------------
 
 data class LearnEmotionUiState(
-    val isLoading: Boolean            = true,
-    val currentCard: EmotionCard?     = null,
-    val options: List<EmotionType>    = emptyList(),
-    val selectedEmotion: EmotionType? = null,
-    val isAnswerSubmitted: Boolean    = false,
-    val isCorrect: Boolean?           = null,
-    val feedbackMessage: String       = "",
-    val questionIndex: Int            = 0,
-    val totalQuestions: Int           = 0,
-    val isSessionComplete: Boolean    = false,
-    val isChallengeMode: Boolean      = false,
-)
+    val isLoading: Boolean               = true,
+    val phase: LearnPhase                = LearnPhase.SETS_LIST,
+    val lessonSets: List<LessonSetInfo>  = emptyList(),
+    val activeSetId: String?             = null,
+    val currentQuestion: ActiveQuestion? = null,
+    val selectedEmotion: EmotionType?    = null,
+    val isAnswerSubmitted: Boolean       = false,
+    val isCorrect: Boolean?              = null,
+    val feedbackMessage: String          = "",
+    val questionIndex: Int               = 0,
+    val totalQuestionsInSet: Int         = 0,
+) {
+    // Keep old fields for backward compat with LearnScreen question view
+    val currentCard: EmotionCard? = null
+    val isChallengeMode: Boolean  = false
+    val isSessionComplete: Boolean get() = phase == LearnPhase.SET_COMPLETE
+}
 
 // ---------------------------------------------------------------------------
 // ViewModel
 // ---------------------------------------------------------------------------
 
+private const val SET_SIZE = 10
+
 @HiltViewModel
 class LearnEmotionViewModel @Inject constructor(
     private val emotionRepository: EmotionRepository,
-    private val practiceRepository: PracticeRepository
+    private val scenarioRepository: ScenarioRepository,
+    private val practiceRepository: PracticeRepository,
+    private val dataStore: DataStore<Preferences>,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LearnEmotionUiState())
     val uiState: StateFlow<LearnEmotionUiState> = _uiState.asStateFlow()
 
-    // Shuffled list of cards for this session
-    private var sessionCards: List<EmotionCard> = emptyList()
+    /** Maps setId → ordered list of ActiveQuestion */
+    private val questionsBySet: MutableMap<String, List<ActiveQuestion>> = mutableMapOf()
+
+    /** Current ordered list for the active set (wrong/unanswered first, stable within a session). */
+    private var currentOrderedList: List<ActiveQuestion> = emptyList()
 
     init {
-        loadSession()
+        loadSets()
     }
 
-    // ---------------------------------------------------------------------------
-    // Public events
-    // ---------------------------------------------------------------------------
+    // ─────────────────────────────────────────────────────────────────────────
+    // Set list
+    // ─────────────────────────────────────────────────────────────────────────
+
+    private fun loadSets() {
+        viewModelScope.launch {
+            val emotionCards  = emotionRepository.getAll().first()
+            val scenarios     = scenarioRepository.getAll().first()
+            val prefs         = dataStore.data.first()
+
+            // Emotion sets
+            val emotionSets = emotionCards
+                .chunked(SET_SIZE)
+                .mapIndexed { idx, chunk ->
+                    val setId = "emotion_set_${idx + 1}"
+                    val questions = buildEmotionQuestions(chunk, emotionCards)
+                    questionsBySet[setId] = questions
+                    val correct = prefs.correctCount(setId, questions.map { it.id }.toSet())
+                    LessonSetInfo(
+                        id           = setId,
+                        title        = "Bộ ${idx + 1}: Cảm xúc cơ bản",
+                        type         = LessonType.EMOTION,
+                        totalCount   = questions.size,
+                        correctCount = correct,
+                    )
+                }
+
+            // Scenario sets
+            val scenarioSets = scenarios
+                .chunked(SET_SIZE)
+                .mapIndexed { idx, chunk ->
+                    val setId = "scenario_set_${idx + 1}"
+                    val questions = buildScenarioQuestions(chunk)
+                    questionsBySet[setId] = questions
+                    val correct = prefs.correctCount(setId, questions.map { it.id }.toSet())
+                    LessonSetInfo(
+                        id           = setId,
+                        title        = "Bộ ${emotionSets.size + idx + 1}: Tình huống",
+                        type         = LessonType.SCENARIO,
+                        totalCount   = questions.size,
+                        correctCount = correct,
+                    )
+                }
+
+            _uiState.update {
+                it.copy(
+                    isLoading  = false,
+                    lessonSets = emotionSets + scenarioSets,
+                    phase      = LearnPhase.SETS_LIST,
+                )
+            }
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Open a set
+    // ─────────────────────────────────────────────────────────────────────────
+
+    fun openSet(setId: String) {
+        viewModelScope.launch {
+            val prefs     = dataStore.data.first()
+            val allQuestions = questionsBySet[setId] ?: return@launch
+            val correctIds   = prefs[progressKey(setId)] ?: emptySet()
+
+            // Wrong / unanswered first, already-correct last — stable for this session
+            val ordered = allQuestions.sortedBy { if (it.id in correctIds) 1 else 0 }
+            currentOrderedList = ordered
+
+            _uiState.update {
+                it.copy(
+                    phase              = LearnPhase.QUESTION,
+                    activeSetId        = setId,
+                    questionIndex      = 0,
+                    totalQuestionsInSet = ordered.size,
+                    selectedEmotion    = null,
+                    isAnswerSubmitted  = false,
+                    isCorrect          = null,
+                    feedbackMessage    = "",
+                )
+            }
+            showQuestion(ordered, 0)
+        }
+    }
+
+    fun openFirstIncompleteSet() {
+        val target = _uiState.value.lessonSets.firstOrNull { !it.isComplete }
+        target?.let { openSet(it.id) }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Answer handling
+    // ─────────────────────────────────────────────────────────────────────────
 
     fun selectAnswer(emotionType: EmotionType) {
         if (_uiState.value.isAnswerSubmitted) return
@@ -65,134 +199,133 @@ class LearnEmotionViewModel @Inject constructor(
     }
 
     fun submitAnswer() {
-        val state = _uiState.value
-        val selected = state.selectedEmotion ?: return
-        val card     = state.currentCard    ?: return
+        val state    = _uiState.value
+        val selected = state.selectedEmotion   ?: return
+        val question = state.currentQuestion   ?: return
 
-        val correct = selected == card.type
-
-        val feedback = if (correct) {
-            "Đúng rồi! ${card.emoji} là ${card.label}. Giỏi lắm!"
-        } else {
-            "Chưa đúng. Đây là cảm xúc ${card.label} ${card.emoji}. Con thử lại lần sau nhé!"
-        }
+        val correct  = selected == question.correctAnswer
+        val feedback = if (correct)
+            "Đúng rồi! Giỏi lắm! 🎉"
+        else
+            "Chưa đúng. Đáp án là ${question.correctAnswer.name.lowercase()}. Con thử lại lần sau nhé!"
 
         _uiState.update {
             it.copy(
                 isAnswerSubmitted = true,
                 isCorrect         = correct,
-                feedbackMessage   = feedback
+                feedbackMessage   = feedback,
             )
         }
 
+        if (correct) {
+            viewModelScope.launch {
+                val setId = state.activeSetId ?: return@launch
+                dataStore.edit { prefs ->
+                    val existing = prefs[progressKey(setId)] ?: emptySet()
+                    prefs[progressKey(setId)] = existing + question.id
+                }
+            }
+        }
+
         savePracticeAttempt(
-            cardId         = card.id,
-            selected       = selected,
-            correct        = card.type,
-            isCorrect      = correct
+            cardId    = question.id,
+            selected  = selected,
+            correct   = question.correctAnswer,
+            isCorrect = correct,
         )
     }
 
     fun nextQuestion() {
-        val nextIndex = _uiState.value.questionIndex + 1
-        if (nextIndex >= sessionCards.size) {
-            _uiState.update { it.copy(isSessionComplete = true) }
-        } else {
-            showQuestion(nextIndex)
+        val state        = _uiState.value
+        val setId        = state.activeSetId ?: return
+        val ordered      = currentOrderedList.ifEmpty { questionsBySet[setId] ?: return }
+
+        viewModelScope.launch {
+            val prefs      = dataStore.data.first()
+            val nextIndex = state.questionIndex + 1
+            if (nextIndex >= ordered.size) {
+                // Refresh correct count in sets list
+                val correctIds = prefs[progressKey(setId)] ?: emptySet()
+                val correct = correctIds.intersect(ordered.map { it.id }.toSet()).size
+                _uiState.update { s ->
+                    val updatedSets = s.lessonSets.map {
+                        if (it.id == setId) it.copy(correctCount = correct) else it
+                    }
+                    s.copy(
+                        phase      = LearnPhase.SET_COMPLETE,
+                        lessonSets = updatedSets,
+                    )
+                }
+            } else {
+                showQuestion(ordered, nextIndex)
+            }
         }
+    }
+
+    fun backToSetsList() {
+        _uiState.update { it.copy(phase = LearnPhase.SETS_LIST, activeSetId = null) }
     }
 
     fun resetSession() {
-        loadSession()
+        _uiState.update { it.copy(phase = LearnPhase.SETS_LIST, activeSetId = null) }
     }
 
-    /**
-     * Toggles between normal (4 options) and challenge (6 options) mode.
-     * Rebuilds the current question's options immediately — no progress is lost.
-     */
-    fun toggleChallengeMode() {
-        val newMode = !_uiState.value.isChallengeMode
-        if (sessionCards.isEmpty()) {
-            _uiState.update { it.copy(isChallengeMode = newMode) }
-            return
-        }
-        val currentIndex    = _uiState.value.questionIndex
-        val card            = sessionCards[currentIndex]
-        val pool            = if (newMode) EmotionType.values().toList()
-                              else sessionCards.map { it.type }.distinct()
-        val distractorCount = if (newMode) 5 else 3
-        val distractors     = pool.filter { it != card.type }.shuffled().take(distractorCount)
-        val newOptions      = (listOf(card.type) + distractors).shuffled()
-        _uiState.update {
-            it.copy(
-                isChallengeMode   = newMode,
-                options           = newOptions,
-                selectedEmotion   = null,
-                isAnswerSubmitted  = false,
-                isCorrect         = null,
-                feedbackMessage   = ""
-            )
-        }
-    }
-
-    // ---------------------------------------------------------------------------
+    // ─────────────────────────────────────────────────────────────────────────
     // Private helpers
-    // ---------------------------------------------------------------------------
+    // ─────────────────────────────────────────────────────────────────────────
 
-    private fun loadSession() {
-        _uiState.update { LearnEmotionUiState(isLoading = true) }
-        viewModelScope.launch {
-            val cards = emotionRepository.getAll().first()
-            sessionCards = cards.shuffled()
-
-            if (sessionCards.isEmpty()) {
-                _uiState.update { it.copy(isLoading = false) }
-                return@launch
-            }
-
-            showQuestion(0)
-        }
-    }
-
-    private fun showQuestion(index: Int) {
-        val card    = sessionCards[index]
-        val options = buildOptions(card.type, sessionCards.map { it.type }.distinct())
-
+    private fun showQuestion(questions: List<ActiveQuestion>, index: Int) {
         _uiState.update {
             it.copy(
-                isLoading         = false,
-                currentCard       = card,
-                options           = options,
-                selectedEmotion   = null,
+                currentQuestion    = questions[index],
+                questionIndex      = index,
+                totalQuestionsInSet = questions.size,
+                selectedEmotion    = null,
                 isAnswerSubmitted  = false,
-                isCorrect         = null,
-                feedbackMessage   = "",
-                questionIndex     = index,
-                totalQuestions    = sessionCards.size,
-                isSessionComplete = false
+                isCorrect          = null,
+                feedbackMessage    = "",
             )
         }
     }
 
-    /**
-     * Returns shuffled options. Normal mode: 4 options (1 correct + 3 distractors).
-     * Challenge mode: 6 options (1 correct + 5 distractors from all EmotionType values).
-     */
-    private fun buildOptions(
-        correct: EmotionType,
-        allTypes: List<EmotionType>
-    ): List<EmotionType> {
-        val pool            = if (_uiState.value.isChallengeMode) EmotionType.values().toList() else allTypes
-        val distractorCount = if (_uiState.value.isChallengeMode) 5 else 3
-        val distractors     = pool.filter { it != correct }.shuffled().take(distractorCount)
-        return (listOf(correct) + distractors).shuffled()
+    private fun buildEmotionQuestions(
+        chunk: List<EmotionCard>,
+        allCards: List<EmotionCard>,
+    ): List<ActiveQuestion> {
+        val allTypes = allCards.map { it.type }.distinct()
+        return chunk.map { card ->
+            val distractors = allTypes.filter { it != card.type }.shuffled().take(3)
+            val options     = (listOf(card.type) + distractors).shuffled()
+            ActiveQuestion(
+                id            = card.id,
+                prompt        = "${card.description}. Bạn này đang cảm thấy gì?",
+                options       = options,
+                correctAnswer = card.type,
+            )
+        }
     }
+
+    private fun buildScenarioQuestions(chunk: List<ScenarioLesson>): List<ActiveQuestion> =
+        chunk.map { lesson ->
+            ActiveQuestion(
+                id            = lesson.id,
+                prompt        = "${lesson.situationText} Con cảm thấy thế nào?",
+                options       = lesson.options,
+                correctAnswer = lesson.correctEmotion,
+                subtitle      = lesson.title,
+            )
+        }
+
+    private fun progressKey(setId: String) = stringSetPreferencesKey("learn_progress_$setId")
+
+    private fun Preferences.correctCount(setId: String, allIds: Set<String>): Int =
+        (this[progressKey(setId)] ?: emptySet()).intersect(allIds).size
 
     private fun savePracticeAttempt(
         cardId: String,
         selected: EmotionType,
         correct: EmotionType,
-        isCorrect: Boolean
+        isCorrect: Boolean,
     ) {
         viewModelScope.launch {
             practiceRepository.insert(
@@ -204,9 +337,10 @@ class LearnEmotionViewModel @Inject constructor(
                     selectedEmotion = selected,
                     correctEmotion  = correct,
                     isCorrect       = isCorrect,
-                    createdAt       = System.currentTimeMillis()
+                    createdAt       = System.currentTimeMillis(),
                 )
             )
         }
     }
 }
+

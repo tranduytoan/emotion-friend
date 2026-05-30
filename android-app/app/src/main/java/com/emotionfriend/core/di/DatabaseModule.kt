@@ -8,6 +8,7 @@ import com.emotionfriend.data.local.EmotionFriendDatabase
 import com.emotionfriend.data.local.JournalEntryDao
 import com.emotionfriend.data.local.PracticeAttemptDao
 import com.emotionfriend.data.local.ScenarioLessonDao
+import com.emotionfriend.data.local.StoryDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -27,7 +28,11 @@ object DatabaseModule {
             EmotionFriendDatabase::class.java,
             EmotionFriendDatabase.DATABASE_NAME
         )
-            .addMigrations(DatabaseMigrations.MIGRATION_1_2)
+            .addMigrations(
+                DatabaseMigrations.MIGRATION_1_2,
+                DatabaseMigrations.MIGRATION_2_3,
+                DatabaseMigrations.MIGRATION_3_4,
+            )
             .build()
 
     @Provides
@@ -45,4 +50,8 @@ object DatabaseModule {
     @Provides
     fun providePracticeAttemptDao(db: EmotionFriendDatabase): PracticeAttemptDao =
         db.practiceAttemptDao()
+
+    @Provides
+    fun provideStoryDao(db: EmotionFriendDatabase): StoryDao =
+        db.storyDao()
 }

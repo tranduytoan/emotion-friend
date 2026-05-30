@@ -2,10 +2,13 @@ package com.emotionfriend.api.repository.fake
 
 import com.emotionfriend.api.model.ScenarioLesson
 import com.emotionfriend.api.repository.ScenarioRepository
+import java.util.UUID
+import java.util.concurrent.CopyOnWriteArrayList
 
 class FakeScenarioRepository : ScenarioRepository {
 
-    private val scenarios = listOf(
+    private val scenarios = CopyOnWriteArrayList(
+        mutableListOf(
         ScenarioLesson(
             id = "scenario_1",
             title = "Bạn bị vấp ngã",
@@ -88,7 +91,25 @@ class FakeScenarioRepository : ScenarioRepository {
         ),
     )
 
-    override suspend fun getAll(): List<ScenarioLesson> = scenarios
+    override suspend fun getAll(): List<ScenarioLesson> = scenarios.toList()
 
     override suspend fun getById(id: String): ScenarioLesson? = scenarios.find { it.id == id }
+
+    override suspend fun create(lesson: ScenarioLesson): ScenarioLesson {
+        val newLesson = lesson.copy(id = lesson.id.ifBlank { UUID.randomUUID().toString() })
+        scenarios.add(newLesson)
+        return newLesson
+    }
+
+    override suspend fun update(id: String, lesson: ScenarioLesson): ScenarioLesson? {
+        val idx = scenarios.indexOfFirst { it.id == id }
+        if (idx < 0) return null
+        val updated = lesson.copy(id = id)
+        scenarios[idx] = updated
+        return updated
+    }
+
+    override suspend fun delete(id: String): Boolean {
+        return scenarios.removeIf { it.id == id }
+    }
 }

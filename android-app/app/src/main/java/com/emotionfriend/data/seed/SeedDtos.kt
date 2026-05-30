@@ -27,3 +27,15 @@ data class SeedScenarioLessonDto(
     val options: List<String>,
     val explanation: String,
 )
+
+@Serializable
+data class SeedStoryDto(
+    val id: String,
+    val title: String,
+    val content: String,
+    val image1: String = "",
+    val image2: String = "",
+    val image3: String = "",
+    val image4: String = "",
+    val category: String = "DEFAULT",
+)

@@ -7,6 +7,8 @@ import com.emotionfriend.data.local.EmotionCardDao
 import com.emotionfriend.data.local.EmotionCardEntity
 import com.emotionfriend.data.local.ScenarioLessonDao
 import com.emotionfriend.data.local.ScenarioLessonEntity
+import com.emotionfriend.data.local.StoryDao
+import com.emotionfriend.data.local.StoryEntity
 import com.emotionfriend.domain.model.EmotionType
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
@@ -27,6 +29,7 @@ class SeedDataInitializer @Inject constructor(
     @ApplicationContext private val context: Context,
     private val emotionCardDao: EmotionCardDao,
     private val scenarioLessonDao: ScenarioLessonDao,
+    private val storyDao: StoryDao,
     @ApplicationScope private val scope: CoroutineScope,
 ) {
 
@@ -37,6 +40,7 @@ class SeedDataInitializer @Inject constructor(
             try {
                 seedEmotionCards()
                 seedScenarioLessons()
+                seedStories()
             } catch (e: Exception) {
                 Log.e(TAG, "Seed failed — app will still work with empty Room tables", e)
             }
@@ -89,9 +93,31 @@ class SeedDataInitializer @Inject constructor(
         Log.i(TAG, "Seeded ${entities.size} scenario lessons from assets.")
     }
 
+    private suspend fun seedStories() {
+        if (storyDao.count() > 0) return
+
+        val raw = context.assets.open(ASSET_STORIES).bufferedReader().readText()
+        val dtos = json.decodeFromString<List<SeedStoryDto>>(raw)
+        val entities = dtos.map { dto ->
+            StoryEntity(
+                id       = dto.id,
+                title    = dto.title,
+                content  = dto.content,
+                image1   = dto.image1,
+                image2   = dto.image2,
+                image3   = dto.image3,
+                image4   = dto.image4,
+                category = dto.category,
+            )
+        }
+        storyDao.insertAll(entities)
+        Log.i(TAG, "Seeded ${entities.size} stories from assets.")
+    }
+
     companion object {
         private const val TAG = "SeedDataInitializer"
         private const val ASSET_EMOTION_CARDS    = "seed/emotion_cards.json"
         private const val ASSET_SCENARIO_LESSONS = "seed/scenario_lessons.json"
+        private const val ASSET_STORIES          = "seed/stories.json"
     }
 }

@@ -25,6 +25,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -62,10 +63,18 @@ private val avatarOptions = listOf(
 @Composable
 fun ProfileScreen(
     onBack: () -> Unit,
+    onLogout: () -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
-    val state by viewModel.uiState.collectAsState()
+    val state      by viewModel.uiState.collectAsState()
+    val loggedOut  by viewModel.loggedOut.collectAsState()
+
+    // Navigate away once logout completes
+    LaunchedEffect(loggedOut) {
+        if (loggedOut) onLogout()
+    }
+
     var isEditing by rememberSaveable { mutableStateOf(false) }
     var nameInput by rememberSaveable { mutableStateOf("") }
     var ageInput by rememberSaveable { mutableStateOf("") }
@@ -129,6 +138,7 @@ fun ProfileScreen(
             onNotificationToggle = { notificationEnabled = it },
             onReminderChange = { reminderTime = it },
             onLanguageChange = { language = it },
+            onLogout = viewModel::logout,
             modifier = modifier
         )
     }
@@ -159,6 +169,7 @@ private fun ProfileContent(
     onNotificationToggle: (Boolean) -> Unit,
     onReminderChange: (String) -> Unit,
     onLanguageChange: (String) -> Unit,
+    onLogout: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val spacing = MaterialTheme.dimensions
@@ -254,6 +265,22 @@ private fun ProfileContent(
             InfoRow(label = "Trả lời đúng", value = state.progress.correctAnswers.toString())
             InfoRow(label = "Chuỗi hiện tại", value = "${state.progress.currentStreak} ngày")
             InfoRow(label = "Chuỗi dài nhất", value = "${state.progress.longestStreak} ngày")
+        }
+
+        // --- Logout ----------------------------------------------------------
+        Spacer(Modifier.height(8.dp))
+        OutlinedButton(
+            onClick  = onLogout,
+            modifier = Modifier.fillMaxWidth(),
+            colors   = ButtonDefaults.outlinedButtonColors(
+                contentColor = MaterialTheme.colorScheme.error
+            ),
+            border   = BorderStroke(1.dp, MaterialTheme.colorScheme.error)
+        ) {
+            Text(
+                text  = "🚪 Đăng xuất",
+                style = MaterialTheme.typography.titleMedium
+            )
         }
     }
 }

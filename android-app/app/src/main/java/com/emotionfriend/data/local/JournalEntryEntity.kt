@@ -11,6 +11,7 @@ data class JournalEntryEntity(
     val emotionType: EmotionType,
     val note: String?,
     val createdAt: Long,
+    val audioPath: String? = null,
     val syncStatus: SyncStatus = SyncStatus.PENDING,
     val lastModifiedAt: Long = System.currentTimeMillis()
 )

@@ -1,4 +1,7 @@
+
 package com.emotionfriend.core.config
+
+import com.emotionfriend.BuildConfig
 
 /**
  * Centralised application configuration.
@@ -27,4 +30,17 @@ object AppConfig {
 
     /** Socket (read) timeout in milliseconds. */
     const val SOCKET_TIMEOUT_MS: Int = 30_000
+
+    // ── OpenAI ───────────────────────────────────────────────────────────────
+
+    /** OpenAI API base URL. */
+    const val OPENAI_BASE_URL = "https://api.openai.com/v1"
+
+    /**
+     * OpenAI API key.
+     * For production builds, inject via BuildConfig or a secrets file instead.
+     * DO NOT commit real API keys to source control!
+     */
+    val OPENAI_API_KEY: String
+        get() = BuildConfig.OPENAI_API_KEY
 }

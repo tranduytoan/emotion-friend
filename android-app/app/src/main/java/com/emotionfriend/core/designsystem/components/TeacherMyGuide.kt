@@ -13,23 +13,25 @@ import androidx.compose.ui.unit.dp
 /**
  * Reusable companion row: [TeacherMyAvatar] + [TeacherMySpeechBubble].
  *
- * Drop this anywhere in a screen to show Cô giáo My alongside a short message.
+ * Drop this anywhere in a screen to show Cô giáo Vy alongside a short message.
  *
- * @param message  What the companion says (1–2 lines, keep gentle).
- * @param onSpeak  Called when the user taps 🔊 replay; pass null to hide the button.
+ * @param message    What the companion says (used for TTS; not shown as text).
+ * @param onSpeak    Called when the user taps 🔊 replay; pass null to hide the button.
+ * @param vyEmotion  Current emotion state — drives which avatar image/emoji is shown.
  */
 @Composable
 fun TeacherMyGuide(
-    message : String,
-    onSpeak : (() -> Unit)? = null,
-    modifier: Modifier = Modifier,
+    message   : String,
+    onSpeak   : (() -> Unit)? = null,
+    vyEmotion : VyEmotion = VyEmotion.NEUTRAL,
+    modifier  : Modifier = Modifier,
 ) {
     Row(
         modifier              = modifier.fillMaxWidth(),
-        verticalAlignment     = Alignment.Top,
+        verticalAlignment     = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start,
     ) {
-        TeacherMyAvatar()
+        TeacherMyAvatar(emotion = vyEmotion)
         Spacer(Modifier.width(8.dp))
         TeacherMySpeechBubble(
             message  = message,
@@ -38,3 +40,4 @@ fun TeacherMyGuide(
         )
     }
 }
+

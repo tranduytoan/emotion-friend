@@ -209,3 +209,6 @@ crash-reports/
 test-results/
 jacoco/
 coverage/
+
+# Ignore environment variable files
+.env

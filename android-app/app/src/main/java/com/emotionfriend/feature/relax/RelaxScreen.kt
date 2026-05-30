@@ -1,5 +1,7 @@
 package com.emotionfriend.feature.relax
 
+import android.media.MediaPlayer
+import com.emotionfriend.R
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -32,6 +34,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -44,26 +47,25 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.emotionfriend.core.designsystem.components.EmotionCard
 import com.emotionfriend.core.designsystem.components.EmotionPrimaryButton
 import com.emotionfriend.core.designsystem.components.EmotionScreenScaffold
 import com.emotionfriend.core.designsystem.components.TeacherMyGuide
 import com.emotionfriend.core.designsystem.components.TeacherMyMessages
+import com.emotionfriend.core.designsystem.components.VyEmotion
 import com.emotionfriend.core.designsystem.theme.EmotionCalm
 import com.emotionfriend.core.designsystem.theme.EmotionCalmBg
 import com.emotionfriend.core.designsystem.theme.EmotionFriendTheme
-import com.emotionfriend.core.designsystem.theme.EmotionHappy
 import com.emotionfriend.core.designsystem.theme.EmotionHappyBg
 import com.emotionfriend.core.designsystem.theme.MintGreen40
 import com.emotionfriend.core.designsystem.theme.MintGreen80
 import com.emotionfriend.core.designsystem.theme.OnSurfaceVar
-import com.emotionfriend.core.designsystem.theme.SkyBlue40
 import com.emotionfriend.core.designsystem.theme.SkyBlueLight
 
 // ---------------------------------------------------------------------------
@@ -136,6 +138,11 @@ private fun ChoiceScreen(
 ) {
     val tts            = rememberTtsPlayer()
     val teacherMessage = remember { TeacherMyMessages.randomRelax() }
+
+    LaunchedEffect(Unit) {
+        delay(400)
+        tts.speak(teacherMessage)
+    }
 
     Column(
         modifier            = modifier
@@ -253,7 +260,7 @@ private fun ActivityChoiceTile(
 }
 
 // ---------------------------------------------------------------------------
-// Breathing activity — TTS-guided, auto-exits after 60 s
+// Breathing activity — TTS-guided, MediaPlayer bong_bong.mp3, auto-exits
 // ---------------------------------------------------------------------------
 
 @Composable
@@ -262,8 +269,25 @@ private fun BreathingScreen(
     cycles: Int = 10,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     val tts = rememberTtsPlayer()
     var phaseIsInhale by remember { mutableStateOf(true) }
+
+    // Background music: bong_bong.mp3 looping via MediaPlayer
+    DisposableEffect(Unit) {
+        val player = try {
+            MediaPlayer.create(context, R.raw.bong_bong)?.apply {
+                isLooping = true
+                setVolume(0.5f, 0.5f)
+                start()
+            }
+        } catch (e: Exception) { null }
+
+        onDispose {
+            try { player?.stop() } catch (e: Exception) {}
+            try { player?.release() } catch (e: Exception) {}
+        }
+    }
 
     // cycles × (3 s inhale + 3 s exhale) total, then goodbye and exit
     LaunchedEffect(Unit) {
@@ -344,7 +368,7 @@ private fun BreathingScreen(
 }
 
 // ---------------------------------------------------------------------------
-// Music activity — simulated tracks with end-of-song buttons
+// Music activity — real MP3 background music via MediaPlayer, cycling through tracks
 // ---------------------------------------------------------------------------
 
 private val relaxSongs = listOf(
@@ -356,25 +380,50 @@ private val relaxSongs = listOf(
     "Bầu Trời Xanh",
 )
 
+private val softMusicTracks = listOf(R.raw.soft_music_1, R.raw.soft_music_2)
+
 @Composable
 private fun MusicScreen(
     onStop: () -> Unit,
     durationSecs: Int = 30,
     modifier: Modifier = Modifier
 ) {
-    val tts = rememberTtsPlayer()
-    var playIndex by remember { mutableIntStateOf(0) }
-    var songEnded by remember { mutableStateOf(false) }
-    val currentSong = remember(playIndex) { relaxSongs.random() }
+    val context     = LocalContext.current
+    val tts         = rememberTtsPlayer()
+    var playIndex   by remember { mutableIntStateOf(0) }
+    var songEnded   by remember { mutableStateOf(false) }
+    var secsLeft    by remember { mutableIntStateOf(durationSecs) }
+    val currentSong = remember(playIndex) { relaxSongs[playIndex % relaxSongs.size] }
 
-    // Track duration determined by durationSecs parameter
-    LaunchedEffect(playIndex) {
+    // Play the current track via MediaPlayer, advance to next on completion
+    DisposableEffect(playIndex) {
         songEnded = false
+        secsLeft  = durationSecs
+
+        val resId  = softMusicTracks[playIndex % softMusicTracks.size]
+        val player = try {
+            MediaPlayer.create(context, resId)?.apply {
+                setOnCompletionListener { songEnded = true }
+                start()
+            }
+        } catch (e: Exception) { null }
+
+        onDispose {
+            try { player?.stop() } catch (e: Exception) {}
+            try { player?.release() } catch (e: Exception) {}
+        }
+    }
+
+    // Countdown — announce end when time's up or player signals completion
+    LaunchedEffect(playIndex) {
         delay(400)
-        tts.speak("Đang phát bài $currentSong. Nhắm mắt và thở đều nhé bé ơi.")
-        delay(durationSecs * 1_000L)
+        tts.speak("Nhắm mắt và thở đều nhé bé ơi.")
+        repeat(durationSecs) {
+            delay(1_000)
+            secsLeft--
+        }
         songEnded = true
-        tts.speak("Bài nhạc kết thúc rồi. Con muốn nghe thêm hay quay lại?")
+        tts.speak("Bài nhạc kết thúc rồi. Con muốn nghe tiếp hay dừng lại?")
     }
 
     val infiniteTransition = rememberInfiniteTransition(label = "musicPulse")
@@ -387,10 +436,10 @@ private fun MusicScreen(
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(24.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
         modifier            = modifier
             .fillMaxSize()
-            .padding(vertical = 32.dp)
+            .padding(vertical = 24.dp)
     ) {
         Text(
             text      = "Nghe nhạc nhẹ 🎵",
@@ -402,7 +451,7 @@ private fun MusicScreen(
 
         Text(
             text     = "♪",
-            fontSize = 96.sp,
+            fontSize = 80.sp,
             color    = MintGreen40.copy(alpha = if (songEnded) 1f else pulseAlpha)
         )
 
@@ -411,6 +460,11 @@ private fun MusicScreen(
                 text      = "🎶 Bài nhạc kết thúc rồi!",
                 style     = MaterialTheme.typography.titleLarge,
                 textAlign = TextAlign.Center
+            )
+            TeacherMyGuide(
+                message   = "Con muốn nghe tiếp hay dừng lại?",
+                onSpeak   = { tts.speak("Con muốn nghe tiếp hay dừng lại?") },
+                vyEmotion = VyEmotion.CALM,
             )
         } else {
             Text(
@@ -423,6 +477,11 @@ private fun MusicScreen(
                 style     = MaterialTheme.typography.titleMedium,
                 color     = OnSurfaceVar,
                 textAlign = TextAlign.Center
+            )
+            Text(
+                text      = "${secsLeft}s",
+                style     = MaterialTheme.typography.bodyLarge,
+                color     = OnSurfaceVar,
             )
         }
 
@@ -439,7 +498,7 @@ private fun MusicScreen(
                     modifier = Modifier.weight(1f)
                 )
                 EmotionPrimaryButton(
-                    text     = "🎵 Nghe thêm",
+                    text     = "🎵 Tiếp tục",
                     onClick  = { playIndex++ },
                     modifier = Modifier.weight(1f)
                 )

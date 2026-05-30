@@ -12,7 +12,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.emotionfriend.domain.model.AuthState
-import com.emotionfriend.domain.model.UserRole
 import com.emotionfriend.feature.auth.AuthViewModel
 import com.emotionfriend.feature.auth.ForgotPasswordScreen
 import com.emotionfriend.feature.auth.LoginScreen
@@ -23,12 +22,12 @@ import com.emotionfriend.feature.home.HomeScreen
 import com.emotionfriend.feature.journal.DailyCheckInScreen
 import com.emotionfriend.feature.journal.JournalScreen
 import com.emotionfriend.feature.learn.LearnScreen
-import com.emotionfriend.feature.parent.ParentDashboardScreen
-import com.emotionfriend.feature.parent.ParentReportScreen
 import com.emotionfriend.feature.profile.ProfileScreen
 import com.emotionfriend.feature.progress.ProgressScreen
 import com.emotionfriend.feature.relax.RelaxScreen
 import com.emotionfriend.feature.situation.SituationScreen
+import com.emotionfriend.feature.story.StoryScreen
+import com.emotionfriend.feature.confide.ConfideScreen
 
 /**
  * Root navigation host for Emotion Friend.
@@ -41,8 +40,7 @@ import com.emotionfriend.feature.situation.SituationScreen
  *   splash shows until the DataStore check resolves.
  * • After a successful login/register the graph pops the entire auth back-stack
  *   so the user cannot navigate back to auth screens with the system Back button.
- * • Role-based routing: PARENT and THERAPIST land on ProgressScreen after login
- *   (monitoring/progress-focused); CHILD lands on HomeScreen (learning-focused).
+ * • All roles land on HomeScreen after login.
  * • Feature screens receive only typed callbacks — decoupled from navigation.
  *
  * Screen ownership:
@@ -67,11 +65,7 @@ fun EmotionFriendNavHost(
 
     // Determine initial destination from persisted session.
     val startDestination = when (authState) {
-        is AuthState.Authenticated -> {
-            val user = (authState as AuthState.Authenticated).user
-            if (user.role == UserRole.CHILD) AppRoute.DailyCheckIn.route
-            else AppRoute.Home.route
-        }
+        is AuthState.Authenticated -> AppRoute.Home.route
         else -> AppRoute.Login.route
     }
 
@@ -87,12 +81,7 @@ fun EmotionFriendNavHost(
             LoginScreen(
                 viewModel              = authViewModel,
                 onLoginSuccess         = {
-                    val user = (authViewModel.authState.value as? AuthState.Authenticated)?.user
-                    val dest = when (user?.role) {
-                        UserRole.CHILD -> AppRoute.DailyCheckIn.route
-                        else           -> AppRoute.ParentDashboard.route
-                    }
-                    navController.navigate(dest) {
+                    navController.navigate(AppRoute.Home.route) {
                         popUpTo(AppRoute.Login.route) { inclusive = true }
                         launchSingleTop = true
                     }
@@ -129,12 +118,8 @@ fun EmotionFriendNavHost(
             VerifyEmailScreen(
                 email           = email,
                 viewModel       = authViewModel,
-                onVerifySuccess = { user ->
-                    val dest = when (user.role) {
-                        UserRole.CHILD -> AppRoute.DailyCheckIn.route
-                        else           -> AppRoute.ParentDashboard.route
-                    }
-                    navController.navigate(dest) {
+                onVerifySuccess = { _ ->
+                    navController.navigate(AppRoute.Home.route) {
                         popUpTo(AppRoute.Login.route) { inclusive = true }
                         launchSingleTop = true
                     }
@@ -162,12 +147,14 @@ fun EmotionFriendNavHost(
             val userName = (authState as? AuthState.Authenticated)?.user?.displayName ?: ""
             HomeScreen(
                 onNavigateToLearn     = { navController.navigateSingleTop(AppRoute.LearnEmotion.route) },
-                onNavigateToSituation = { navController.navigateSingleTop(AppRoute.Situation.route) },
+                onNavigateToSituation = { navController.navigateSingleTop(AppRoute.LearnEmotion.route) },
                 onNavigateToExpress   = { navController.navigateSingleTop(AppRoute.ExpressCamera.route) },
                 onNavigateToRelax     = { navController.navigateSingleTop(AppRoute.Relax.route) },
                 onNavigateToJournal   = { navController.navigateSingleTop(AppRoute.Journal.route) },
                 onNavigateToProgress  = { navController.navigateSingleTop(AppRoute.Progress.route) },
                 onNavigateToProfile   = { navController.navigateSingleTop(AppRoute.Profile.route) },
+                onNavigateToStory     = { navController.navigateSingleTop(AppRoute.Story.route) },
+                onNavigateToConfide   = { navController.navigateSingleTop(AppRoute.Confide.route) },
                 userName              = userName,
             )
         }
@@ -179,7 +166,13 @@ fun EmotionFriendNavHost(
         }
 
         composable(AppRoute.Situation.route) {
-            SituationScreen(onBack = { navController.popBackStack() })
+            // Situation is now merged into LearnScreen
+            androidx.compose.runtime.LaunchedEffect(Unit) {
+                navController.navigate(AppRoute.LearnEmotion.route) {
+                    popUpTo(AppRoute.Situation.route) { inclusive = true }
+                    launchSingleTop = true
+                }
+            }
         }
 
         composable(AppRoute.ExpressCamera.route) {
@@ -199,18 +192,27 @@ fun EmotionFriendNavHost(
         }
 
         composable(AppRoute.Profile.route) {
-            ProfileScreen(onBack = { navController.popBackStack() })
-        }
-
-        composable(AppRoute.ParentDashboard.route) {
-            ParentDashboardScreen(
-                onBack             = { navController.popBackStack() },
-                onNavigateToReport = { navController.navigateSingleTop(AppRoute.ParentReport.route) },
+            ProfileScreen(
+                onBack   = { navController.popBackStack() },
+                onLogout = {
+                    navController.navigate(AppRoute.Login.route) {
+                        popUpTo(0) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
             )
         }
 
-        composable(AppRoute.ParentReport.route) {
-            ParentReportScreen(onBack = { navController.popBackStack() })
+        composable(AppRoute.Story.route) {
+            StoryScreen(onNavigateBack = { navController.popBackStack() })
+        }
+
+        composable(AppRoute.Confide.route) {
+            ConfideScreen(
+                onNavigateBack    = { navController.popBackStack() },
+                onNavigateToStory = { navController.navigateSingleTop(AppRoute.Story.route) },
+                onNavigateToRelax = { navController.navigateSingleTop(AppRoute.Relax.route) },
+            )
         }
     }
 }

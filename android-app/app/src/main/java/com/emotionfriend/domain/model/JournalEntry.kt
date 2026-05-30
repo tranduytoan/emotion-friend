@@ -5,5 +5,6 @@ data class JournalEntry(
     val childId: String,
     val emotionType: EmotionType,
     val note: String?,
-    val createdAt: Long
+    val createdAt: Long,
+    val audioPath: String? = null,
 )

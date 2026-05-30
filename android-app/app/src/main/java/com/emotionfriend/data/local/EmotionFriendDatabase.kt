@@ -9,9 +9,10 @@ import androidx.room.TypeConverters
         EmotionCardEntity::class,
         ScenarioLessonEntity::class,
         JournalEntryEntity::class,
-        PracticeAttemptEntity::class
+        PracticeAttemptEntity::class,
+        StoryEntity::class,
     ],
-    version = 2,
+    version = 4,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -21,6 +22,7 @@ abstract class EmotionFriendDatabase : RoomDatabase() {
     abstract fun scenarioLessonDao(): ScenarioLessonDao
     abstract fun journalEntryDao(): JournalEntryDao
     abstract fun practiceAttemptDao(): PracticeAttemptDao
+    abstract fun storyDao(): StoryDao
 
     companion object {
         const val DATABASE_NAME = "emotion_friend.db"

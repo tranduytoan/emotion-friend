@@ -8,7 +8,8 @@ fun JournalEntryEntity.toDomain(): JournalEntry = JournalEntry(
     childId     = childId,
     emotionType = emotionType,
     note        = note,
-    createdAt   = createdAt
+    createdAt   = createdAt,
+    audioPath   = audioPath,
 )
 
 fun JournalEntry.toEntity(): JournalEntryEntity = JournalEntryEntity(
@@ -16,5 +17,6 @@ fun JournalEntry.toEntity(): JournalEntryEntity = JournalEntryEntity(
     childId     = childId,
     emotionType = emotionType,
     note        = note,
-    createdAt   = createdAt
+    createdAt   = createdAt,
+    audioPath   = audioPath,
 )

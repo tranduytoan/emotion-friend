@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.emotionfriend.data.auth.SessionManager
 import com.emotionfriend.core.designsystem.theme.EmotionHappy
 import com.emotionfriend.core.designsystem.theme.EmotionHappyBg
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -54,6 +55,7 @@ data class ProfileUiState(
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val dataStore: DataStore<Preferences>,
+    private val sessionManager: SessionManager,
 ) : ViewModel() {
 
     companion object {
@@ -159,6 +161,18 @@ class ProfileViewModel @Inject constructor(
                 prefs[KEY_REMINDER_TIME] = reminderTime
                 prefs[KEY_LANGUAGE]      = language
             }
+        }
+    }
+
+    // ── Logout ───────────────────────────────────────────────────────────────
+
+    private val _loggedOut = MutableStateFlow(false)
+    val loggedOut: StateFlow<Boolean> = _loggedOut.asStateFlow()
+
+    fun logout() {
+        viewModelScope.launch {
+            sessionManager.clearSession()
+            _loggedOut.value = true
         }
     }
 }

@@ -4,11 +4,10 @@ import com.emotionfriend.api.db.ScenarioLessonTable
 import com.emotionfriend.api.model.ScenarioLesson
 import com.emotionfriend.api.repository.ScenarioRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.SortOrder
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 
 class DbScenarioRepository : ScenarioRepository {
@@ -33,6 +32,35 @@ class DbScenarioRepository : ScenarioRepository {
             ?.toScenarioLesson()
     }
 
+    override suspend fun create(lesson: ScenarioLesson): ScenarioLesson = dbQuery {
+        ScenarioLessonTable.insert {
+            it[id]           = lesson.id
+            it[title]        = lesson.title
+            it[situation]    = lesson.situation
+            it[options]      = json.encodeToString(lesson.options)
+            it[correctIndex] = lesson.correctIndex
+            it[explanation]  = lesson.explanation
+            it[sortOrder]    = lesson.sortOrder
+        }
+        lesson
+    }
+
+    override suspend fun update(id: String, lesson: ScenarioLesson): ScenarioLesson? = dbQuery {
+        val updated = ScenarioLessonTable.update({ ScenarioLessonTable.id eq id }) {
+            it[title]        = lesson.title
+            it[situation]    = lesson.situation
+            it[options]      = json.encodeToString(lesson.options)
+            it[correctIndex] = lesson.correctIndex
+            it[explanation]  = lesson.explanation
+            it[sortOrder]    = lesson.sortOrder
+        }
+        if (updated > 0) lesson.copy(id = id) else null
+    }
+
+    override suspend fun delete(id: String): Boolean = dbQuery {
+        ScenarioLessonTable.deleteWhere { ScenarioLessonTable.id eq id } > 0
+    }
+
     private fun ResultRow.toScenarioLesson(): ScenarioLesson {
         val optionsJson = this[ScenarioLessonTable.options]
         val options = json.decodeFromString<List<String>>(optionsJson)
@@ -43,6 +71,7 @@ class DbScenarioRepository : ScenarioRepository {
             options      = options,
             correctIndex = this[ScenarioLessonTable.correctIndex],
             explanation  = this[ScenarioLessonTable.explanation],
+            sortOrder    = this[ScenarioLessonTable.sortOrder],
         )
     }
 }

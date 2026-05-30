@@ -2,6 +2,7 @@ package com.emotionfriend.core.di
 
 import com.emotionfriend.core.config.AppConfig
 import com.emotionfriend.data.remote.EmotionFriendApiClient
+import com.emotionfriend.data.remote.OpenAIApiClient
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -52,4 +53,9 @@ object RemoteModule {
     @Singleton
     fun provideApiClient(httpClient: HttpClient): EmotionFriendApiClient =
         EmotionFriendApiClient(httpClient)
+
+    @Provides
+    @Singleton
+    fun provideOpenAIApiClient(httpClient: HttpClient): OpenAIApiClient =
+        OpenAIApiClient(httpClient)
 }

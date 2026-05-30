@@ -13,12 +13,16 @@ fun Application.configureRouting(useDatabase: Boolean = false) {
     val journalRepo   = if (useDatabase) DbJournalRepository()   else FakeJournalRepository()
     val practiceRepo  = if (useDatabase) DbPracticeRepository()  else FakePracticeRepository()
     val progressRepo  = if (useDatabase) DbProgressRepository()  else FakeProgressRepository(journalRepo, practiceRepo)
+    val storyRepo     = if (useDatabase) DbStoryRepository()     else FakeStoryRepository()
+    val musicRepo     = if (useDatabase) DbMusicRepository()     else FakeMusicRepository()
 
     val emotionService  = EmotionService(emotionRepo)
     val scenarioService = ScenarioService(scenarioRepo)
     val journalService  = JournalService(journalRepo)
     val practiceService = PracticeService(practiceRepo)
     val progressService = ProgressService(progressRepo)
+    val storyService    = StoryService(storyRepo)
+    val musicService    = MusicService(musicRepo)
 
     routing {
         healthRoute()
@@ -27,5 +31,6 @@ fun Application.configureRouting(useDatabase: Boolean = false) {
         journalRoutes(journalService)
         practiceRoutes(practiceService)
         progressRoutes(progressService, practiceService)
+        adminRoutes(scenarioService, storyService, musicService)
     }
 }

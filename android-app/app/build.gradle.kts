@@ -1,3 +1,6 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -20,6 +23,14 @@ android {
         versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // Load .env file and inject as buildConfigField
+        val envFile = rootProject.file(".env")
+        val openAiKey: String = if (envFile.exists()) {
+            val props = Properties().apply { load(FileInputStream(envFile)) }
+            props.getProperty("OPENAI_API_KEY") ?: ""
+        } else ""
+        buildConfigField("String", "OPENAI_API_KEY", '"' + openAiKey + '"')
     }
 
     buildTypes {
@@ -57,6 +68,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -73,6 +85,9 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+
+    // Material Icons Extended (for VolumeUp)
+    implementation(libs.androidx.material.icons.extended)
 
     // Navigation
     implementation(libs.androidx.navigation.compose)

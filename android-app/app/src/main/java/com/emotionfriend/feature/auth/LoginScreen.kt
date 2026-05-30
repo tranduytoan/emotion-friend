@@ -39,10 +39,6 @@ import com.emotionfriend.core.designsystem.theme.WarmCream
 
 /**
  * Login screen.
- *
- * - Single screen handles both CHILD / PARENT / THERAPIST logins.
- * - Role is already stored in the user's account; no role selection here.
- * - Navigation callbacks keep this screen decoupled from the NavHost.
  */
 @Composable
 fun LoginScreen(
@@ -259,8 +255,6 @@ private fun DemoCredentialsHint() {
         Spacer(Modifier.height(4.dp))
         listOf(
             "child@demo.com / Demo@1234 (Trẻ em)",
-            "parent@demo.com / Demo@1234 (Phụ huynh)",
-            "therapist@demo.com / Demo@1234 (Chuyên gia)",
         ).forEach { hint ->
             Text(
                 text  = "• $hint",

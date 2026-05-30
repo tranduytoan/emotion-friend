@@ -3,12 +3,10 @@ package com.emotionfriend.api.repository.fake
 import com.emotionfriend.api.model.ScenarioLesson
 import com.emotionfriend.api.repository.ScenarioRepository
 import java.util.UUID
-import java.util.concurrent.CopyOnWriteArrayList
 
 class FakeScenarioRepository : ScenarioRepository {
 
-    private val scenarios = CopyOnWriteArrayList(
-        mutableListOf(
+    private val scenarios: MutableList<ScenarioLesson> = mutableListOf(
         ScenarioLesson(
             id = "scenario_1",
             title = "Bạn bị vấp ngã",

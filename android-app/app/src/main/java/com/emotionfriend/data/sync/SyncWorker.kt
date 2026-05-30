@@ -8,6 +8,8 @@ import androidx.work.WorkerParameters
 import com.emotionfriend.data.local.EmotionCardEntity
 import com.emotionfriend.data.local.JournalEntryDao
 import com.emotionfriend.data.local.PracticeAttemptDao
+import com.emotionfriend.data.local.StoryDao
+import com.emotionfriend.data.local.StoryEntity
 import com.emotionfriend.data.local.SyncStatus
 import com.emotionfriend.data.remote.EmotionFriendApiClient
 import com.emotionfriend.data.remote.ApiResult
@@ -35,6 +37,7 @@ class SyncWorker @AssistedInject constructor(
     private val journalEntryDao: JournalEntryDao,
     private val practiceAttemptDao: PracticeAttemptDao,
     private val emotionRepository: EmotionRepository,
+    private val storyDao: StoryDao,
     private val syncManager: SyncManager,
 ) : CoroutineWorker(appContext, workerParams) {
 
@@ -46,6 +49,7 @@ class SyncWorker @AssistedInject constructor(
             pushJournalEntries()
             pushPracticeAttempts()
             pullEmotions()
+            pullStories()
             syncManager.onSyncSuccess()
             Log.i(TAG, "Sync completed successfully.")
             Result.success()
@@ -132,6 +136,24 @@ class SyncWorker @AssistedInject constructor(
                 Log.d(TAG, "Pulled ${cards.size} emotions from backend.")
             }
             is ApiResult.Error -> Log.d(TAG, "Pull emotions skipped (offline?): ${result.message}")
+        }
+    }
+
+    private suspend fun pullStories() {
+        when (val result = apiClient.getStories()) {
+            is ApiResult.Success -> {
+                val entities = result.data.map { dto ->
+                    StoryEntity(
+                        id       = dto.id,
+                        title    = dto.title,
+                        content  = dto.content,
+                        category = dto.category,
+                    )
+                }
+                storyDao.upsertAll(entities)
+                Log.d(TAG, "Pulled ${entities.size} stories from backend.")
+            }
+            is ApiResult.Error -> Log.d(TAG, "Pull stories skipped (offline?): ${result.message}")
         }
     }
 

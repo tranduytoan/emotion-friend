@@ -22,8 +22,14 @@ object AppConfig {
 
     // ── Network ──────────────────────────────────────────────────────────────
 
-    /** Backend base URL.  Change this before running on a physical device or VPS. */
-    const val BASE_URL = "http://10.0.2.2:80"
+    /**
+     * Backend base URL — injected from android-app/.env via BuildConfig.
+     *   Emulator → Docker Compose : http://10.0.2.2:80  (default)
+     *   Physical device LAN       : http://<machine-ip>:80
+     *   Production VPS            : https://<your-domain.com>
+     * Set BACKEND_URL in android-app/.env to override.
+     */
+    val BASE_URL: String get() = BuildConfig.BACKEND_URL
 
     /** TCP connection timeout in milliseconds. */
     const val CONNECT_TIMEOUT_MS: Int = 10_000

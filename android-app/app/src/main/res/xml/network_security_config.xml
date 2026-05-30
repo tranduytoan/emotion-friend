@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Network Security Config for Emotion Friend
+    Allows cleartext (HTTP) traffic to local network addresses so the app
+    can connect to the backend running on a LAN machine during development.
+
+    In production, switch BACKEND_URL to https:// and this config can stay.
+-->
+<network-security-config>
+
+    <!--
+        Allow cleartext HTTP to any host.
+        This file is referenced only in the debug build type (see AndroidManifest via
+        android:networkSecurityConfig in the debug source set).
+        Release builds should use HTTPS and override this.
+    -->
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+
+</network-security-config>

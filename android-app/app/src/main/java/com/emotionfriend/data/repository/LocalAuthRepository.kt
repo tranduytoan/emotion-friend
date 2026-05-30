@@ -29,9 +29,9 @@ class LocalAuthRepository @Inject constructor() : AuthRepository {
 
     // ── In-memory store (demo only) ────────────────────────────────────────────
     private val registeredUsers = mutableMapOf<String, MockUser>(
-        "child@demo.com"     to MockUser("child@demo.com",     "Demo@1234", "Demo Child",      UserRole.CHILD,      isVerified = true),
-        "parent@demo.com"    to MockUser("parent@demo.com",    "Demo@1234", "Demo Parent",     UserRole.PARENT,     isVerified = true),
-        "therapist@demo.com" to MockUser("therapist@demo.com", "Demo@1234", "Demo Therapist",  UserRole.THERAPIST,  isVerified = true),
+        "child@demo.com"     to MockUser("child@demo.com",     "Demo@1234", "Demo Child",      UserRole.CHILD,  isVerified = true),
+        "parent@demo.com"    to MockUser("parent@demo.com",    "Demo@1234", "Demo Parent",     UserRole.ADMIN,  isVerified = true),
+        "therapist@demo.com" to MockUser("therapist@demo.com", "Demo@1234", "Demo Therapist",  UserRole.ADMIN,  isVerified = true),
     )
 
     private data class MockUser(

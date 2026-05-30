@@ -108,6 +108,17 @@ data class CreateEmotionLogRequest(
     val note: String? = null,
 )
 
+/** Mirrors backend Story model — GET /api/stories. */
+@Serializable
+data class StoryDto(
+    val id: String,
+    val title: String,
+    val content: String,
+    val category: String,
+    val imageUrl: String? = null,
+    val sortOrder: Int = 0,
+)
+
 // ── Auth DTOs ──────────────────────────────────────────────────────────────────
 
 @Serializable

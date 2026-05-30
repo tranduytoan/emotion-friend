@@ -26,11 +26,13 @@ android {
 
         // Load .env file and inject as buildConfigField
         val envFile = rootProject.file(".env")
-        val openAiKey: String = if (envFile.exists()) {
-            val props = Properties().apply { load(FileInputStream(envFile)) }
-            props.getProperty("OPENAI_API_KEY") ?: ""
-        } else ""
+        val envProps = Properties().apply {
+            if (envFile.exists()) load(FileInputStream(envFile))
+        }
+        val openAiKey: String = envProps.getProperty("OPENAI_API_KEY") ?: ""
+        val backendUrl: String = envProps.getProperty("BACKEND_URL") ?: "http://10.0.2.2:80"
         buildConfigField("String", "OPENAI_API_KEY", '"' + openAiKey + '"')
+        buildConfigField("String", "BACKEND_URL", '"' + backendUrl + '"')
     }
 
     buildTypes {

@@ -11,6 +11,7 @@ import com.emotionfriend.data.remote.dto.PracticeAttemptDto
 import com.emotionfriend.data.remote.dto.ProgressSummaryDto
 import com.emotionfriend.data.remote.dto.ScenarioLessonDto
 import com.emotionfriend.data.remote.dto.SituationDto
+import com.emotionfriend.data.remote.dto.StoryDto
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -90,7 +91,14 @@ class EmotionFriendApiClient @Inject constructor(
         requireNotNull(body.data) { "No data in response" }
     }
 
-    // ── Nghĩa's backend endpoints (P7) ──────────────────────────────────────
+    /** GET /api/stories — returns all published stories. */
+    suspend fun getStories(): ApiResult<List<StoryDto>> = safeCall {
+        val response = httpClient.get("${ApiConstants.BASE_URL}${ApiConstants.PATH_STORIES}")
+        val body: ApiResponseDto<List<StoryDto>> = response.body()
+        requireNotNull(body.data) { "No data in response" }
+    }
+
+    // ── Nghĩa's backend endpoints (P7) ─────────────────────────────────────────
 
     /**
      * GET /api/situations — all practice situations.

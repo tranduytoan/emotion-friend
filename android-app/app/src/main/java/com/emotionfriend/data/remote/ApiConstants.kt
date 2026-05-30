@@ -17,6 +17,7 @@ object ApiConstants {
     const val PATH_JOURNAL_ENTRIES   = "/api/journal-entries"
     const val PATH_PRACTICE_ATTEMPTS = "/api/practice-attempts"
     const val PATH_PROGRESS          = "/api/progress"
+    const val PATH_STORIES           = "/api/stories"
 
     // ── Nghĩa's backend endpoints (P7) ─────────────────────────────────────
     /** GET  /api/situations   — all practice situations grouped by emotion. */

@@ -20,4 +20,7 @@ interface StoryDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertAll(stories: List<StoryEntity>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsertAll(stories: List<StoryEntity>)
 }

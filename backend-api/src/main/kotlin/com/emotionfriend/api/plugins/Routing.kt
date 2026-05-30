@@ -31,6 +31,7 @@ fun Application.configureRouting(useDatabase: Boolean = false) {
         journalRoutes(journalService)
         practiceRoutes(practiceService)
         progressRoutes(progressService, practiceService)
+        storyRoutes(storyService)
         adminRoutes(scenarioService, storyService, musicService)
     }
 }

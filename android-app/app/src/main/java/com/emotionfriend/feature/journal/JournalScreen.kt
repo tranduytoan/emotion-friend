@@ -37,6 +37,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -50,7 +51,9 @@ import com.emotionfriend.core.designsystem.components.EmotionOptionButton
 import com.emotionfriend.core.designsystem.components.EmotionPrimaryButton
 import com.emotionfriend.core.designsystem.components.EmotionScreenScaffold
 import com.emotionfriend.core.designsystem.components.TeacherMyGuide
+import com.emotionfriend.core.designsystem.components.TeacherMyMessages
 import com.emotionfriend.core.designsystem.components.VyEmotion
+import com.emotionfriend.core.designsystem.components.toVyEmotionForCompanion
 import com.emotionfriend.core.designsystem.theme.EmotionAngry
 import com.emotionfriend.core.designsystem.theme.EmotionAngryBg
 import com.emotionfriend.core.designsystem.theme.EmotionCalm
@@ -142,6 +145,11 @@ private fun HistoryScreen(
 ) {
     val tts = rememberTtsPlayer()
     val welcomeMsg = "Cảm xúc của con hôm nay như thế nào? Bấm nút cộng để thêm cảm xúc mới nhé!"
+    val latestEmotion = entries.firstOrNull()?.emotionType
+    val supportMsg = remember(latestEmotion) {
+        TeacherMyMessages.journalSupport(latestEmotion)
+    }
+    val supportEmotion = latestEmotion?.toVyEmotionForCompanion() ?: VyEmotion.CALM
 
     LaunchedEffect(Unit) {
         delay(400)
@@ -184,6 +192,14 @@ private fun HistoryScreen(
                         .fillMaxSize()
                         .padding(bottom = 80.dp),
                 ) {
+                    item {
+                        TeacherMyGuide(
+                            message   = supportMsg,
+                            onSpeak   = { tts.speak(supportMsg) },
+                            vyEmotion = supportEmotion,
+                            modifier  = Modifier.padding(vertical = 12.dp),
+                        )
+                    }
                     items(entries, key = { it.id }) { entry ->
                         EntryRow(
                             entry        = entry,
@@ -250,6 +266,10 @@ private fun SelectEmotionPhase(
 ) {
     val tts = rememberTtsPlayer()
     val prompt = "Hôm nay con thấy thế nào? Hãy chọn cảm xúc của con nhé!"
+    val supportEmotion = selectedEmotion?.toVyEmotionForCompanion() ?: VyEmotion.EXCITED
+    val supportMsg = remember(selectedEmotion) {
+        TeacherMyMessages.journalSupport(selectedEmotion)
+    }
 
     LaunchedEffect(Unit) {
         delay(300)
@@ -262,9 +282,9 @@ private fun SelectEmotionPhase(
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             TeacherMyGuide(
-                message   = prompt,
-                onSpeak   = { tts.speak(prompt) },
-                vyEmotion = VyEmotion.EXCITED,
+                message   = supportMsg,
+                onSpeak   = { tts.speak(supportMsg) },
+                vyEmotion = supportEmotion,
             )
             Text(
                 text      = "Hôm nay con thấy thế nào? 💭",

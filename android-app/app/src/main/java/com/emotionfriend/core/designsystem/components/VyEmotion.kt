@@ -1,5 +1,7 @@
 package com.emotionfriend.core.designsystem.components
 
+import com.emotionfriend.domain.model.EmotionType
+
 /**
  * Emotional states of "Cô giáo Vy" that drive her avatar expression.
  *
@@ -21,4 +23,13 @@ enum class VyEmotion {
     ENCOURAGING,
     CALM,
     CELEBRATING,
+}
+
+internal fun EmotionType.toVyEmotionForCompanion(): VyEmotion = when (this) {
+    EmotionType.HAPPY     -> VyEmotion.HAPPY
+    EmotionType.SAD       -> VyEmotion.ENCOURAGING
+    EmotionType.ANGRY     -> VyEmotion.CALM
+    EmotionType.SURPRISED -> VyEmotion.EXCITED
+    EmotionType.CALM      -> VyEmotion.CALM
+    EmotionType.TIRED     -> VyEmotion.ENCOURAGING
 }

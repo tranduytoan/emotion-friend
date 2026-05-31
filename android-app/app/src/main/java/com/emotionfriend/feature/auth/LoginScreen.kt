@@ -68,6 +68,14 @@ fun LoginScreen(
                 subtitle = "Đăng nhập để tiếp tục hành trình cảm xúc của bạn",
             )
 
+            Spacer(Modifier.height(12.dp))
+            Text(
+                text      = "Tài khoản demo: demo@gmail.com / 123456",
+                style     = MaterialTheme.typography.bodyMedium,
+                color     = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+            )
+
             Spacer(Modifier.height(36.dp))
 
             // ── Email ─────────────────────────────────────────────────────────

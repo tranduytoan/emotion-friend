@@ -128,6 +128,7 @@ dependencies {
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.coil.compose)
+    implementation(libs.okhttp)
 
     // Debug
     debugImplementation(libs.androidx.ui.tooling)

@@ -38,7 +38,7 @@ fun Application.module() {
         log.warn("DATABASE_URL not set — backend will fail on DB calls. Please configure DATABASE_URL.")
     }
 
-    // Serve static story images: GET /static/stories/{folder}/1.jpg
+    // Serve static story images: GET /static/stories/{folder}/1.png
     val staticDir = System.getenv("STATIC_FILES_PATH") ?: "/app/static"
     val staticFile = File(staticDir)
     if (staticFile.exists()) {

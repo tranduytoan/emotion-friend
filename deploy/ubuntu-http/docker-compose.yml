@@ -26,7 +26,7 @@ services:
       DATABASE_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE:-emotion_friend}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
       DATABASE_USER: root
       DATABASE_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      ADMIN_TOKEN: ${ADMIN_TOKEN:-emotion-admin-2703}
+      ADMIN_TOKEN: ${ADMIN_TOKEN:-emotion-friend}
       STATIC_FILES_PATH: /app/static
     volumes:
       - ./res/img:/app/static:ro

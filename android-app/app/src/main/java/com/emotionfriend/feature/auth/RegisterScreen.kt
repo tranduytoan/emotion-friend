@@ -67,6 +67,14 @@ fun RegisterScreen(
                 subtitle = "Điền thông tin để bắt đầu hành trình cùng Emotion Friend",
             )
 
+            Spacer(Modifier.height(12.dp))
+            Text(
+                text      = "Tài khoản demo: demo@gmail.com / 123456",
+                style     = MaterialTheme.typography.bodyMedium,
+                color     = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+            )
+
             Spacer(Modifier.height(32.dp))
 
             // ── Role selector ─────────────────────────────────────────────────

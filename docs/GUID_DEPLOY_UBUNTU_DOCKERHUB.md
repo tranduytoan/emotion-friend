@@ -84,7 +84,7 @@ Noi dung toi thieu:
 ```env
 MYSQL_ROOT_PASSWORD=doi_mat_khau_manh
 MYSQL_DATABASE=emotion_friend
-ADMIN_TOKEN=emotion-admin-2703
+ADMIN_TOKEN=emotion-friend
 
 BACKEND_IMAGE=trungnghia2703/emotion-friend:backend-latest
 ADMIN_WEB_IMAGE=trungnghia2703/emotion-friend:admin-web-latest
@@ -104,7 +104,7 @@ docker compose --env-file .env up -d
 docker compose ps
 curl -sf http://localhost/health && echo OK
 curl -sf http://localhost/api/topics >/dev/null && echo API_OK
-curl -sf http://localhost/admin/scenarios -H "Authorization: Bearer emotion-admin-2703" >/dev/null && echo ADMIN_OK
+curl -sf http://localhost/admin/scenarios -H "Authorization: Bearer emotion-friend" >/dev/null && echo ADMIN_OK
 ```
 
 Neu admin-web bi unhealthy do healthcheck cu, sua `docker-compose.yml` nhu sau:

@@ -1,35 +1,24 @@
 
 package com.emotionfriend.core.config
 
-import com.emotionfriend.BuildConfig
-
 /**
  * Centralised application configuration.
  *
  * All network and app-level constants live here so they can be changed in
- * one place.  For a production release these values should come from
- * BuildConfig fields defined in app/build.gradle.kts.
+ * one place.
  *
  * Backend URL guide:
- *   • Android emulator  → local Docker Compose : http://10.0.2.2:80
- *   • Physical device   → local network IP     : http://<machine-ip>:80
- *   • Production VPS    →                        https://<your-domain.com>
+ *   • Android emulator  → public backend IP     : http://157.173.127.217:8088
+ *   • Physical device   → public backend IP     : http://157.173.127.217:8088
  *
- * Docker Compose: Nginx listens on host port 80 and proxies → backend:8080.
- * To switch URL, change BASE_URL below (or inject via BuildConfig in release builds).
+ * This APK always points to the public server; local Docker is not used.
  */
 object AppConfig {
 
     // ── Network ──────────────────────────────────────────────────────────────
 
-    /**
-     * Backend base URL — injected from android-app/.env via BuildConfig.
-     *   Emulator → Docker Compose : http://10.0.2.2:80  (default)
-     *   Physical device LAN       : http://<machine-ip>:80
-     *   Production VPS            : https://<your-domain.com>
-     * Set BACKEND_URL in android-app/.env to override.
-     */
-    val BASE_URL: String get() = BuildConfig.BACKEND_URL
+    /** Fixed backend URL for this APK. */
+    const val BASE_URL: String = "http://157.173.127.217:8088"
 
     /** TCP connection timeout in milliseconds. */
     const val CONNECT_TIMEOUT_MS: Int = 10_000
@@ -42,11 +31,10 @@ object AppConfig {
     /** OpenAI API base URL. */
     const val OPENAI_BASE_URL = "https://api.openai.com/v1"
 
-    /**
-     * OpenAI API key.
+    /** OpenAI API key.
      * For production builds, inject via BuildConfig or a secrets file instead.
      * DO NOT commit real API keys to source control!
      */
     val OPENAI_API_KEY: String
-        get() = BuildConfig.OPENAI_API_KEY
+        get() = com.emotionfriend.BuildConfig.OPENAI_API_KEY
 }

@@ -45,7 +45,7 @@ export default function LoginPage({ onLogin }: { onLogin: () => void }) {
             />
             <div className="form-hint">
               Token được cấu hình bởi biến môi trường ADMIN_TOKEN trên server.<br />
-              Nếu chưa đổi, dùng đúng giá trị trong file .env của hệ thống.
+              Hãy nhập đúng giá trị ADMIN_TOKEN trong file .env của backend.
             </div>
           </div>
           <button className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }} type="submit" disabled={loading}>

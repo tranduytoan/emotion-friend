@@ -2,7 +2,9 @@ package com.emotionfriend.feature.story
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import coil.ImageLoader
 import com.emotionfriend.data.local.StoryDao
+import com.emotionfriend.data.repository.StoryImagePreloadRepository
 import com.emotionfriend.domain.model.Story
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -13,6 +15,8 @@ import javax.inject.Inject
 @HiltViewModel
 class StoryViewModel @Inject constructor(
     private val storyDao: StoryDao,
+    private val storyImagePreloadRepository: StoryImagePreloadRepository,
+    val imageLoader: ImageLoader,
 ) : ViewModel() {
 
     val stories = storyDao.getAllStories()
@@ -30,4 +34,8 @@ class StoryViewModel @Inject constructor(
             }
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    fun preloadStoryImages(stories: List<Story>) {
+        storyImagePreloadRepository.preload(stories)
+    }
 }

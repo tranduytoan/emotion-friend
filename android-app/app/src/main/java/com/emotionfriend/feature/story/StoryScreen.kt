@@ -43,8 +43,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.ImageLoader
 import coil.compose.AsyncImage
-import com.emotionfriend.BuildConfig
 import com.emotionfriend.core.audio.rememberTtsPlayer
 import com.emotionfriend.core.designsystem.components.EmotionPrimaryButton
 import com.emotionfriend.core.designsystem.components.EmotionScreenScaffold
@@ -76,16 +76,23 @@ fun StoryScreen(
     val stories by viewModel.stories.collectAsState()
     var selectedStory by remember { mutableStateOf<Story?>(null) }
 
+    LaunchedEffect(stories) {
+        // Preload all story pages in the background when list data is available.
+        viewModel.preloadStoryImages(stories)
+    }
+
     val selected = selectedStory
     if (selected != null) {
         StoryReaderScreen(
             story           = selected,
+            imageLoader     = viewModel.imageLoader,
             onBack          = { selectedStory = null },
             onNavigateBack  = onNavigateBack,
         )
     } else {
         StoriesListScreen(
             stories         = stories,
+            imageLoader     = viewModel.imageLoader,
             onSelectStory   = { selectedStory = it },
             onNavigateBack  = onNavigateBack,
         )
@@ -113,6 +120,7 @@ private val categoryColors = mapOf(
 @Composable
 private fun StoriesListScreen(
     stories: List<Story>,
+    imageLoader: ImageLoader,
     onSelectStory: (Story) -> Unit,
     onNavigateBack: () -> Unit,
 ) {
@@ -140,7 +148,11 @@ private fun StoriesListScreen(
                 modifier        = Modifier.fillMaxSize(),
             ) {
                 items(stories) { story ->
-                    StoryCard(story = story, onClick = { onSelectStory(story) })
+                    StoryCard(
+                        story = story,
+                        imageLoader = imageLoader,
+                        onClick = { onSelectStory(story) },
+                    )
                 }
             }
         }
@@ -150,10 +162,11 @@ private fun StoriesListScreen(
 @Composable
 private fun StoryCard(
     story: Story,
+    imageLoader: ImageLoader,
     onClick: () -> Unit,
 ) {
     val bg    = categoryColors[story.category] ?: SkyBlueLight
-    val emoji = categoryEmojis[story.category] ?: "📖"
+    val coverImageUrl = story.storyCoverUrl()
 
     Card(
         shape     = RoundedCornerShape(16.dp),
@@ -164,11 +177,35 @@ private fun StoryCard(
             .clickable(onClick = onClick),
     ) {
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            modifier = Modifier.padding(12.dp),
         ) {
-            Text(text = emoji, fontSize = 48.sp)
+            if (coverImageUrl != null) {
+                AsyncImage(
+                    model = coverImageUrl,
+                    contentDescription = "Story cover",
+                    imageLoader = imageLoader,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(140.dp)
+                        .clip(RoundedCornerShape(14.dp)),
+                )
+            } else {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(140.dp)
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(SkyBlue80),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = categoryEmojis[story.category] ?: "📖",
+                        fontSize = 48.sp,
+                    )
+                }
+            }
             Text(
                 text       = story.title,
                 style      = MaterialTheme.typography.titleSmall,
@@ -195,22 +232,20 @@ private val emotionChoices = listOf(
 @Composable
 private fun StoryReaderScreen(
     story: Story,
+    imageLoader: ImageLoader,
     onBack: () -> Unit,
     onNavigateBack: () -> Unit,
 ) {
     val tts          = rememberTtsPlayer()
     val textPages    = remember(story.content) { story.content.chunkedByWords(80) }
-    var showImages   by remember { mutableStateOf(false) }
     val hasImageFolder = !story.imageFolder.isNullOrBlank()
-    val contentSlides = if (showImages && hasImageFolder) 4 else textPages.size
+    var showImages   by remember { mutableStateOf(hasImageFolder) }
+    val contentSlides = if (showImages && hasImageFolder) STORY_IMAGE_PAGE_COUNT else textPages.size
     val totalSlides  = contentSlides + 1
     val pagerState   = rememberPagerState(pageCount = { totalSlides })
     var storyRead    by remember { mutableStateOf(false) }
     var emotionPicked by remember { mutableStateOf<String?>(null) }
-    val imageBaseUrl = remember(story.imageFolder) {
-        if (story.imageFolder.isNullOrBlank()) null
-        else "${BuildConfig.BACKEND_URL}/static/stories/${story.imageFolder}"
-    }
+    val storyImageUrls = remember(story.imageFolder) { story.storyPageUrls() }
 
     // Auto-read story content via TTS when screen opens
     LaunchedEffect(story.id) {
@@ -237,9 +272,10 @@ private fun StoryReaderScreen(
                     .weight(1f),
             ) { page ->
                 if (page < contentSlides) {
-                    if (showImages && imageBaseUrl != null) {
+                    if (showImages && storyImageUrls.isNotEmpty()) {
                         StoryImageSlide(
-                            imageUrl  = "$imageBaseUrl/${page + 1}.jpg",
+                            imageLoader = imageLoader,
+                            imageUrl  = storyImageUrls.getOrNull(page) ?: storyImageUrls.last(),
                             fallbackText = textPages.getOrElse(page) { textPages.lastOrNull().orEmpty() },
                         )
                     } else {
@@ -343,6 +379,7 @@ private fun StoryTextSlide(
 // Image page slide loaded from backend static endpoint.
 @Composable
 private fun StoryImageSlide(
+    imageLoader: ImageLoader,
     imageUrl: String,
     fallbackText: String,
 ) {
@@ -357,6 +394,7 @@ private fun StoryImageSlide(
         AsyncImage(
             model = imageUrl,
             contentDescription = "Story image",
+            imageLoader = imageLoader,
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .fillMaxWidth()
@@ -378,6 +416,9 @@ private fun String.chunkedByWords(wordsPerChunk: Int): List<String> {
     if (words.isEmpty()) return listOf("")
     return words.chunked(wordsPerChunk).map { it.joinToString(" ") }
 }
+
+private val STORY_IMAGE_PAGE_COUNT: Int
+    get() = storyImagePageCount
 
 // Last slide — emotion question
 @Composable

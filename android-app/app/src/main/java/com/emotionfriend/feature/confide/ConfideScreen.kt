@@ -272,7 +272,7 @@ fun ConfideScreen(
 
                 // Send button
                 EmotionPrimaryButton(
-                    text     = "Gửi",
+                    text     = "➤",
                     onClick  = { viewModel.sendMessage() },
                     enabled  = uiState.inputText.isNotBlank() && !uiState.isLoading,
                     modifier = Modifier.width(72.dp),

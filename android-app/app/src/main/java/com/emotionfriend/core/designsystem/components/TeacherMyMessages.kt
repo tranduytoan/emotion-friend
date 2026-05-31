@@ -1,5 +1,7 @@
 package com.emotionfriend.core.designsystem.components
 
+import com.emotionfriend.domain.model.EmotionType
+
 /**
  * All dialogue lines for the "Cô giáo My" companion character, organised by context.
  *
@@ -58,6 +60,37 @@ object TeacherMyMessages {
         "Con nhớ nhấn vào hình nhé! 👆",
         "Con thử chọn một hoạt động nào đó nhé! 😊",
     )
+
+    fun journalSupport(emotion: EmotionType?): String = when (emotion) {
+        EmotionType.HAPPY -> listOf(
+            "Cô vui cùng con khi nghe chuyện vui đó! 🌟",
+            "Niềm vui của con làm cô cũng thấy ấm áp nữa. 💛",
+        ).random()
+        EmotionType.SAD -> listOf(
+            "Cô ở đây với con nhé, con không cần buồn một mình đâu. 💛",
+            "Mình cùng ôm lấy cảm xúc buồn một chút rồi sẽ nhẹ hơn nhé. 🌸",
+        ).random()
+        EmotionType.ANGRY -> listOf(
+            "Cô hiểu con đang khó chịu, mình hít thở chậm một chút nhé. 🌿",
+            "Con cứ nói ra điều làm mình bực nhé, cô đang nghe con đây. 🤗",
+        ).random()
+        EmotionType.SURPRISED -> listOf(
+            "Ôi, chuyện của con bất ngờ quá! Cô đang nghe nè. ✨",
+            "Cảm xúc ngạc nhiên này thú vị quá, con kể cô nghe thêm nhé! 🌟",
+        ).random()
+        EmotionType.CALM -> listOf(
+            "Con đang bình tĩnh rồi, mình cứ chia sẻ nhẹ nhàng nhé. 🌸",
+            "Cảm ơn con đã kể cho cô nghe thật bình yên. 💛",
+        ).random()
+        EmotionType.TIRED -> listOf(
+            "Con mệt rồi hả, mình nghỉ một chút cũng được nhé. ☁️",
+            "Nếu con mệt, mình nói chậm thôi và thở nhẹ nhé. 🌙",
+        ).random()
+        null -> listOf(
+            "Cô luôn sẵn sàng nghe con tâm sự nhé. 💛",
+            "Con cứ kể chậm rãi, cô đang lắng nghe con đây. 🌸",
+        ).random()
+    }
 
     fun randomHome()      = home.random()
     fun randomLearn()     = learn.random()

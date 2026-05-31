@@ -25,25 +25,20 @@ Tại thư mục gốc `emotion-friend`:
 copy .env.example .env
 ```
 
-docker exec -it emotion_friend_mysql mysql -u root -p emotion_friend
-
 Mở file `.env`, kiểm tra tối thiểu các biến sau:
 
 ```env
 MYSQL_ROOT_PASSWORD=Trungnghia2703
 MYSQL_DATABASE=emotion_friend
-ADMIN_TOKEN=emotion-admin-2703
+ADMIN_TOKEN=emotion-friend
 
 # Android emulator:
-BACKEND_URL=http://10.0.2.2:80
-
-# Nếu chạy trên điện thoại thật, đổi BACKEND_URL thành IP LAN của máy:
-# BACKEND_URL=http://192.168.x.x:80
+BACKEND_URL=http://157.173.127.217:8088
 ```
 
 Lưu ý:
 - `BACKEND_URL` được Android đọc từ file `android-app/.env` khi build app.
-- Nếu bạn dùng điện thoại thật, phải đổi sang IP LAN của máy tính (không dùng `10.0.2.2`).
+- APK này luôn trỏ vào server public `157.173.127.217:8088`, không dùng backend local.
 
 ### 2.2. Tạo file android-app/.env
 
@@ -109,8 +104,8 @@ Mặc định Vite chạy ở:
 - http://localhost:3000
 
 Admin web đã proxy:
-- `/api` -> `http://localhost:8080`
-- `/admin` -> `http://localhost:8080`
+- `/api` -> `http://localhost`
+- `/admin` -> `http://localhost`
 
 Trong kiến trúc đầy đủ với Nginx (port 80), bạn vẫn có thể dùng Admin Web bình thường qua proxy dev của Vite.
 

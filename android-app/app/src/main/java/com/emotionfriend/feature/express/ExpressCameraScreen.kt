@@ -41,6 +41,8 @@ import com.emotionfriend.core.designsystem.components.FeedbackBanner
 import com.emotionfriend.core.designsystem.components.FeedbackType
 import com.emotionfriend.core.designsystem.components.TeacherMyGuide
 import com.emotionfriend.core.designsystem.components.TeacherMyMessages
+import com.emotionfriend.core.designsystem.components.VyEmotion
+import com.emotionfriend.core.designsystem.components.toVyEmotionForCompanion
 import com.emotionfriend.core.designsystem.theme.EmotionFriendTheme
 import com.emotionfriend.core.designsystem.theme.OnSurfaceVar
 import com.emotionfriend.domain.model.EmotionType
@@ -63,6 +65,11 @@ fun ExpressCameraScreen(
     var cameraError    by remember { mutableStateOf(false) }
     val tts            = rememberTtsPlayer()
     val teacherMessage = remember { TeacherMyMessages.randomCamera() }
+    val teacherEmotion = if (state.captureState == CaptureState.DONE) {
+        VyEmotion.CELEBRATING
+    } else {
+        state.promptEmotion.toVyEmotionForCompanion()
+    }
 
     Column(
         modifier            = modifier
@@ -77,6 +84,7 @@ fun ExpressCameraScreen(
         TeacherMyGuide(
             message = teacherMessage,
             onSpeak = { tts.speak(teacherMessage) },
+            vyEmotion = teacherEmotion,
         )
 
         // Prompt card

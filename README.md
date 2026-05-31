@@ -1,4 +1,9 @@
 # Emotion Friend
+<h2 align="left">
+📱 <a href="https://drive.google.com/drive/folders/11IXtddY49nT91i_Chc1bE2_PgtKz4Qx-?usp=drive_link">
+Download APK
+</a>
+</h2>
 
 Nền tảng hỗ trợ trẻ em rối loạn phổ tự kỷ (ASD) rèn luyện kỹ năng cảm xúc qua học tương tác, kể chuyện, tình huống xã hội và bài tập điều tiết cảm xúc.
 
@@ -10,7 +15,8 @@ Nền tảng hỗ trợ trẻ em rối loạn phổ tự kỷ (ASD) rèn luyện
 [![License](https://img.shields.io/badge/License-MIT-lightgrey)](LICENSE)
 
 ## 1. Giới Thiệu Hệ Thống
-[![APK - Emotion Friend](https://drive.google.com/drive/folders/11IXtddY49nT91i_Chc1bE2_PgtKz4Qx-?usp=drive_link)]
+
+
 Emotion Friend là hệ thống gồm 3 lớp chính:
 
 - Ứng dụng Android cho trẻ em: trải nghiệm học cảm xúc, luyện tập, ghi nhật ký, theo dõi tiến trình.

@@ -184,7 +184,7 @@ fun ConfideScreen(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
-                        TeacherMyAvatar(emotion = VyEmotion.HAPPY, size = 80)
+                        TeacherMyAvatar(emotion = VyEmotion.HAPPY, size = 80.dp)
                         Text(
                             text      = "Cô Vy đang lắng nghe con 💛",
                             style     = MaterialTheme.typography.titleLarge,

@@ -15,6 +15,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.emotionfriend.core.designsystem.theme.EmotionFriendTheme
+import com.emotionfriend.core.designsystem.theme.dimensions
 
 /**
  * Primary action button.
@@ -38,7 +39,7 @@ fun EmotionPrimaryButton(
         ),
         modifier = modifier
             .fillMaxWidth()
-            .heightIn(min = 64.dp)
+            .heightIn(min = MaterialTheme.dimensions.buttonHeight)
             .semantics { role = Role.Button }
     ) {
         Text(

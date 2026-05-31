@@ -21,6 +21,7 @@ import com.emotionfriend.core.designsystem.theme.EmotionFriendTheme
 import com.emotionfriend.core.designsystem.theme.MintGreen40
 import com.emotionfriend.core.designsystem.theme.MintGreen80
 import com.emotionfriend.core.designsystem.theme.OutlineLight
+import com.emotionfriend.core.designsystem.theme.dimensions
 
 /**
  * Pill-shaped progress indicator for multi-step activities.
@@ -40,12 +41,12 @@ fun ProgressPill(
     val description = "Câu $current trên $total"
     Row(
         verticalAlignment    = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimensions.spacingSm),
         modifier = modifier
             .wrapContentWidth()
             .clip(MaterialTheme.shapes.extraLarge)
             .background(MintGreen80.copy(alpha = 0.5f))
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .padding(horizontal = MaterialTheme.dimensions.spacingMd, vertical = MaterialTheme.dimensions.spacingXs)
             .semantics { contentDescription = description }
     ) {
         // Step dots
@@ -54,7 +55,7 @@ fun ProgressPill(
             val isCurrent   = step == current
             Box(
                 modifier = Modifier
-                    .size(if (isCurrent) 12.dp else 8.dp)
+                    .size(if (isCurrent) MaterialTheme.dimensions.progressDotSizeActive else MaterialTheme.dimensions.progressDotSize)
                     .clip(MaterialTheme.shapes.extraLarge)
                     .background(
                         when {

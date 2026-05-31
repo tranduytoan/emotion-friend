@@ -20,8 +20,8 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.emotionfriend.core.designsystem.theme.EmotionFriendTheme
+import com.emotionfriend.core.designsystem.theme.dimensions
 import com.emotionfriend.core.designsystem.theme.WarmCream
 
 /**
@@ -78,7 +78,10 @@ fun EmotionScreenScaffold(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 20.dp),
+                .padding(
+                    horizontal = MaterialTheme.dimensions.screenHorizontalPadding,
+                    vertical = MaterialTheme.dimensions.screenVerticalPadding,
+                ),
             content = content
         )
     }

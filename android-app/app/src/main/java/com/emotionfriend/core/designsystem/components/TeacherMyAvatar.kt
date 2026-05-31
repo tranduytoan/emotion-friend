@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -15,6 +16,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
 import coil.request.CachePolicy
 import coil.request.ImageRequest
@@ -22,6 +24,7 @@ import coil.compose.AsyncImage
 import coil.size.Precision
 import com.emotionfriend.BuildConfig
 import com.emotionfriend.core.designsystem.theme.SunYellow80
+import com.emotionfriend.core.designsystem.theme.dimensions
 import com.emotionfriend.core.image.appImageLoader
 
 /**
@@ -37,24 +40,26 @@ import com.emotionfriend.core.image.appImageLoader
 @Composable
 fun TeacherMyAvatar(
     modifier: Modifier = Modifier,
-    size: Int = 64,
+    size: Dp? = null,
     emotion: VyEmotion = VyEmotion.NEUTRAL,
 ) {
     val context = LocalContext.current
     val density = LocalDensity.current
     val imageLoader = remember(context) { context.appImageLoader() }
-    val sizePx = with(density) { size.dp.roundToPx() }
+    val resolvedSize = size ?: MaterialTheme.dimensions.emojiLg
+    val sizePx = with(density) { resolvedSize.roundToPx() }
+    val fontSize = with(density) { (resolvedSize.toPx() * 0.52f).toSp() }
 
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
-            .size(size.dp)
+            .size(resolvedSize)
             .clip(CircleShape)
             .background(SunYellow80),
     ) {
         Text(
             text     = vyEmotionEmoji(emotion),
-            fontSize = (size * 0.52f).sp,
+            fontSize = fontSize,
         )
         AsyncImage(
             model = ImageRequest.Builder(context)

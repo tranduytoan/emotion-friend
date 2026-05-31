@@ -2,12 +2,16 @@ package com.emotionfriend.core.audio
 
 import android.content.Context
 import android.speech.tts.TextToSpeech
+import android.speech.tts.UtteranceProgressListener
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import java.util.ArrayDeque
 import java.util.Locale
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 /**
  * Thin wrapper around Android [TextToSpeech] configured for Vietnamese.
@@ -21,18 +25,35 @@ class TtsPlayer(context: Context) {
     private var tts: TextToSpeech? = null
     private var ready = false
     private val pendingUtterances = ArrayDeque<String>()
+    private val _isSpeaking = MutableStateFlow(false)
+    val isSpeaking: StateFlow<Boolean> = _isSpeaking.asStateFlow()
+    private var utteranceCounter = 0L
 
     init {
         tts = TextToSpeech(context) { status ->
             ready = status == TextToSpeech.SUCCESS
             if (ready) {
                 val engine = tts
+                engine?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+                    override fun onStart(utteranceId: String?) {
+                        _isSpeaking.value = true
+                    }
+
+                    override fun onDone(utteranceId: String?) {
+                        _isSpeaking.value = false
+                    }
+
+                    override fun onError(utteranceId: String?) {
+                        _isSpeaking.value = false
+                    }
+                })
                 val languageResult = engine?.setLanguage(Locale("vi", "VN"))
                 if (languageResult == TextToSpeech.LANG_MISSING_DATA || languageResult == TextToSpeech.LANG_NOT_SUPPORTED) {
                     engine?.language = Locale.getDefault()
                 }
                 while (pendingUtterances.isNotEmpty()) {
-                    engine?.speak(pendingUtterances.removeFirst(), TextToSpeech.QUEUE_ADD, null, null)
+                    val utteranceId = "queued-${utteranceCounter++}"
+                    engine?.speak(pendingUtterances.removeFirst(), TextToSpeech.QUEUE_ADD, null, utteranceId)
                 }
             }
         }
@@ -42,7 +63,8 @@ class TtsPlayer(context: Context) {
     fun speak(text: String) {
         val engine = tts
         if (ready && engine != null) {
-            engine.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
+            val utteranceId = "speak-${utteranceCounter++}"
+            engine.speak(text, TextToSpeech.QUEUE_FLUSH, null, utteranceId)
         } else {
             pendingUtterances.clear()
             pendingUtterances.addLast(text)
@@ -51,6 +73,7 @@ class TtsPlayer(context: Context) {
 
     fun shutdown() {
         pendingUtterances.clear()
+        _isSpeaking.value = false
         tts?.shutdown()
         tts = null
         ready = false

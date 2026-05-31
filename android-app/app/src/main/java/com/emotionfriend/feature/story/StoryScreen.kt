@@ -40,6 +40,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -206,13 +207,23 @@ private fun StoryCard(
                     )
                 }
             }
-            Text(
-                text       = story.title,
-                style      = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Bold,
-                textAlign  = TextAlign.Center,
-                maxLines   = 2,
-            )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(44.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text       = story.title,
+                    style      = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    textAlign  = TextAlign.Center,
+                    minLines   = 2,
+                    maxLines   = 2,
+                    overflow   = TextOverflow.Ellipsis,
+                    modifier   = Modifier.fillMaxWidth(),
+                )
+            }
         }
     }
 }

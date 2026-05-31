@@ -18,9 +18,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Card
@@ -91,6 +90,7 @@ fun LearnScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
     val tts   = rememberTtsPlayer()
+    val isTeacherSpeaking by tts.isSpeaking.collectAsState()
 
     when (state.phase) {
         LearnPhase.SETS_LIST -> SetsListScreen(
@@ -124,6 +124,7 @@ fun LearnScreen(
                         currentQuestion    = state.questionIndex + 1,
                         totalQuestions     = state.totalQuestionsInSet,
                         tts                = tts,
+                        isTeacherSpeaking  = isTeacherSpeaking,
                         onSelectAnswer     = viewModel::selectAnswer,
                         onSubmit           = viewModel::submitAnswer,
                         onNext             = viewModel::nextQuestion,
@@ -256,6 +257,7 @@ private fun QuestionContent(
     currentQuestion: Int,
     totalQuestions: Int,
     tts: TtsPlayer,
+    isTeacherSpeaking: Boolean,
     onSelectAnswer: (EmotionType) -> Unit,
     onSubmit: () -> Unit,
     onNext: () -> Unit,
@@ -290,60 +292,58 @@ private fun QuestionContent(
         }
     }
 
-    Box(modifier = modifier.fillMaxSize()) {
+    BoxWithConstraints(modifier = modifier.fillMaxSize()) {
+        val isCompactHeight = maxHeight < 720.dp
+        val imageHeight = when {
+            maxHeight < 620.dp -> 156.dp
+            isCompactHeight -> 176.dp
+            else -> 210.dp
+        }
+        val optionMinHeight = when {
+            maxHeight < 620.dp -> 68.dp
+            isCompactHeight -> 72.dp
+            else -> 80.dp
+        }
+        val blockSpacing = if (isCompactHeight) 12.dp else 16.dp
+
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(bottom = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp),
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(blockSpacing),
         ) {
-            // Teacher Vy companion — audio only
             TeacherMyGuide(
                 message = question.prompt,
                 onSpeak = { tts.speak(question.prompt) },
+                isSpeaking = isTeacherSpeaking,
             )
 
-            // Progress pill (no mode toggle)
             ProgressPill(
                 current  = currentQuestion,
                 total    = totalQuestions,
                 modifier = Modifier.fillMaxWidth(),
             )
 
-            // Scenario title (if any)
-            if (question.subtitle.isNotEmpty()) {
-                Text(
-                    text     = question.subtitle,
-                    style    = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color    = SkyBlue40,
-                    modifier = Modifier.padding(horizontal = 4.dp),
-                )
-            }
-
-            // Scenario image card (replaces the old speaker icon + prompt text area)
             EmotionCard {
                 Column(
                     modifier            = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(if (isCompactHeight) 8.dp else 10.dp),
                 ) {
                     if (scenarioImageModel.isNotEmpty()) {
                         AsyncImage(
                             model = scenarioImageModel,
                             imageLoader = imageLoader,
                             contentDescription = "Ảnh tình huống",
-                            contentScale = ContentScale.Crop,
+                            contentScale = ContentScale.FillHeight,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(200.dp)
+                                .height(imageHeight)
                                 .clip(RoundedCornerShape(16.dp)),
                         )
                     } else {
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(170.dp)
+                                .height(imageHeight)
                                 .clip(RoundedCornerShape(16.dp))
                                 .background(Color(0xFFE2E8F0)),
                             contentAlignment = Alignment.Center,
@@ -355,17 +355,22 @@ private fun QuestionContent(
                             )
                         }
                     }
-                    Spacer(Modifier.height(8.dp))
-                    TextButton(onClick = { tts.speak(question.prompt) }) {
-                        Text("🔊 Nghe lại")
+                    if (question.subtitle.isNotEmpty()) {
+                        Text(
+                            text = question.subtitle,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = SkyBlue40,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
                     }
                 }
             }
 
-            // Emoji options grid (2 columns)
             question.options.chunked(2).forEach { row ->
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(if (isCompactHeight) 8.dp else 12.dp),
                     modifier              = Modifier.fillMaxWidth(),
                 ) {
                     row.forEach { type ->
@@ -381,7 +386,7 @@ private fun QuestionContent(
                                 onSelectAnswer(type)
                                 tts.speak(visuals.label)
                             },
-                            minHeight      = 82.dp,
+                            minHeight      = optionMinHeight,
                             modifier       = Modifier.weight(1f),
                         )
                     }
@@ -389,7 +394,6 @@ private fun QuestionContent(
                 }
             }
 
-            // Wrong answer message (replaces FeedbackBanner for wrong)
             AnimatedVisibility(
                 visible = isAnswerSubmitted && isCorrect == false,
                 enter   = fadeIn(),

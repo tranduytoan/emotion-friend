@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.emotionfriend.core.designsystem.theme.EmotionFriendTheme
+import com.emotionfriend.core.designsystem.theme.dimensions
 
 /**
  * Standard content card with large rounded corners and a soft elevation.
@@ -36,7 +37,7 @@ fun EmotionCard(
         modifier  = modifier.fillMaxWidth()
     ) {
         Column(
-            modifier = Modifier.padding(20.dp),
+            modifier = Modifier.padding(MaterialTheme.dimensions.cardPadding),
             content  = content
         )
     }

@@ -8,7 +8,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.compose.material3.MaterialTheme
+import com.emotionfriend.core.designsystem.theme.dimensions
 
 /**
  * Reusable companion row: [TeacherMyAvatar] + [TeacherMySpeechBubble].
@@ -23,6 +24,7 @@ import androidx.compose.ui.unit.dp
 fun TeacherMyGuide(
     message   : String,
     onSpeak   : (() -> Unit)? = null,
+    isSpeaking: Boolean = false,
     vyEmotion : VyEmotion = VyEmotion.NEUTRAL,
     modifier  : Modifier = Modifier,
 ) {
@@ -32,10 +34,11 @@ fun TeacherMyGuide(
         horizontalArrangement = Arrangement.Start,
     ) {
         TeacherMyAvatar(emotion = vyEmotion)
-        Spacer(Modifier.width(8.dp))
+        Spacer(Modifier.width(MaterialTheme.dimensions.spacingSm))
         TeacherMySpeechBubble(
             message  = message,
             onSpeak  = onSpeak,
+            isSpeaking = isSpeaking,
             modifier = Modifier.weight(1f),
         )
     }

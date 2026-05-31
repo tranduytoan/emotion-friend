@@ -27,6 +27,7 @@ import com.emotionfriend.core.designsystem.theme.EmotionAngryBg
 import com.emotionfriend.core.designsystem.theme.EmotionFriendTheme
 import com.emotionfriend.core.designsystem.theme.EmotionHappy
 import com.emotionfriend.core.designsystem.theme.EmotionHappyBg
+import com.emotionfriend.core.designsystem.theme.dimensions
 
 /**
  * A large tappable option button used in emotion-choice screens.
@@ -48,9 +49,11 @@ fun EmotionOptionButton(
     borderColor: Color,
     onClick: () -> Unit,
     showLabel: Boolean = true,
-    minHeight: Dp = 100.dp,
+    minHeight: Dp? = null,
     modifier: Modifier = Modifier
 ) {
+    val resolvedMinHeight = minHeight ?: MaterialTheme.dimensions.optionButtonHeight
+
     OutlinedButton(
         onClick  = onClick,
         shape    = MaterialTheme.shapes.large,
@@ -63,7 +66,7 @@ fun EmotionOptionButton(
             contentColor   = MaterialTheme.colorScheme.onBackground
         ),
         modifier = modifier
-            .heightIn(min = minHeight)
+            .heightIn(min = resolvedMinHeight)
             .semantics {
                 role = Role.Button
                 contentDescription = if (selected) "$label, đã chọn" else label
@@ -71,7 +74,7 @@ fun EmotionOptionButton(
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(vertical = 12.dp)
+            modifier = Modifier.padding(vertical = 10.dp)
         ) {
             Text(text = emoji, style = MaterialTheme.typography.displayMedium)
             if (showLabel) {

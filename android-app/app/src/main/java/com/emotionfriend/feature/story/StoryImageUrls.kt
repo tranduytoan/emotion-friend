@@ -8,7 +8,7 @@ private const val STORY_PAGE_COUNT = 4
 internal fun Story.storyImageBaseUrl(): String? {
     val folder = imageFolder?.trim().orEmpty()
     if (folder.isEmpty()) return null
-    return "${BuildConfig.BACKEND_URL}/img/stories/$folder"
+    return "${BuildConfig.BACKEND_URL.trimEnd('/')}/img/stories/$folder"
 }
 
 internal fun Story.storyCoverUrl(): String? =

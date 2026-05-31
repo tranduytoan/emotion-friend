@@ -155,3 +155,18 @@ Vi tri file APK:
 - Backend phuc vu anh story tu `STATIC_FILES_PATH=/app/static`, vi vay phai co `res/img` tren server.
 - MySQL chi noi bo network Docker, khong mo cong public.
 - Da lo Docker token trong chat thi phai rotate token ngay sau khi deploy xong.
+
+
+
+cd /opt/emotion-friend
+
+# set image mới
+# (nếu dùng .env thì đảm bảo có)
+# BACKEND_IMAGE=trungnghia2703/emotion-friend:backend-latest
+# ADMIN_WEB_IMAGE=trungnghia2703/emotion-friend:admin-web-latest
+# ADMIN_TOKEN=emotion-friend
+
+docker compose --env-file .env pull
+docker compose --env-file .env up -d
+docker compose ps
+curl -sf http://localhost/health && echo OK

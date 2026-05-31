@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.emotionfriend.data.local.LessonTopicDao
 import com.emotionfriend.data.repository.PracticeRepository
+import com.emotionfriend.data.repository.ScenarioImagePreloadRepository
 import com.emotionfriend.data.repository.ScenarioRepository
 import com.emotionfriend.domain.model.EmotionCard
 import com.emotionfriend.domain.model.EmotionType
@@ -82,6 +83,7 @@ data class LearnEmotionUiState(
 class LearnEmotionViewModel @Inject constructor(
     private val lessonTopicDao: LessonTopicDao,
     private val scenarioRepository: ScenarioRepository,
+    private val scenarioImagePreloadRepository: ScenarioImagePreloadRepository,
     private val practiceRepository: PracticeRepository,
     private val dataStore: DataStore<Preferences>,
 ) : ViewModel() {
@@ -108,6 +110,7 @@ class LearnEmotionViewModel @Inject constructor(
             val scenarios = scenarioRepository.getAll().first()
                 .filter { it.topicId != null }
                 .distinctBy { "${it.topicId}|${it.title.trim()}|${it.situationText.trim()}" }
+            scenarioImagePreloadRepository.preload(scenarios.map { it.imageName })
             val topics = lessonTopicDao.getAll().first()
             val prefs = dataStore.data.first()
 

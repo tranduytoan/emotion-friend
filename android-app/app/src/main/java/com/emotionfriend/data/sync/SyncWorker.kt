@@ -19,6 +19,9 @@ import com.emotionfriend.data.remote.ApiResult
 import com.emotionfriend.data.remote.dto.CreateJournalEntryRequest
 import com.emotionfriend.data.remote.dto.CreatePracticeAttemptRequest
 import com.emotionfriend.data.repository.EmotionRepository
+import com.emotionfriend.data.repository.ScenarioImagePreloadRepository
+import com.emotionfriend.data.repository.StoryImagePreloadRepository
+import com.emotionfriend.domain.model.Story
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 
@@ -30,6 +33,8 @@ class SyncWorker @AssistedInject constructor(
     private val journalEntryDao: JournalEntryDao,
     private val practiceAttemptDao: PracticeAttemptDao,
     private val emotionRepository: EmotionRepository,
+    private val storyImagePreloadRepository: StoryImagePreloadRepository,
+    private val scenarioImagePreloadRepository: ScenarioImagePreloadRepository,
     private val lessonTopicDao: LessonTopicDao,
     private val storyDao: StoryDao,
     private val scenarioLessonDao: ScenarioLessonDao,
@@ -139,6 +144,20 @@ class SyncWorker @AssistedInject constructor(
                     )
                 }
                 storyDao.upsertAll(entities)
+
+                // Warm image cache as early as possible so Story screen opens instantly.
+                val storiesForPreload = result.data.map { dto ->
+                    Story(
+                        id = dto.id.toString(),
+                        title = dto.title,
+                        content = dto.content,
+                        images = emptyList(),
+                        category = dto.category,
+                        imageFolder = dto.imageFolder,
+                    )
+                }
+                storyImagePreloadRepository.preload(storiesForPreload)
+
                 Log.d(TAG, "Pulled ${entities.size} stories from backend.")
             }
             is ApiResult.Error -> Log.d(TAG, "Pull stories skipped (offline?): ${result.message}")
@@ -189,6 +208,7 @@ class SyncWorker @AssistedInject constructor(
                     )
                 }
                 scenarioLessonDao.replaceAll(entities)
+                scenarioImagePreloadRepository.preload(entities.map { it.imageName })
                 Log.d(TAG, "Pulled ${entities.size} scenarios from backend.")
             }
             is ApiResult.Error -> Log.d(TAG, "Pull scenarios skipped (offline?): ${result.message}")

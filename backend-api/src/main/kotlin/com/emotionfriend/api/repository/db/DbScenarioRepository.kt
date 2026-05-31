@@ -3,6 +3,7 @@ package com.emotionfriend.api.repository.db
 import com.emotionfriend.api.db.ScenarioLessonTable
 import com.emotionfriend.api.model.ScenarioLesson
 import com.emotionfriend.api.repository.ScenarioRepository
+import com.emotionfriend.api.util.ScenarioLessonImageResolver
 import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -71,7 +72,10 @@ class DbScenarioRepository : ScenarioRepository {
             id             = this[ScenarioLessonTable.id],
             title          = this[ScenarioLessonTable.title],
             situation      = this[ScenarioLessonTable.situation],
-            imageName      = this[ScenarioLessonTable.imageName],
+            imageName      = ScenarioLessonImageResolver.resolveImageName(
+                lessonId = this[ScenarioLessonTable.id],
+                currentImageName = this[ScenarioLessonTable.imageName],
+            ),
             options        = options,
             correctEmotion = this[ScenarioLessonTable.correctEmotion],
             explanation    = this[ScenarioLessonTable.explanation],

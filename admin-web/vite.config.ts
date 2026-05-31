@@ -10,6 +10,8 @@ export default defineConfig({
     proxy: {
       '/admin': proxyTarget,
       '/api': proxyTarget,
+      '/img': proxyTarget,
+      '/static': proxyTarget,
     },
   },
 })

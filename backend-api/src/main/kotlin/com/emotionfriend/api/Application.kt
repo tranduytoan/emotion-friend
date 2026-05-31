@@ -43,6 +43,7 @@ fun Application.module() {
     val staticFile = File(staticDir)
     if (staticFile.exists()) {
         routing {
+            staticFiles("/img", staticFile)
             staticFiles("/static", staticFile)
         }
     }

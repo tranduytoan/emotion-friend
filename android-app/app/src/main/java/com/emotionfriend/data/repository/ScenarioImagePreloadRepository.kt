@@ -5,9 +5,7 @@ import coil.ImageLoader
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import coil.size.Precision
-import com.emotionfriend.domain.model.Story
-import com.emotionfriend.feature.story.storyCoverUrl
-import com.emotionfriend.feature.story.storyPageUrls
+import com.emotionfriend.BuildConfig
 import com.emotionfriend.core.di.ApplicationScope
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
@@ -17,33 +15,27 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class StoryImagePreloadRepository @Inject constructor(
+class ScenarioImagePreloadRepository @Inject constructor(
     @ApplicationContext private val context: Context,
     private val imageLoader: ImageLoader,
     @ApplicationScope private val appScope: CoroutineScope,
 ) {
-
     private companion object {
-        // Warm up a few covers synchronously so the list feels instant on open.
-        const val PRIORITY_STORY_COUNT = 6
+        // Keep first lessons extra warm so opening Learn is instant.
+        const val PRIORITY_IMAGE_COUNT = 24
     }
 
     private val preloadedUrls = Collections.synchronizedSet(mutableSetOf<String>())
 
-    fun preload(stories: List<Story>) {
-        val priorityUrls = stories
-            .take(PRIORITY_STORY_COUNT)
-            .flatMap { story ->
-                val cover = story.storyCoverUrl()
-                val firstPage = story.storyPageUrls().firstOrNull()
-                listOfNotNull(cover, firstPage)
-            }
+    fun preload(imageNames: List<String?>) {
+        val urls = imageNames
+            .mapNotNull { scenarioImageUrl(it) }
             .distinct()
 
-        val otherUrls = stories
-            .flatMap { it.storyPageUrls() }
-            .filterNot { it in priorityUrls }
-            .distinct()
+        if (urls.isEmpty()) return
+
+        val priorityUrls = urls.take(PRIORITY_IMAGE_COUNT)
+        val otherUrls = urls.drop(PRIORITY_IMAGE_COUNT)
 
         val priorityToLoad = priorityUrls.filter { preloadedUrls.add(it) }
         val othersToLoad = otherUrls.filter { preloadedUrls.add(it) }
@@ -64,8 +56,6 @@ class StoryImagePreloadRepository @Inject constructor(
                     .diskCachePolicy(CachePolicy.ENABLED)
                     .networkCachePolicy(CachePolicy.ENABLED)
                     .build()
-
-                // Fill cache immediately for first-visible images.
                 imageLoader.execute(request)
             }
 
@@ -78,10 +68,14 @@ class StoryImagePreloadRepository @Inject constructor(
                     .diskCachePolicy(CachePolicy.ENABLED)
                     .networkCachePolicy(CachePolicy.ENABLED)
                     .build()
-
-                // Non-blocking preload so the UI stays responsive.
                 imageLoader.enqueue(request)
             }
         }
+    }
+
+    private fun scenarioImageUrl(imageName: String?): String? {
+        val name = imageName?.trim().orEmpty()
+        if (name.isEmpty()) return null
+        return "${BuildConfig.BACKEND_URL.trimEnd('/')}/img/scenario_lessons/$name"
     }
 }

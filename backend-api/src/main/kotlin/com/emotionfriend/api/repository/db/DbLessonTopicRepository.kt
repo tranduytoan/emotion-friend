@@ -5,6 +5,7 @@ import com.emotionfriend.api.db.ScenarioLessonTable
 import com.emotionfriend.api.model.LessonTopic
 import com.emotionfriend.api.model.ScenarioLesson
 import com.emotionfriend.api.repository.LessonTopicRepository
+import com.emotionfriend.api.util.ScenarioLessonImageResolver
 import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.sql.*
@@ -44,7 +45,10 @@ class DbLessonTopicRepository : LessonTopicRepository {
                     id             = row[ScenarioLessonTable.id],
                     title          = row[ScenarioLessonTable.title],
                     situation      = row[ScenarioLessonTable.situation],
-                    imageName      = row[ScenarioLessonTable.imageName],
+                    imageName      = ScenarioLessonImageResolver.resolveImageName(
+                        lessonId = row[ScenarioLessonTable.id],
+                        currentImageName = row[ScenarioLessonTable.imageName],
+                    ),
                     options        = opts,
                     correctEmotion = row[ScenarioLessonTable.correctEmotion],
                     explanation    = row[ScenarioLessonTable.explanation],

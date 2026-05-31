@@ -13,6 +13,7 @@ import com.emotionfriend.api.service.LessonTopicService
 import com.emotionfriend.api.service.MusicService
 import com.emotionfriend.api.service.ScenarioService
 import com.emotionfriend.api.service.StoryService
+import com.emotionfriend.api.util.ScenarioLessonImageResolver
 import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.server.application.*
@@ -183,7 +184,7 @@ fun Route.adminRoutes(
                     )
                 }
 
-                val imageDir = resolveScenarioLessonImageDir()
+                val imageDir = ScenarioLessonImageResolver.resolveScenarioLessonImageDir()
                 if (!imageDir.exists() && !imageDir.mkdirs()) {
                     return@post call.respond(
                         HttpStatusCode.InternalServerError,
@@ -380,26 +381,6 @@ fun Route.adminRoutes(
                 else call.respond(HttpStatusCode.NotFound, ApiResponse<Unit>(success = false, error = "Not found"))
             }
         }
-    }
-}
-
-private fun resolveScenarioLessonImageDir(): File {
-    val explicitPath = System.getenv("SCENARIO_LESSONS_IMAGE_PATH")
-        ?.trim()
-        ?.takeIf { it.isNotEmpty() }
-    if (explicitPath != null) return File(explicitPath)
-
-    val staticFilesPath = System.getenv("STATIC_FILES_PATH")
-        ?.trim()
-        ?.takeIf { it.isNotEmpty() }
-    if (staticFilesPath != null) return File(staticFilesPath, "scenario_lessons")
-
-    val cwd = File(System.getProperty("user.dir"))
-    val repoResPath = File(cwd, "../res/img/scenario_lessons")
-    return if (repoResPath.exists() || repoResPath.parentFile?.exists() == true) {
-        repoResPath
-    } else {
-        File(cwd, "res/img/scenario_lessons")
     }
 }
 

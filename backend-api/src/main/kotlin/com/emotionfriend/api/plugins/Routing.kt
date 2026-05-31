@@ -11,10 +11,11 @@ fun Application.configureRouting() {
     val scenarioRepo  = DbScenarioRepository()
     val journalRepo   = DbJournalRepository()
     val practiceRepo  = DbPracticeRepository()
-    val progressRepo  = DbProgressRepository()
+    val progressRepo  = DbProgressRepository(practiceRepo)
     val storyRepo     = DbStoryRepository()
     val musicRepo     = DbMusicRepository()
     val topicRepo     = DbLessonTopicRepository()
+    val authRepo      = DbAuthRepository()
 
     val emotionService  = EmotionService(emotionRepo)
     val scenarioService = ScenarioService(scenarioRepo)
@@ -24,12 +25,14 @@ fun Application.configureRouting() {
     val storyService    = StoryService(storyRepo)
     val musicService    = MusicService(musicRepo)
     val topicService    = LessonTopicService(topicRepo)
+    val authService     = AuthService(authRepo)
 
     routing {
         healthRoute()
         emotionRoutes(emotionService)
         scenarioRoutes(scenarioService)
         topicRoutes(topicService)
+        authRoutes(authService)
         journalRoutes(journalService)
         practiceRoutes(practiceService)
         progressRoutes(progressService, practiceService)

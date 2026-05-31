@@ -1,18 +1,23 @@
 package com.emotionfriend.data.remote
 
 import com.emotionfriend.data.remote.dto.ApiResponseDto
+import com.emotionfriend.data.remote.dto.AuthResponseDto
 import com.emotionfriend.data.remote.dto.CreateEmotionLogRequest
 import com.emotionfriend.data.remote.dto.CreateJournalEntryRequest
 import com.emotionfriend.data.remote.dto.CreatePracticeAttemptRequest
 import com.emotionfriend.data.remote.dto.EmotionCardDto
 import com.emotionfriend.data.remote.dto.EmotionLogDto
+import com.emotionfriend.data.remote.dto.ForgotPasswordRequest
 import com.emotionfriend.data.remote.dto.JournalEntryDto
 import com.emotionfriend.data.remote.dto.LessonTopicDto
+import com.emotionfriend.data.remote.dto.LoginRequest
 import com.emotionfriend.data.remote.dto.PracticeAttemptDto
 import com.emotionfriend.data.remote.dto.ProgressSummaryDto
+import com.emotionfriend.data.remote.dto.RegisterRequest
 import com.emotionfriend.data.remote.dto.ScenarioLessonDto
 import com.emotionfriend.data.remote.dto.SituationDto
 import com.emotionfriend.data.remote.dto.StoryDto
+import com.emotionfriend.data.remote.dto.VerifyEmailRequest
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -20,7 +25,9 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
-import io.ktor.http.isSuccess
+import io.ktor.serialization.ContentConvertException
+import io.ktor.client.plugins.ResponseException
+import io.ktor.client.call.NoTransformationFoundException
 import javax.inject.Inject
 
 /**
@@ -106,6 +113,54 @@ class EmotionFriendApiClient @Inject constructor(
         requireNotNull(body.data) { "No data in response" }
     }
 
+    suspend fun login(email: String, password: String): ApiResult<AuthResponseDto> = safeCall {
+        val response = httpClient.post("${ApiConstants.BASE_URL}${ApiConstants.PATH_AUTH_LOGIN}") {
+            contentType(ContentType.Application.Json)
+            setBody(LoginRequest(email = email, password = password))
+        }
+        val body: ApiResponseDto<AuthResponseDto> = response.body()
+        requireNotNull(body.data) { body.error ?: "No data in response" }
+    }
+
+    suspend fun register(
+        email: String,
+        password: String,
+        displayName: String,
+        role: String,
+    ): ApiResult<AuthResponseDto> = safeCall {
+        val response = httpClient.post("${ApiConstants.BASE_URL}${ApiConstants.PATH_AUTH_REGISTER}") {
+            contentType(ContentType.Application.Json)
+            setBody(
+                RegisterRequest(
+                    email = email,
+                    password = password,
+                    displayName = displayName,
+                    role = role,
+                )
+            )
+        }
+        val body: ApiResponseDto<AuthResponseDto> = response.body()
+        requireNotNull(body.data) { body.error ?: "No data in response" }
+    }
+
+    suspend fun forgotPassword(email: String): ApiResult<String> = safeCall {
+        val response = httpClient.post("${ApiConstants.BASE_URL}${ApiConstants.PATH_AUTH_FORGOT_PASSWORD}") {
+            contentType(ContentType.Application.Json)
+            setBody(ForgotPasswordRequest(email = email))
+        }
+        val body: ApiResponseDto<String> = response.body()
+        requireNotNull(body.data) { body.error ?: "No data in response" }
+    }
+
+    suspend fun verifyEmail(email: String, code: String): ApiResult<AuthResponseDto> = safeCall {
+        val response = httpClient.post("${ApiConstants.BASE_URL}${ApiConstants.PATH_AUTH_VERIFY_EMAIL}") {
+            contentType(ContentType.Application.Json)
+            setBody(VerifyEmailRequest(email = email, code = code))
+        }
+        val body: ApiResponseDto<AuthResponseDto> = response.body()
+        requireNotNull(body.data) { body.error ?: "No data in response" }
+    }
+
     // ── Nghĩa's backend endpoints (P7) ─────────────────────────────────────────
 
     /**
@@ -134,6 +189,17 @@ class EmotionFriendApiClient @Inject constructor(
 
     private inline fun <T> safeCall(block: () -> T): ApiResult<T> = try {
         ApiResult.Success(block())
+    } catch (e: ResponseException) {
+        ApiResult.Error(
+            message = "Yeu cau that bai (${e.response.status.value}). Vui long kiem tra backend va endpoint.",
+            code = e.response.status.value,
+        )
+    } catch (e: NoTransformationFoundException) {
+        ApiResult.Error(
+            message = "Khong doc duoc phan hoi tu server. Hay kiem tra endpoint backend va Content-Type.",
+        )
+    } catch (e: ContentConvertException) {
+        ApiResult.Error(message = "Dinh dang du lieu tu server khong hop le.")
     } catch (e: Exception) {
         ApiResult.Error(message = e.message ?: "Unknown error")
     }

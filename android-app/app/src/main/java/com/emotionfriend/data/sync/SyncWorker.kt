@@ -188,7 +188,7 @@ class SyncWorker @AssistedInject constructor(
                         topicId        = dto.topicId,
                     )
                 }
-                scenarioLessonDao.upsertAll(entities)
+                scenarioLessonDao.replaceAll(entities)
                 Log.d(TAG, "Pulled ${entities.size} scenarios from backend.")
             }
             is ApiResult.Error -> Log.d(TAG, "Pull scenarios skipped (offline?): ${result.message}")

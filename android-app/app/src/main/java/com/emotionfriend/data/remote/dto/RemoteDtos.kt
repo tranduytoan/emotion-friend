@@ -151,13 +151,20 @@ data class ForgotPasswordRequest(
 )
 
 @Serializable
+data class VerifyEmailRequest(
+    val email: String,
+    val code: String,
+)
+
+@Serializable
 data class AuthResponseDto(
     val userId: Long,
     val email: String,
     val displayName: String,
     val role: String,
-    val token: String,
+    val token: String = "",
     val message: String = "OK",
+    val isVerified: Boolean = true,
 )
 
 // ── Sync DTOs ──────────────────────────────────────────────────────────────────

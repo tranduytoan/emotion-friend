@@ -194,7 +194,7 @@ private fun LessonSetCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val typeEmoji = if (set.type == LessonType.EMOTION) "😊" else "🏫"
+    val typeEmoji = "🏫"
     val statusEmoji = when {
         set.isComplete             -> "✅"
         set.correctCount > 0       -> "📖"

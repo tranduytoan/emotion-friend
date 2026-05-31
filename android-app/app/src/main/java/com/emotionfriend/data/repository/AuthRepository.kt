@@ -7,8 +7,8 @@ import com.emotionfriend.domain.model.UserRole
  * Authentication repository contract.
  *
  * Implementations can be swapped between:
- * - [LocalAuthRepository] — mock / offline (current, for demo)
- * - A future remote implementation backed by the Ktor backend `/api/auth` endpoints.
+ * - [RemoteAuthRepository] — production path backed by Ktor backend `/api/auth`.
+ * - [LocalAuthRepository] — optional offline/mock fallback for local demo.
  *
  * All operations return [Result] so callers can handle errors uniformly with
  * `onSuccess` / `onFailure` without catching exceptions.

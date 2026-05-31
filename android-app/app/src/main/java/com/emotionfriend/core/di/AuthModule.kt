@@ -1,7 +1,7 @@
 package com.emotionfriend.core.di
 
 import com.emotionfriend.data.repository.AuthRepository
-import com.emotionfriend.data.repository.LocalAuthRepository
+import com.emotionfriend.data.repository.RemoteAuthRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -14,5 +14,5 @@ abstract class AuthModule {
 
     @Binds
     @Singleton
-    abstract fun bindAuthRepository(impl: LocalAuthRepository): AuthRepository
+    abstract fun bindAuthRepository(impl: RemoteAuthRepository): AuthRepository
 }

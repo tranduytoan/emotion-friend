@@ -10,7 +10,8 @@ fun ScenarioLessonEntity.toDomain(): ScenarioLesson = ScenarioLesson(
     imageName      = imageName,
     correctEmotion = correctEmotion,
     options        = options,
-    explanation    = explanation
+    explanation    = explanation,
+    topicId        = topicId,
 )
 
 fun ScenarioLesson.toEntity(): ScenarioLessonEntity = ScenarioLessonEntity(
@@ -20,5 +21,6 @@ fun ScenarioLesson.toEntity(): ScenarioLessonEntity = ScenarioLessonEntity(
     imageName      = imageName,
     correctEmotion = correctEmotion,
     options        = options,
-    explanation    = explanation
+    explanation    = explanation,
+    topicId        = topicId,
 )

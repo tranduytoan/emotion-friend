@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import java.util.ArrayDeque
 import java.util.Locale
 
 /**
@@ -19,22 +20,37 @@ class TtsPlayer(context: Context) {
 
     private var tts: TextToSpeech? = null
     private var ready = false
+    private val pendingUtterances = ArrayDeque<String>()
 
     init {
         tts = TextToSpeech(context) { status ->
             ready = status == TextToSpeech.SUCCESS
             if (ready) {
-                tts?.language = Locale("vi", "VN")
+                val engine = tts
+                val languageResult = engine?.setLanguage(Locale("vi", "VN"))
+                if (languageResult == TextToSpeech.LANG_MISSING_DATA || languageResult == TextToSpeech.LANG_NOT_SUPPORTED) {
+                    engine?.language = Locale.getDefault()
+                }
+                while (pendingUtterances.isNotEmpty()) {
+                    engine?.speak(pendingUtterances.removeFirst(), TextToSpeech.QUEUE_ADD, null, null)
+                }
             }
         }
     }
 
     /** Speaks [text] immediately, flushing any queued utterances. */
     fun speak(text: String) {
-        if (ready) tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
+        val engine = tts
+        if (ready && engine != null) {
+            engine.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
+        } else {
+            pendingUtterances.clear()
+            pendingUtterances.addLast(text)
+        }
     }
 
     fun shutdown() {
+        pendingUtterances.clear()
         tts?.shutdown()
         tts = null
         ready = false

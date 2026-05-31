@@ -27,3 +27,27 @@ data class ExpressionPracticeRequest(
     /** Optional client-side detection result — may be absent when mocking. */
     val detectedEmotion: String? = null,
 )
+
+@Serializable
+data class AuthLoginRequest(
+    val email: String,
+    val password: String,
+)
+
+@Serializable
+data class AuthRegisterRequest(
+    val email: String,
+    val password: String,
+    val displayName: String,
+)
+
+@Serializable
+data class AuthForgotPasswordRequest(
+    val email: String,
+)
+
+@Serializable
+data class AuthVerifyEmailRequest(
+    val email: String,
+    val code: String,
+)

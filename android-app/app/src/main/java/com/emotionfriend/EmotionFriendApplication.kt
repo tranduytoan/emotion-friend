@@ -22,5 +22,6 @@ class EmotionFriendApplication : Application(), Configuration.Provider {
         super.onCreate()
         // Data is loaded from backend via SyncWorker — no local seeding.
         syncManager.schedulePeriodicSync()
+        syncManager.triggerNow()
     }
 }

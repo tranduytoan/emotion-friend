@@ -25,7 +25,6 @@ import com.emotionfriend.feature.learn.LearnScreen
 import com.emotionfriend.feature.profile.ProfileScreen
 import com.emotionfriend.feature.progress.ProgressScreen
 import com.emotionfriend.feature.relax.RelaxScreen
-import com.emotionfriend.feature.situation.SituationScreen
 import com.emotionfriend.feature.story.StoryScreen
 import com.emotionfriend.feature.confide.ConfideScreen
 
@@ -47,7 +46,6 @@ import com.emotionfriend.feature.confide.ConfideScreen
  * • LoginScreen, RegisterScreen, ForgotPasswordScreen, VerifyEmailScreen — Nghĩa
  * • HomeScreen              — Nghĩa
  * • LearnScreen             — Duy
- * • SituationScreen         — Dũng
  * • ExpressScreen           — Hiệp
  * • RelaxScreen             — Hiệp
  * • JournalScreen           — Toàn

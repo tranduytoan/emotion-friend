@@ -30,7 +30,7 @@ object PracticeAttemptTable : Table("practice_attempts") {
 
 object EmotionCardTable : Table("emotion_cards") {
     val id          = integer("id").autoIncrement()
-    val emotionType = varchar("emotion_type", 50)
+    val emotionType = varchar("emotion_type", 50).uniqueIndex()
     val emoji       = varchar("emoji", 10)
     val label       = varchar("label", 100)
     val description = text("description")
@@ -68,16 +68,23 @@ object StoryTable : Table("stories") {
     val content   = text("content")
     val category  = varchar("category", 100)
     val imageUrl  = varchar("image_url", 500).nullable()
+    val imageFolder = varchar("image_folder", 200).nullable()
     val sortOrder = integer("sort_order")
 
     override val primaryKey = PrimaryKey(id)
 }
 
-object StoryImageTable : Table("story_images") {
-    val storyId    = integer("story_id")
-    val folderName = varchar("folder_name", 200)
+object AccountTable : Table("accounts") {
+    val id         = integer("id").autoIncrement()
+    val account    = varchar("account", 255).uniqueIndex()
+    val password   = varchar("password", 255)
+    val name       = varchar("name", 150)
+    val age        = integer("age")
+    val avatarUrl  = varchar("avatar_url", 500)
+    val createdAt  = timestamp("created_at")
+    val updatedAt  = timestamp("updated_at")
 
-    override val primaryKey = PrimaryKey(storyId)
+    override val primaryKey = PrimaryKey(id)
 }
 
 object MusicTrackTable : Table("music_tracks") {

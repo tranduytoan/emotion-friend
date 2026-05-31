@@ -167,11 +167,6 @@ fun LoginScreen(
                     fontWeight = FontWeight.Bold,
                 )
             }
-
-            Spacer(Modifier.height(32.dp))
-
-            // ── Demo credentials hint ─────────────────────────────────────────
-            DemoCredentialsHint()
         }
     }
 }
@@ -235,32 +230,3 @@ internal fun DividerWithText(text: String) {
     }
 }
 
-@Composable
-private fun DemoCredentialsHint() {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(
-                color = MaterialTheme.colorScheme.surfaceVariant,
-                shape = MaterialTheme.shapes.medium,
-            )
-            .padding(12.dp),
-    ) {
-        Text(
-            text       = "Demo — tài khoản thử nghiệm",
-            style      = MaterialTheme.typography.labelMedium,
-            fontWeight = FontWeight.Bold,
-            color      = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        Spacer(Modifier.height(4.dp))
-        listOf(
-            "child@demo.com / Demo@1234 (Trẻ em)",
-        ).forEach { hint ->
-            Text(
-                text  = "• $hint",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-    }
-}

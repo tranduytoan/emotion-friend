@@ -286,7 +286,7 @@ private fun StoryReaderScreen(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 EmotionPrimaryButton(
-                    text     = if (showImages) "📄 Chế độ chữ" else "🖼️ Chế độ ảnh",
+                    text     = if (showImages) "📄" else "🖼️",
                     onClick  = {
                         if (hasImageFolder) {
                             showImages = !showImages
@@ -297,12 +297,12 @@ private fun StoryReaderScreen(
                     modifier = Modifier.weight(1f),
                 )
                 EmotionPrimaryButton(
-                    text     = "🔊 Nghe lại",
+                    text     = "🔊",
                     onClick  = { tts.speak(story.title + ". " + story.content) },
                     modifier = Modifier.weight(1f),
                 )
                 EmotionPrimaryButton(
-                    text     = "⬅ Truyện khác",
+                    text     = "⬅",
                     onClick  = onBack,
                     modifier = Modifier.weight(1f),
                 )

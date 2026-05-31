@@ -258,15 +258,6 @@ private fun ProfileContent(
             InfoRow(label = "Ngôn ngữ", value = state.settings.language)
         }
 
-        // --- Progress snapshot ----------------------------------------------
-        SectionHeader(text = "Tiến trình")
-        EmotionCard {
-            InfoRow(label = "Bài đã làm", value = state.progress.totalExercises.toString())
-            InfoRow(label = "Trả lời đúng", value = state.progress.correctAnswers.toString())
-            InfoRow(label = "Chuỗi hiện tại", value = "${state.progress.currentStreak} ngày")
-            InfoRow(label = "Chuỗi dài nhất", value = "${state.progress.longestStreak} ngày")
-        }
-
         // --- Logout ----------------------------------------------------------
         Spacer(Modifier.height(8.dp))
         OutlinedButton(
@@ -597,11 +588,11 @@ private fun ProfileScreenPreview() {
                     language = "Tiếng Việt"
                 ),
                 progress = ProfileProgress(
-                    totalExercises = 0,
-                    correctAnswers = 0,
-                    currentStreak = 0,
-                    longestStreak = 0
-                )
+                    totalExercises = 12,
+                    correctAnswers = 9,
+                    currentStreak = 3,
+                    longestStreak = 5,
+                ),
             ),
             isEditing = true,
             nameInput = "Bé Minh",

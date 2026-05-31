@@ -6,7 +6,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.emotionfriend.data.repository.EmotionRepository
+import com.emotionfriend.data.local.LessonTopicDao
 import com.emotionfriend.data.repository.PracticeRepository
 import com.emotionfriend.data.repository.ScenarioRepository
 import com.emotionfriend.domain.model.EmotionCard
@@ -27,7 +27,7 @@ import javax.inject.Inject
 // Domain types used only within this feature
 // ---------------------------------------------------------------------------
 
-enum class LessonType { EMOTION, SCENARIO }
+enum class LessonType { SCENARIO }
 enum class LearnPhase { SETS_LIST, QUESTION, SET_COMPLETE }
 
 data class LessonSetInfo(
@@ -77,11 +77,9 @@ data class LearnEmotionUiState(
 // ViewModel
 // ---------------------------------------------------------------------------
 
-private const val SET_SIZE = 10
-
 @HiltViewModel
 class LearnEmotionViewModel @Inject constructor(
-    private val emotionRepository: EmotionRepository,
+    private val lessonTopicDao: LessonTopicDao,
     private val scenarioRepository: ScenarioRepository,
     private val practiceRepository: PracticeRepository,
     private val dataStore: DataStore<Preferences>,
@@ -106,48 +104,60 @@ class LearnEmotionViewModel @Inject constructor(
 
     private fun loadSets() {
         viewModelScope.launch {
-            val emotionCards  = emotionRepository.getAll().first()
-            val scenarios     = scenarioRepository.getAll().first()
-            val prefs         = dataStore.data.first()
+            val scenarios = scenarioRepository.getAll().first()
+                .filter { it.topicId != null }
+                .distinctBy { "${it.topicId}|${it.title.trim()}|${it.situationText.trim()}" }
+            val topics = lessonTopicDao.getAll().first()
+            val prefs = dataStore.data.first()
 
-            // Emotion sets
-            val emotionSets = emotionCards
-                .chunked(SET_SIZE)
-                .mapIndexed { idx, chunk ->
-                    val setId = "emotion_set_${idx + 1}"
-                    val questions = buildEmotionQuestions(chunk, emotionCards)
-                    questionsBySet[setId] = questions
-                    val correct = prefs.correctCount(setId, questions.map { it.id }.toSet())
-                    LessonSetInfo(
-                        id           = setId,
-                        title        = "Bộ ${idx + 1}: Cảm xúc cơ bản",
-                        type         = LessonType.EMOTION,
-                        totalCount   = questions.size,
-                        correctCount = correct,
-                    )
-                }
+            questionsBySet.clear()
 
-            // Scenario sets
-            val scenarioSets = scenarios
-                .chunked(SET_SIZE)
-                .mapIndexed { idx, chunk ->
-                    val setId = "scenario_set_${idx + 1}"
-                    val questions = buildScenarioQuestions(chunk)
-                    questionsBySet[setId] = questions
-                    val correct = prefs.correctCount(setId, questions.map { it.id }.toSet())
-                    LessonSetInfo(
-                        id           = setId,
-                        title        = "Bộ ${emotionSets.size + idx + 1}: Tình huống",
-                        type         = LessonType.SCENARIO,
-                        totalCount   = questions.size,
-                        correctCount = correct,
-                    )
-                }
+            val scenariosByTopic = scenarios.groupBy { it.topicId!! }
+
+            val dbTopicSets = topics.mapNotNull { topic ->
+                val topicScenarios = scenariosByTopic[topic.id].orEmpty()
+                    .sortedBy { it.title }
+                if (topicScenarios.isEmpty()) return@mapNotNull null
+
+                val setId = "scenario_topic_${topic.id}"
+                val questions = buildScenarioQuestions(topicScenarios)
+                questionsBySet[setId] = questions
+                val correct = prefs.correctCount(setId, questions.map { it.id }.toSet())
+
+                LessonSetInfo(
+                    id = setId,
+                    title = topic.title,
+                    type = LessonType.SCENARIO,
+                    totalCount = questions.size,
+                    correctCount = correct,
+                )
+            }
+
+            val fallbackSets = if (dbTopicSets.isNotEmpty()) {
+                emptyList()
+            } else {
+                scenariosByTopic.entries
+                    .sortedBy { it.key }
+                    .map { (topicId, topicScenarios) ->
+                        val setId = "scenario_topic_$topicId"
+                        val questions = buildScenarioQuestions(topicScenarios)
+                        questionsBySet[setId] = questions
+                        val correct = prefs.correctCount(setId, questions.map { it.id }.toSet())
+
+                        LessonSetInfo(
+                            id = setId,
+                            title = "Chủ đề #$topicId",
+                            type = LessonType.SCENARIO,
+                            totalCount = questions.size,
+                            correctCount = correct,
+                        )
+                    }
+            }
 
             _uiState.update {
                 it.copy(
                     isLoading  = false,
-                    lessonSets = emotionSets + scenarioSets,
+                    lessonSets = dbTopicSets + fallbackSets,
                     phase      = LearnPhase.SETS_LIST,
                 )
             }
@@ -284,23 +294,6 @@ class LearnEmotionViewModel @Inject constructor(
                 isAnswerSubmitted  = false,
                 isCorrect          = null,
                 feedbackMessage    = "",
-            )
-        }
-    }
-
-    private fun buildEmotionQuestions(
-        chunk: List<EmotionCard>,
-        allCards: List<EmotionCard>,
-    ): List<ActiveQuestion> {
-        val allTypes = allCards.map { it.type }.distinct()
-        return chunk.map { card ->
-            val distractors = allTypes.filter { it != card.type }.shuffled().take(3)
-            val options     = (listOf(card.type) + distractors).shuffled()
-            ActiveQuestion(
-                id            = card.id,
-                prompt        = "${card.description}. Bạn này đang cảm thấy gì?",
-                options       = options,
-                correctAnswer = card.type,
             )
         }
     }

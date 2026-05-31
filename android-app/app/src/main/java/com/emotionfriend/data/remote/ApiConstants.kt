@@ -30,6 +30,7 @@ object ApiConstants {
     const val PATH_AUTH_LOGIN           = "/api/auth/login"
     const val PATH_AUTH_REGISTER        = "/api/auth/register"
     const val PATH_AUTH_FORGOT_PASSWORD = "/api/auth/forgot-password"
+    const val PATH_AUTH_VERIFY_EMAIL    = "/api/auth/verify-email"
 
     // ── Sync endpoints ───────────────────────────────────────────────────────
     const val PATH_SYNC_PULL = "/api/sync/pull"

@@ -11,6 +11,7 @@ function getToken(): string {
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
     ...options,
+    cache: 'no-store',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${getToken()}`,
@@ -111,6 +112,7 @@ export const musicApi = {
 export async function verifyToken(token: string): Promise<boolean> {
   try {
     const res = await fetch(`${API_BASE}/admin/scenarios`, {
+      cache: 'no-store',
       headers: { Authorization: `Bearer ${token}` },
     })
     const json = await res.json()

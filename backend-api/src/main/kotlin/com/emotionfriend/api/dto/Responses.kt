@@ -19,3 +19,14 @@ data class ExpressionPracticeResult(
     /** Echo back the prompted emotion for traceability. */
     val promptedEmotion: String,
 )
+
+@Serializable
+data class AuthResponseDto(
+    val userId: Long,
+    val email: String,
+    val displayName: String,
+    val role: String,
+    val token: String = "",
+    val message: String = "OK",
+    val isVerified: Boolean = true,
+)

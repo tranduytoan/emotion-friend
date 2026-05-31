@@ -12,7 +12,6 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 
 class DbEmotionRepository : EmotionRepository {
-
     private suspend fun <T> dbQuery(block: suspend () -> T): T =
         newSuspendedTransaction(Dispatchers.IO) { block() }
 
@@ -31,11 +30,11 @@ class DbEmotionRepository : EmotionRepository {
             ?.toEmotionCard()
     }
 
-    private fun ResultRow.toEmotionCard() = EmotionCard(
-        id          = this[EmotionCardTable.id],
+    private fun ResultRow.toEmotionCard(): EmotionCard = EmotionCard(
+        id = this[EmotionCardTable.id],
         emotionType = EmotionType.valueOf(this[EmotionCardTable.emotionType]),
-        emoji       = this[EmotionCardTable.emoji],
-        label       = this[EmotionCardTable.label],
+        emoji = this[EmotionCardTable.emoji],
+        label = this[EmotionCardTable.label],
         description = this[EmotionCardTable.description],
     )
 }

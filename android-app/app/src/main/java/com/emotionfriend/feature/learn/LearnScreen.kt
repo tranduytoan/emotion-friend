@@ -40,6 +40,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,6 +50,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
+import com.emotionfriend.BuildConfig
 import com.emotionfriend.core.audio.FeedbackPhrases
 import com.emotionfriend.core.audio.TtsPlayer
 import com.emotionfriend.core.audio.rememberTtsPlayer
@@ -71,6 +75,7 @@ import com.emotionfriend.core.designsystem.theme.EmotionSurprisedBg
 import com.emotionfriend.core.designsystem.theme.EmotionTired
 import com.emotionfriend.core.designsystem.theme.EmotionTiredBg
 import com.emotionfriend.core.designsystem.theme.SkyBlue40
+import com.emotionfriend.core.image.appImageLoader
 import com.emotionfriend.domain.model.EmotionType
 import kotlinx.coroutines.delay
 
@@ -256,6 +261,10 @@ private fun QuestionContent(
     onNext: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val context = LocalContext.current
+    val imageLoader = remember(context) { context.appImageLoader() }
+    val scenarioImageModel = remember(question.imageName) { scenarioImageUrl(question.imageName) }
+
     // Auto-play the prompt when a new question loads
     LaunchedEffect(question.id) {
         delay(400)
@@ -313,21 +322,40 @@ private fun QuestionContent(
                 )
             }
 
-            // Audio card — tap to replay
+            // Scenario image card (replaces the old speaker icon + prompt text area)
             EmotionCard {
                 Column(
                     modifier            = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    Text(text = "🔊", style = MaterialTheme.typography.displayMedium)
+                    if (scenarioImageModel.isNotEmpty()) {
+                        AsyncImage(
+                            model = scenarioImageModel,
+                            imageLoader = imageLoader,
+                            contentDescription = "Ảnh tình huống",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(200.dp)
+                                .clip(RoundedCornerShape(16.dp)),
+                        )
+                    } else {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(170.dp)
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(Color(0xFFE2E8F0)),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                text = "Chưa có ảnh tình huống",
+                                color = Color(0xFF475569),
+                                style = MaterialTheme.typography.titleMedium,
+                            )
+                        }
+                    }
                     Spacer(Modifier.height(8.dp))
-                    Text(
-                        text      = "Bạn này đang cảm thấy gì?",
-                        style     = MaterialTheme.typography.headlineSmall,
-                        textAlign = TextAlign.Center,
-                        modifier  = Modifier.fillMaxWidth(),
-                    )
-                    Spacer(Modifier.height(4.dp))
                     TextButton(onClick = { tts.speak(question.prompt) }) {
                         Text("🔊 Nghe lại")
                     }
@@ -353,6 +381,7 @@ private fun QuestionContent(
                                 onSelectAnswer(type)
                                 tts.speak(visuals.label)
                             },
+                            minHeight      = 82.dp,
                             modifier       = Modifier.weight(1f),
                         )
                     }
@@ -461,5 +490,10 @@ private fun EmotionType.toOptionVisuals(): OptionVisuals = when (this) {
     EmotionType.SURPRISED -> OptionVisuals("Ngạc nhiên", "😲", EmotionSurprised, EmotionSurprisedBg)
     EmotionType.CALM      -> OptionVisuals("Bình tĩnh",  "😌", EmotionCalm,      EmotionCalmBg)
     EmotionType.TIRED     -> OptionVisuals("Mệt mỏi",    "😴", EmotionTired,     EmotionTiredBg)
+}
+
+private fun scenarioImageUrl(imageName: String?): String {
+    if (imageName.isNullOrBlank()) return ""
+    return "${BuildConfig.BACKEND_URL.trimEnd('/')}/img/scenario_lessons/$imageName"
 }
 

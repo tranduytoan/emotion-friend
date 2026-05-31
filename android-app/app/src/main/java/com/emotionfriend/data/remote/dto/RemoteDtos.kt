@@ -27,6 +27,7 @@ data class ScenarioLessonDto(
     val id: Int,
     val title: String,
     val situation: String,
+    val imageName: String? = null,
     val options: List<String>,       // EmotionType codes
     val correctEmotion: String,      // EmotionType code of correct answer
     val explanation: String,

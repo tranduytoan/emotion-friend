@@ -7,6 +7,7 @@ data class ScenarioLesson(
     val id: Int = 0,
     val title: String,
     val situation: String,
+    val imageName: String? = null,
     val options: List<String>,       // EmotionType codes: ["HAPPY","ANGRY","CALM","SURPRISED"]
     val correctEmotion: String,      // EmotionType code of the correct answer
     val explanation: String,
@@ -18,6 +19,7 @@ data class ScenarioLesson(
 data class ScenarioLessonRequest(
     val title: String,
     val situation: String,
+    val imageName: String? = null,
     val options: List<String>,
     val correctEmotion: String,
     val explanation: String,

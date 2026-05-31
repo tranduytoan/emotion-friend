@@ -44,6 +44,7 @@ class DbLessonTopicRepository : LessonTopicRepository {
                     id             = row[ScenarioLessonTable.id],
                     title          = row[ScenarioLessonTable.title],
                     situation      = row[ScenarioLessonTable.situation],
+                    imageName      = row[ScenarioLessonTable.imageName],
                     options        = opts,
                     correctEmotion = row[ScenarioLessonTable.correctEmotion],
                     explanation    = row[ScenarioLessonTable.explanation],

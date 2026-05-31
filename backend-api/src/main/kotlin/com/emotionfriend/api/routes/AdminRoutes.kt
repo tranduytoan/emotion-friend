@@ -14,10 +14,12 @@ import com.emotionfriend.api.service.MusicService
 import com.emotionfriend.api.service.ScenarioService
 import com.emotionfriend.api.service.StoryService
 import io.ktor.http.*
+import io.ktor.http.content.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import java.io.File
 
 /**
  * Admin CRUD routes — protected by a simple Bearer token.
@@ -134,6 +136,7 @@ fun Route.adminRoutes(
                 val lesson = ScenarioLesson(
                     title          = req.title,
                     situation      = req.situation,
+                    imageName      = req.imageName?.trim()?.takeIf { it.isNotEmpty() },
                     options        = req.options,
                     correctEmotion = req.correctEmotion,
                     explanation    = req.explanation,
@@ -155,6 +158,7 @@ fun Route.adminRoutes(
                     id             = id,
                     title          = req.title,
                     situation      = req.situation,
+                    imageName      = req.imageName?.trim()?.takeIf { it.isNotEmpty() },
                     options        = req.options,
                     correctEmotion = req.correctEmotion,
                     explanation    = req.explanation,
@@ -164,6 +168,87 @@ fun Route.adminRoutes(
                 runCatching { scenarioService.update(id, lesson) }
                     .onSuccess { call.respond(HttpStatusCode.OK, ApiResponse(success = true, data = it)) }
                     .onFailure { call.respond(HttpStatusCode.NotFound, ApiResponse<Unit>(success = false, error = it.message)) }
+            }
+
+            post("/{id}/image") {
+                val id = call.parameters["id"]?.toIntOrNull() ?: return@post call.respond(
+                    HttpStatusCode.BadRequest,
+                    ApiResponse<Unit>(success = false, error = "id must be an integer"),
+                )
+
+                val currentLesson = runCatching { scenarioService.getById(id) }.getOrElse {
+                    return@post call.respond(
+                        HttpStatusCode.NotFound,
+                        ApiResponse<Unit>(success = false, error = it.message ?: "Scenario not found"),
+                    )
+                }
+
+                val imageDir = resolveScenarioLessonImageDir()
+                if (!imageDir.exists() && !imageDir.mkdirs()) {
+                    return@post call.respond(
+                        HttpStatusCode.InternalServerError,
+                        ApiResponse<Unit>(success = false, error = "Cannot create image directory: ${imageDir.absolutePath}"),
+                    )
+                }
+
+                val targetFile = File(imageDir, "$id.png")
+                val parts = runCatching { call.receiveMultipart().readAllParts() }.getOrElse {
+                    return@post call.respond(
+                        HttpStatusCode.BadRequest,
+                        ApiResponse<Unit>(success = false, error = "Request must be multipart/form-data with field 'file'"),
+                    )
+                }
+                var wroteImage = false
+                var hasInvalidPart = false
+
+                parts.forEach { part ->
+                    when (part) {
+                        is PartData.FileItem -> {
+                            if (part.name == "file") {
+                                val lowerName = (part.originalFileName ?: "").lowercase()
+                                val isImageByName = lowerName.endsWith(".png") ||
+                                    lowerName.endsWith(".jpg") ||
+                                    lowerName.endsWith(".jpeg") ||
+                                    lowerName.endsWith(".webp")
+                                if (!isImageByName) {
+                                    hasInvalidPart = true
+                                } else {
+                                    part.streamProvider().use { input ->
+                                        targetFile.outputStream().buffered().use { output ->
+                                            input.copyTo(output)
+                                        }
+                                    }
+                                    wroteImage = true
+                                }
+                            }
+                        }
+
+                        else -> Unit
+                    }
+                    part.dispose()
+                }
+
+                if (hasInvalidPart) {
+                    return@post call.respond(
+                        HttpStatusCode.BadRequest,
+                        ApiResponse<Unit>(success = false, error = "Only image files are allowed"),
+                    )
+                }
+
+                if (!wroteImage) {
+                    return@post call.respond(
+                        HttpStatusCode.BadRequest,
+                        ApiResponse<Unit>(success = false, error = "Missing image file field 'file'"),
+                    )
+                }
+
+                val updated = scenarioService.update(id, currentLesson.copy(imageName = "$id.png"))
+                if (updated == null) {
+                    call.respond(HttpStatusCode.NotFound, ApiResponse<Unit>(success = false, error = "Scenario not found"))
+                    return@post
+                }
+
+                call.respond(HttpStatusCode.OK, ApiResponse(success = true, data = updated))
             }
 
             delete("/{id}") {
@@ -295,6 +380,26 @@ fun Route.adminRoutes(
                 else call.respond(HttpStatusCode.NotFound, ApiResponse<Unit>(success = false, error = "Not found"))
             }
         }
+    }
+}
+
+private fun resolveScenarioLessonImageDir(): File {
+    val explicitPath = System.getenv("SCENARIO_LESSONS_IMAGE_PATH")
+        ?.trim()
+        ?.takeIf { it.isNotEmpty() }
+    if (explicitPath != null) return File(explicitPath)
+
+    val staticFilesPath = System.getenv("STATIC_FILES_PATH")
+        ?.trim()
+        ?.takeIf { it.isNotEmpty() }
+    if (staticFilesPath != null) return File(staticFilesPath, "scenario_lessons")
+
+    val cwd = File(System.getProperty("user.dir"))
+    val repoResPath = File(cwd, "../res/img/scenario_lessons")
+    return if (repoResPath.exists() || repoResPath.parentFile?.exists() == true) {
+        repoResPath
+    } else {
+        File(cwd, "res/img/scenario_lessons")
     }
 }
 

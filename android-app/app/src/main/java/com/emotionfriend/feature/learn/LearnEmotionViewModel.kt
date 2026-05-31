@@ -45,6 +45,7 @@ data class LessonSetInfo(
 data class ActiveQuestion(
     val id: String,
     val prompt: String,
+    val imageName: String? = null,
     val options: List<EmotionType>,
     val correctAnswer: EmotionType,
     val subtitle: String = "",          // used for scenario title
@@ -303,6 +304,7 @@ class LearnEmotionViewModel @Inject constructor(
             ActiveQuestion(
                 id            = lesson.id,
                 prompt        = "${lesson.situationText} Con cảm thấy thế nào?",
+                imageName     = lesson.imageName,
                 options       = lesson.options,
                 correctAnswer = lesson.correctEmotion,
                 subtitle      = lesson.title,

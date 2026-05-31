@@ -10,7 +10,18 @@ const EMOTION_LABELS: Record<string, string> = {
 type FormData = Omit<ScenarioLesson, 'id'>
 
 const EMPTY_FORM: FormData = {
-  title: '', situation: '', options: ['HAPPY', 'SAD', 'ANGRY', 'SURPRISED'], correctEmotion: 'HAPPY', explanation: '', sortOrder: 0, topicId: null,
+  title: '', situation: '', imageName: '', options: ['HAPPY', 'SAD', 'ANGRY', 'SURPRISED'], correctEmotion: 'HAPPY', explanation: '', sortOrder: 0, topicId: null,
+}
+
+const STATIC_BASE = (import.meta.env.VITE_API_BASE ?? '').replace(/\/$/, '')
+
+function scenarioImageUrl(imageName?: string | null): string {
+  if (!imageName) return ''
+  return `${STATIC_BASE}/img/scenario_lessons/${imageName}`
+}
+
+function sortByNewestId(items: ScenarioLesson[]): ScenarioLesson[] {
+  return [...items].sort((a, b) => b.id - a.id)
 }
 
 export default function ScenariosPage() {
@@ -19,6 +30,8 @@ export default function ScenariosPage() {
   const [error, setError] = useState('')
   const [modal, setModal] = useState<{ open: boolean; editing?: ScenarioLesson }>({ open: false })
   const [form, setForm] = useState<FormData>(EMPTY_FORM)
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null)
+  const [selectedImagePreviewUrl, setSelectedImagePreviewUrl] = useState('')
   const [saving, setSaving] = useState(false)
   const [topics, setTopics] = useState<LessonTopic[]>([])
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null)
@@ -32,7 +45,7 @@ export default function ScenariosPage() {
     setLoading(true)
     try {
       const [scenarioItems, topicItems] = await Promise.all([scenariosApi.list(), topicsApi.list()])
-      setItems(scenarioItems)
+      setItems(sortByNewestId(scenarioItems))
       setTopics(topicItems)
       setError('')
     } catch (e) {
@@ -44,13 +57,34 @@ export default function ScenariosPage() {
 
   useEffect(() => { load() }, [load])
 
+  useEffect(() => {
+    if (!selectedImageFile) {
+      setSelectedImagePreviewUrl('')
+      return
+    }
+    const objectUrl = URL.createObjectURL(selectedImageFile)
+    setSelectedImagePreviewUrl(objectUrl)
+    return () => URL.revokeObjectURL(objectUrl)
+  }, [selectedImageFile])
+
   function openCreate() {
     setForm(EMPTY_FORM)
+    setSelectedImageFile(null)
     setModal({ open: true })
   }
 
   function openEdit(item: ScenarioLesson) {
-    setForm({ title: item.title, situation: item.situation, options: item.options, correctEmotion: item.correctEmotion, explanation: item.explanation, sortOrder: item.sortOrder, topicId: item.topicId ?? null })
+    setForm({
+      title: item.title,
+      situation: item.situation,
+      imageName: item.imageName ?? '',
+      options: item.options,
+      correctEmotion: item.correctEmotion,
+      explanation: item.explanation,
+      sortOrder: item.sortOrder,
+      topicId: item.topicId ?? null,
+    })
+    setSelectedImageFile(null)
     setModal({ open: true, editing: item })
   }
 
@@ -58,13 +92,21 @@ export default function ScenariosPage() {
     e.preventDefault()
     setSaving(true)
     try {
+      let saved: ScenarioLesson
       if (modal.editing) {
-        await scenariosApi.update(modal.editing.id, form)
+        saved = await scenariosApi.update(modal.editing.id, form)
         showToast('Đã cập nhật bài học!')
       } else {
-        await scenariosApi.create(form)
+        saved = await scenariosApi.create(form)
         showToast('Đã thêm bài học mới!')
       }
+
+      if (selectedImageFile) {
+        await scenariosApi.uploadImage(saved.id, selectedImageFile)
+        showToast('Đã tải ảnh tình huống thành công!')
+      }
+
+      setSelectedImageFile(null)
       setModal({ open: false })
       load()
     } catch (e) {
@@ -113,8 +155,10 @@ export default function ScenariosPage() {
               <thead>
                 <tr>
                   <th>#</th>
+                  <th>ID</th>
                   <th>Tiêu đề</th>
                   <th>Tình huống</th>
+                  <th>Ảnh</th>
                   <th>Số lựa chọn</th>
                   <th>Đáp án đúng</th>
                   <th>Chủ đề</th>
@@ -126,8 +170,19 @@ export default function ScenariosPage() {
                 {items.map((item, i) => (
                   <tr key={item.id}>
                     <td style={{ color: '#94a3b8' }}>{i + 1}</td>
+                    <td><span className="badge badge-blue">{item.id}</span></td>
                     <td><strong>{item.title}</strong></td>
                     <td className="td-truncate">{item.situation}</td>
+                    <td>
+                      {item.imageName ? (
+                        <div className="scenario-image-cell">
+                          <img src={scenarioImageUrl(item.imageName)} alt={item.title} />
+                          <span className="badge badge-purple">{item.imageName}</span>
+                        </div>
+                      ) : (
+                        <span className="badge">Chưa có ảnh</span>
+                      )}
+                    </td>
                     <td><span className="badge badge-blue">{item.options.length} lựa chọn</span></td>
                     <td><span className="badge badge-green">{EMOTION_LABELS[item.correctEmotion] ?? item.correctEmotion}</span></td>
                     <td>{topics.find(t => t.id === item.topicId)?.title ?? '-'}</td>
@@ -163,6 +218,32 @@ export default function ScenariosPage() {
                 <div className="form-group">
                   <label className="form-label">Tình huống *</label>
                   <textarea className="form-textarea" value={form.situation} onChange={e => setForm(f => ({ ...f, situation: e.target.value }))} required rows={3} />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Ảnh tình huống</label>
+                  {selectedImagePreviewUrl && (
+                    <div className="scenario-image-preview scenario-image-preview-small">
+                      <img src={selectedImagePreviewUrl} alt="Ảnh vừa chọn" />
+                      <div className="form-hint">Xem trước ảnh mới: {selectedImageFile?.name}</div>
+                    </div>
+                  )}
+                  {form.imageName ? (
+                    <div className="scenario-image-preview">
+                      <img src={scenarioImageUrl(form.imageName)} alt="Scenario" />
+                      <div className="form-hint">Ảnh hiện tại: {form.imageName}</div>
+                    </div>
+                  ) : (
+                    <div className="form-hint">Chưa có ảnh cho bài học này.</div>
+                  )}
+                  <input
+                    className="form-input"
+                    type="file"
+                    accept="image/*"
+                    onChange={e => setSelectedImageFile(e.target.files?.[0] ?? null)}
+                  />
+                  <div className="form-hint">
+                    Ảnh sẽ lưu tự động vào thư mục res/img/scenario_lessons với tên <strong>{modal.editing ? `${modal.editing.id}.png` : '[id].png'}</strong>.
+                  </div>
                 </div>
                 <div className="form-group">
                   <label className="form-label">Chủ đề</label>

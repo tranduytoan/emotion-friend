@@ -12,6 +12,7 @@ function getToken(): string {
 async function fetchJson<T>(path: string, options?: RequestInit): Promise<T> {
   const controller = new AbortController()
   const timeoutId = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
+  const isFormData = typeof FormData !== 'undefined' && options?.body instanceof FormData
 
   try {
     const res = await fetch(`${API_BASE}${path}`, {
@@ -19,7 +20,7 @@ async function fetchJson<T>(path: string, options?: RequestInit): Promise<T> {
       cache: 'no-store',
       signal: controller.signal,
       headers: {
-        'Content-Type': 'application/json',
+        ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
         Authorization: `Bearer ${getToken()}`,
         ...(options?.headers),
       },
@@ -47,6 +48,7 @@ export interface ScenarioLesson {
   id: number
   title: string
   situation: string
+  imageName?: string | null
   options: string[]         // EmotionType codes: HAPPY, SAD, ANGRY, SURPRISED, CALM, TIRED
   correctEmotion: string   // EmotionType code of correct answer
   explanation: string
@@ -88,6 +90,11 @@ export const scenariosApi = {
     request<ScenarioLesson>('/admin/scenarios', { method: 'POST', body: JSON.stringify(data) }),
   update: (id: number, data: Omit<ScenarioLesson, 'id'>) =>
     request<ScenarioLesson>(`/admin/scenarios/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  uploadImage: (id: number, file: File) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    return request<ScenarioLesson>(`/admin/scenarios/${id}/image`, { method: 'POST', body: formData })
+  },
   delete: (id: number) => request<string>(`/admin/scenarios/${id}`, { method: 'DELETE' }),
 }
 

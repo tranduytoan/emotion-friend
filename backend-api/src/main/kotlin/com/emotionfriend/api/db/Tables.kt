@@ -53,6 +53,7 @@ object ScenarioLessonTable : Table("scenario_lessons") {
     val id             = integer("id").autoIncrement()
     val title          = varchar("title", 200)
     val situation      = text("situation")
+    val imageName      = varchar("image_name", 255).nullable()
     val options        = text("options")          // JSON array of EmotionType codes
     val correctEmotion = varchar("correct_emotion", 50)
     val explanation    = text("explanation")

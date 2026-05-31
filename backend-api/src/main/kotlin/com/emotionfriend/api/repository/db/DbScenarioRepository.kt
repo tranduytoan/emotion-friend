@@ -36,6 +36,7 @@ class DbScenarioRepository : ScenarioRepository {
         val generatedId = ScenarioLessonTable.insert {
             it[title]          = lesson.title
             it[situation]      = lesson.situation
+            it[imageName]      = lesson.imageName
             it[options]        = json.encodeToString(lesson.options)
             it[correctEmotion] = lesson.correctEmotion
             it[explanation]    = lesson.explanation
@@ -49,6 +50,7 @@ class DbScenarioRepository : ScenarioRepository {
         val updated = ScenarioLessonTable.update({ ScenarioLessonTable.id eq id }) {
             it[title]          = lesson.title
             it[situation]      = lesson.situation
+            it[imageName]      = lesson.imageName
             it[options]        = json.encodeToString(lesson.options)
             it[correctEmotion] = lesson.correctEmotion
             it[explanation]    = lesson.explanation
@@ -69,6 +71,7 @@ class DbScenarioRepository : ScenarioRepository {
             id             = this[ScenarioLessonTable.id],
             title          = this[ScenarioLessonTable.title],
             situation      = this[ScenarioLessonTable.situation],
+            imageName      = this[ScenarioLessonTable.imageName],
             options        = options,
             correctEmotion = this[ScenarioLessonTable.correctEmotion],
             explanation    = this[ScenarioLessonTable.explanation],

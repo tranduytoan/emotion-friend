@@ -52,7 +52,7 @@ services:
       ADMIN_TOKEN:       ${ADMIN_TOKEN:-emotion-admin-2703}
       STATIC_FILES_PATH: /app/static
     volumes:
-      - ./res/img:/app/static:ro
+      - ./res/img:/app/static
     expose:
       - "8080"
     depends_on:

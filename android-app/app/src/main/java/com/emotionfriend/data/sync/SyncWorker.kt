@@ -181,7 +181,7 @@ class SyncWorker @AssistedInject constructor(
                         id             = dto.id.toString(),
                         title          = dto.title,
                         situationText  = dto.situation,
-                        imageName      = null,
+                        imageName      = dto.imageName,
                         correctEmotion = correctEmotion,
                         options        = options,
                         explanation    = dto.explanation,

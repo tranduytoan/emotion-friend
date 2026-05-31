@@ -20,6 +20,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.emotionfriend.core.designsystem.theme.EmotionAngry
 import com.emotionfriend.core.designsystem.theme.EmotionAngryBg
@@ -47,6 +48,7 @@ fun EmotionOptionButton(
     borderColor: Color,
     onClick: () -> Unit,
     showLabel: Boolean = true,
+    minHeight: Dp = 100.dp,
     modifier: Modifier = Modifier
 ) {
     OutlinedButton(
@@ -61,7 +63,7 @@ fun EmotionOptionButton(
             contentColor   = MaterialTheme.colorScheme.onBackground
         ),
         modifier = modifier
-            .heightIn(min = 100.dp)
+            .heightIn(min = minHeight)
             .semantics {
                 role = Role.Button
                 contentDescription = if (selected) "$label, đã chọn" else label

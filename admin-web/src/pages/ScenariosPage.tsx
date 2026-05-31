@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { scenariosApi, ScenarioLesson } from '../api'
+import { LessonTopic, scenariosApi, ScenarioLesson, topicsApi } from '../api'
 
 const EMOTION_TYPES = ['HAPPY', 'SAD', 'ANGRY', 'SURPRISED', 'CALM', 'TIRED']
 const EMOTION_LABELS: Record<string, string> = {
@@ -10,7 +10,7 @@ const EMOTION_LABELS: Record<string, string> = {
 type FormData = Omit<ScenarioLesson, 'id'>
 
 const EMPTY_FORM: FormData = {
-  title: '', situation: '', options: ['HAPPY', 'SAD', 'ANGRY', 'SURPRISED'], correctEmotion: 'HAPPY', explanation: '', sortOrder: 0,
+  title: '', situation: '', options: ['HAPPY', 'SAD', 'ANGRY', 'SURPRISED'], correctEmotion: 'HAPPY', explanation: '', sortOrder: 0, topicId: null,
 }
 
 export default function ScenariosPage() {
@@ -20,6 +20,7 @@ export default function ScenariosPage() {
   const [modal, setModal] = useState<{ open: boolean; editing?: ScenarioLesson }>({ open: false })
   const [form, setForm] = useState<FormData>(EMPTY_FORM)
   const [saving, setSaving] = useState(false)
+  const [topics, setTopics] = useState<LessonTopic[]>([])
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null)
 
   const showToast = (msg: string, type: 'success' | 'error' = 'success') => {
@@ -30,7 +31,9 @@ export default function ScenariosPage() {
   const load = useCallback(async () => {
     setLoading(true)
     try {
-      setItems(await scenariosApi.list())
+      const [scenarioItems, topicItems] = await Promise.all([scenariosApi.list(), topicsApi.list()])
+      setItems(scenarioItems)
+      setTopics(topicItems)
       setError('')
     } catch (e) {
       setError(String(e))
@@ -47,7 +50,7 @@ export default function ScenariosPage() {
   }
 
   function openEdit(item: ScenarioLesson) {
-    setForm({ title: item.title, situation: item.situation, options: item.options, correctEmotion: item.correctEmotion, explanation: item.explanation, sortOrder: item.sortOrder })
+    setForm({ title: item.title, situation: item.situation, options: item.options, correctEmotion: item.correctEmotion, explanation: item.explanation, sortOrder: item.sortOrder, topicId: item.topicId ?? null })
     setModal({ open: true, editing: item })
   }
 
@@ -114,6 +117,7 @@ export default function ScenariosPage() {
                   <th>Tình huống</th>
                   <th>Số lựa chọn</th>
                   <th>Đáp án đúng</th>
+                  <th>Chủ đề</th>
                   <th>Thứ tự</th>
                   <th>Hành động</th>
                 </tr>
@@ -126,6 +130,7 @@ export default function ScenariosPage() {
                     <td className="td-truncate">{item.situation}</td>
                     <td><span className="badge badge-blue">{item.options.length} lựa chọn</span></td>
                     <td><span className="badge badge-green">{EMOTION_LABELS[item.correctEmotion] ?? item.correctEmotion}</span></td>
+                    <td>{topics.find(t => t.id === item.topicId)?.title ?? '-'}</td>
                     <td>{item.sortOrder}</td>
                     <td>
                       <div className="td-actions">
@@ -158,6 +163,21 @@ export default function ScenariosPage() {
                 <div className="form-group">
                   <label className="form-label">Tình huống *</label>
                   <textarea className="form-textarea" value={form.situation} onChange={e => setForm(f => ({ ...f, situation: e.target.value }))} required rows={3} />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Chủ đề</label>
+                  <select
+                    className="form-input"
+                    value={form.topicId ?? ''}
+                    onChange={e => setForm(f => ({ ...f, topicId: e.target.value ? Number(e.target.value) : null }))}
+                  >
+                    <option value="">-- Chưa gán chủ đề --</option>
+                    {topics.map(topic => (
+                      <option key={topic.id} value={topic.id}>
+                        {topic.title} (Mức {topic.difficulty})
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 <div className="form-group">
                   <label className="form-label">Các lựa chọn * (chọn EmotionType cho mỗi ô)</label>

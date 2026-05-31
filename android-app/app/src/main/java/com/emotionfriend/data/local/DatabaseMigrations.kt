@@ -56,4 +56,22 @@ object DatabaseMigrations {
             )
         }
     }
+
+    val MIGRATION_4_5 = object : Migration(4, 5) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            database.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS lesson_topics (
+                    id INTEGER NOT NULL PRIMARY KEY,
+                    title TEXT NOT NULL,
+                    description TEXT NOT NULL DEFAULT '',
+                    difficulty INTEGER NOT NULL DEFAULT 1,
+                    sortOrder INTEGER NOT NULL DEFAULT 0
+                )
+                """.trimIndent()
+            )
+            database.execSQL("ALTER TABLE scenario_lessons ADD COLUMN topicId INTEGER")
+            database.execSQL("ALTER TABLE stories ADD COLUMN imageFolder TEXT")
+        }
+    }
 }

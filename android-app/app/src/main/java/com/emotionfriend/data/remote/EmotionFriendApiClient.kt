@@ -7,6 +7,7 @@ import com.emotionfriend.data.remote.dto.CreatePracticeAttemptRequest
 import com.emotionfriend.data.remote.dto.EmotionCardDto
 import com.emotionfriend.data.remote.dto.EmotionLogDto
 import com.emotionfriend.data.remote.dto.JournalEntryDto
+import com.emotionfriend.data.remote.dto.LessonTopicDto
 import com.emotionfriend.data.remote.dto.PracticeAttemptDto
 import com.emotionfriend.data.remote.dto.ProgressSummaryDto
 import com.emotionfriend.data.remote.dto.ScenarioLessonDto
@@ -95,6 +96,13 @@ class EmotionFriendApiClient @Inject constructor(
     suspend fun getStories(): ApiResult<List<StoryDto>> = safeCall {
         val response = httpClient.get("${ApiConstants.BASE_URL}${ApiConstants.PATH_STORIES}")
         val body: ApiResponseDto<List<StoryDto>> = response.body()
+        requireNotNull(body.data) { "No data in response" }
+    }
+
+    /** GET /api/topics — returns all lesson topics. */
+    suspend fun getTopics(): ApiResult<List<LessonTopicDto>> = safeCall {
+        val response = httpClient.get("${ApiConstants.BASE_URL}${ApiConstants.PATH_TOPICS}")
+        val body: ApiResponseDto<List<LessonTopicDto>> = response.body()
         requireNotNull(body.data) { "No data in response" }
     }
 

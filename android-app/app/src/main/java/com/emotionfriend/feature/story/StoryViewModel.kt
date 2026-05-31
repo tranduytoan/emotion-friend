@@ -19,12 +19,13 @@ class StoryViewModel @Inject constructor(
         .map { list ->
             list.map { entity ->
                 Story(
-                    id       = entity.id,
-                    title    = entity.title,
-                    content  = entity.content,
-                    images   = listOf(entity.image1, entity.image2, entity.image3, entity.image4)
+                    id          = entity.id,
+                    title       = entity.title,
+                    content     = entity.content,
+                    images      = listOf(entity.image1, entity.image2, entity.image3, entity.image4)
                         .filter { it.isNotBlank() },
-                    category = entity.category,
+                    category    = entity.category,
+                    imageFolder = entity.imageFolder,
                 )
             }
         }

@@ -40,6 +40,7 @@ class DbScenarioRepository : ScenarioRepository {
             it[correctEmotion] = lesson.correctEmotion
             it[explanation]    = lesson.explanation
             it[sortOrder]      = lesson.sortOrder
+            it[topicId]        = lesson.topicId
         }[ScenarioLessonTable.id]
         lesson.copy(id = generatedId)
     }
@@ -52,6 +53,7 @@ class DbScenarioRepository : ScenarioRepository {
             it[correctEmotion] = lesson.correctEmotion
             it[explanation]    = lesson.explanation
             it[sortOrder]      = lesson.sortOrder
+            it[topicId]        = lesson.topicId
         }
         if (updated > 0) lesson.copy(id = id) else null
     }
@@ -71,6 +73,7 @@ class DbScenarioRepository : ScenarioRepository {
             correctEmotion = this[ScenarioLessonTable.correctEmotion],
             explanation    = this[ScenarioLessonTable.explanation],
             sortOrder      = this[ScenarioLessonTable.sortOrder],
+            topicId        = this[ScenarioLessonTable.topicId],
         )
     }
 }

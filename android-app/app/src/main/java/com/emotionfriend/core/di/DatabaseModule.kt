@@ -6,6 +6,7 @@ import com.emotionfriend.data.local.DatabaseMigrations
 import com.emotionfriend.data.local.EmotionCardDao
 import com.emotionfriend.data.local.EmotionFriendDatabase
 import com.emotionfriend.data.local.JournalEntryDao
+import com.emotionfriend.data.local.LessonTopicDao
 import com.emotionfriend.data.local.PracticeAttemptDao
 import com.emotionfriend.data.local.ScenarioLessonDao
 import com.emotionfriend.data.local.StoryDao
@@ -32,6 +33,7 @@ object DatabaseModule {
                 DatabaseMigrations.MIGRATION_1_2,
                 DatabaseMigrations.MIGRATION_2_3,
                 DatabaseMigrations.MIGRATION_3_4,
+                DatabaseMigrations.MIGRATION_4_5,
             )
             .build()
 
@@ -54,4 +56,8 @@ object DatabaseModule {
     @Provides
     fun provideStoryDao(db: EmotionFriendDatabase): StoryDao =
         db.storyDao()
+
+    @Provides
+    fun provideLessonTopicDao(db: EmotionFriendDatabase): LessonTopicDao =
+        db.lessonTopicDao()
 }

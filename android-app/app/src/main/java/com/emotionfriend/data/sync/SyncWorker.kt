@@ -6,6 +6,8 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.emotionfriend.data.local.JournalEntryDao
+import com.emotionfriend.data.local.LessonTopicDao
+import com.emotionfriend.data.local.LessonTopicEntity
 import com.emotionfriend.data.local.PracticeAttemptDao
 import com.emotionfriend.data.local.ScenarioLessonDao
 import com.emotionfriend.data.local.ScenarioLessonEntity
@@ -28,6 +30,7 @@ class SyncWorker @AssistedInject constructor(
     private val journalEntryDao: JournalEntryDao,
     private val practiceAttemptDao: PracticeAttemptDao,
     private val emotionRepository: EmotionRepository,
+    private val lessonTopicDao: LessonTopicDao,
     private val storyDao: StoryDao,
     private val scenarioLessonDao: ScenarioLessonDao,
     private val syncManager: SyncManager,
@@ -41,6 +44,7 @@ class SyncWorker @AssistedInject constructor(
             pushJournalEntries()
             pushPracticeAttempts()
             pullEmotions()
+            pullTopics()
             pullStories()
             pullScenarios()
             syncManager.onSyncSuccess()
@@ -127,16 +131,36 @@ class SyncWorker @AssistedInject constructor(
             is ApiResult.Success -> {
                 val entities = result.data.map { dto ->
                     StoryEntity(
-                        id       = dto.id.toString(),
-                        title    = dto.title,
-                        content  = dto.content,
-                        category = dto.category,
+                        id          = dto.id.toString(),
+                        title       = dto.title,
+                        content     = dto.content,
+                        category    = dto.category,
+                        imageFolder = dto.imageFolder,
                     )
                 }
                 storyDao.upsertAll(entities)
                 Log.d(TAG, "Pulled ${entities.size} stories from backend.")
             }
             is ApiResult.Error -> Log.d(TAG, "Pull stories skipped (offline?): ${result.message}")
+        }
+    }
+
+    private suspend fun pullTopics() {
+        when (val result = apiClient.getTopics()) {
+            is ApiResult.Success -> {
+                val entities = result.data.map { dto ->
+                    LessonTopicEntity(
+                        id          = dto.id,
+                        title       = dto.title,
+                        description = dto.description,
+                        difficulty  = dto.difficulty,
+                        sortOrder   = dto.sortOrder,
+                    )
+                }
+                lessonTopicDao.upsertAll(entities)
+                Log.d(TAG, "Pulled ${entities.size} topics from backend.")
+            }
+            is ApiResult.Error -> Log.d(TAG, "Pull topics skipped (offline?): ${result.message}")
         }
     }
 
@@ -161,6 +185,7 @@ class SyncWorker @AssistedInject constructor(
                         correctEmotion = correctEmotion,
                         options        = options,
                         explanation    = dto.explanation,
+                        topicId        = dto.topicId,
                     )
                 }
                 scenarioLessonDao.upsertAll(entities)

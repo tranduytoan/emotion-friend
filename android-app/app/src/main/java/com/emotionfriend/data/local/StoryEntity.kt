@@ -20,4 +20,5 @@ data class StoryEntity(
     val image3: String = "",
     val image4: String = "",
     val category: String = "DEFAULT",
+    val imageFolder: String? = null,
 )

@@ -11,8 +11,9 @@ import androidx.room.TypeConverters
         JournalEntryEntity::class,
         PracticeAttemptEntity::class,
         StoryEntity::class,
+        LessonTopicEntity::class,
     ],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -23,6 +24,7 @@ abstract class EmotionFriendDatabase : RoomDatabase() {
     abstract fun journalEntryDao(): JournalEntryDao
     abstract fun practiceAttemptDao(): PracticeAttemptDao
     abstract fun storyDao(): StoryDao
+    abstract fun lessonTopicDao(): LessonTopicDao
 
     companion object {
         const val DATABASE_NAME = "emotion_friend.db"

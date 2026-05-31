@@ -1,28 +1,27 @@
-import { useState, useEffect, useCallback } from 'react'
-import { musicApi, MusicTrack } from '../api'
+import { useCallback, useEffect, useState } from 'react'
+import { LessonTopic, topicsApi } from '../api'
 
-type FormData = Omit<MusicTrack, 'id'>
+type FormData = Omit<LessonTopic, 'id'>
 
-const EMPTY_FORM: FormData = { title: '', artist: '', filename: '', sortOrder: 0 }
+const EMPTY_FORM: FormData = {
+  title: '',
+  description: '',
+  difficulty: 1,
+  sortOrder: 0,
+}
 
-export default function MusicPage() {
-  const [items, setItems] = useState<MusicTrack[]>([])
+export default function TopicsPage() {
+  const [items, setItems] = useState<LessonTopic[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [modal, setModal] = useState<{ open: boolean; editing?: MusicTrack }>({ open: false })
+  const [modal, setModal] = useState<{ open: boolean; editing?: LessonTopic }>({ open: false })
   const [form, setForm] = useState<FormData>(EMPTY_FORM)
   const [saving, setSaving] = useState(false)
-  const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null)
-
-  const showToast = (msg: string, type: 'success' | 'error' = 'success') => {
-    setToast({ msg, type })
-    setTimeout(() => setToast(null), 3000)
-  }
 
   const load = useCallback(async () => {
     setLoading(true)
     try {
-      setItems(await musicApi.list())
+      setItems(await topicsApi.list())
       setError('')
     } catch (e) {
       setError(String(e))
@@ -33,38 +32,41 @@ export default function MusicPage() {
 
   useEffect(() => { load() }, [load])
 
-  function openCreate() { setForm(EMPTY_FORM); setModal({ open: true }) }
-  function openEdit(item: MusicTrack) { setForm({ ...item }); setModal({ open: true, editing: item }) }
+  function openCreate() {
+    setForm(EMPTY_FORM)
+    setModal({ open: true })
+  }
+
+  function openEdit(item: LessonTopic) {
+    setForm({
+      title: item.title,
+      description: item.description,
+      difficulty: item.difficulty,
+      sortOrder: item.sortOrder,
+    })
+    setModal({ open: true, editing: item })
+  }
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
     setSaving(true)
     try {
       if (modal.editing) {
-        await musicApi.update(modal.editing.id, form)
-        showToast('Đã cập nhật bài nhạc!')
+        await topicsApi.update(modal.editing.id, form)
       } else {
-        await musicApi.create(form)
-        showToast('Đã thêm bài nhạc mới!')
+        await topicsApi.create(form)
       }
       setModal({ open: false })
-      load()
-    } catch (e) {
-      showToast(String(e), 'error')
+      await load()
     } finally {
       setSaving(false)
     }
   }
 
-  async function handleDelete(item: MusicTrack) {
-    if (!confirm(`Xóa bài nhạc "${item.title}"?`)) return
-    try {
-      await musicApi.delete(item.id)
-      showToast('Đã xóa!')
-      load()
-    } catch (e) {
-      showToast(String(e), 'error')
-    }
+  async function handleDelete(item: LessonTopic) {
+    if (!confirm(`Xóa chủ đề "${item.title}"?`)) return
+    await topicsApi.delete(item.id)
+    await load()
   }
 
   return (
@@ -72,26 +74,24 @@ export default function MusicPage() {
       <div className="card">
         <div className="card-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span className="card-title">Danh sách nhạc thư giãn</span>
-            <span className="card-count">{items.length} bài</span>
+            <span className="card-title">Danh sách chủ đề</span>
+            <span className="card-count">{items.length} chủ đề</span>
           </div>
-          <button className="btn btn-primary" onClick={openCreate}>+ Thêm bài nhạc</button>
+          <button className="btn btn-primary" onClick={openCreate}>+ Thêm chủ đề</button>
         </div>
         <div className="table-wrap">
           {loading ? (
             <div className="empty-state"><div className="spinner" style={{ width: 30, height: 30, margin: '0 auto' }} /></div>
           ) : error ? (
             <div className="empty-state"><div className="empty-icon">⚠️</div><div className="empty-text">{error}</div></div>
-          ) : items.length === 0 ? (
-            <div className="empty-state"><div className="empty-icon">🎵</div><div className="empty-text">Chưa có bài nhạc nào</div></div>
           ) : (
             <table>
               <thead>
                 <tr>
                   <th>#</th>
-                  <th>Tên bài</th>
-                  <th>Nghệ sĩ</th>
-                  <th>Tên file</th>
+                  <th>Tên chủ đề</th>
+                  <th>Mô tả</th>
+                  <th>Độ khó</th>
                   <th>Thứ tự</th>
                   <th>Hành động</th>
                 </tr>
@@ -99,10 +99,10 @@ export default function MusicPage() {
               <tbody>
                 {items.map((item, i) => (
                   <tr key={item.id}>
-                    <td style={{ color: '#94a3b8' }}>{i + 1}</td>
-                    <td><strong>🎵 {item.title}</strong></td>
-                    <td>{item.artist || <span style={{ color: '#94a3b8' }}>—</span>}</td>
-                    <td><span className="badge badge-orange">{item.filename}</span></td>
+                    <td>{i + 1}</td>
+                    <td><strong>{item.title}</strong></td>
+                    <td className="td-truncate">{item.description}</td>
+                    <td>{item.difficulty}</td>
                     <td>{item.sortOrder}</td>
                     <td>
                       <div className="td-actions">
@@ -122,29 +122,29 @@ export default function MusicPage() {
         <div className="modal-backdrop" onClick={() => setModal({ open: false })}>
           <div className="modal" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
-              <span className="modal-title">{modal.editing ? 'Sửa bài nhạc' : 'Thêm bài nhạc mới'}</span>
+              <span className="modal-title">{modal.editing ? 'Sửa chủ đề' : 'Thêm chủ đề mới'}</span>
               <button className="modal-close" onClick={() => setModal({ open: false })}>×</button>
             </div>
             <form onSubmit={handleSave}>
               <div className="modal-body">
                 <div className="form-group">
-                  <label className="form-label">Tên bài *</label>
+                  <label className="form-label">Tên chủ đề *</label>
                   <input className="form-input" value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} required />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Nghệ sĩ</label>
-                  <input className="form-input" value={form.artist} onChange={e => setForm(f => ({ ...f, artist: e.target.value }))} placeholder="Để trống nếu không có" />
+                  <label className="form-label">Mô tả</label>
+                  <textarea className="form-textarea" value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} rows={3} />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Tên file *</label>
-                  <input className="form-input" value={form.filename} onChange={e => setForm(f => ({ ...f, filename: e.target.value }))} required placeholder="vd: soft_music_1" />
-                  <div className="form-hint">
-                    Tên file MP3 trong thư mục <code>res/raw/</code> của app Android (không cần đuôi .mp3).<br />
-                    Ví dụ: <code>soft_music_1</code>, <code>soft_music_2</code>, ...
-                  </div>
+                  <label className="form-label">Độ khó</label>
+                  <select className="form-select" value={form.difficulty} onChange={e => setForm(f => ({ ...f, difficulty: Number(e.target.value) }))}>
+                    <option value={1}>1 - Dễ</option>
+                    <option value={2}>2 - Trung bình</option>
+                    <option value={3}>3 - Khó</option>
+                  </select>
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Thứ tự sắp xếp</label>
+                  <label className="form-label">Thứ tự</label>
                   <input className="form-input" type="number" value={form.sortOrder} onChange={e => setForm(f => ({ ...f, sortOrder: Number(e.target.value) }))} />
                 </div>
               </div>
@@ -156,12 +156,6 @@ export default function MusicPage() {
               </div>
             </form>
           </div>
-        </div>
-      )}
-
-      {toast && (
-        <div className="toast-container">
-          <div className={`toast ${toast.type}`}>{toast.msg}</div>
         </div>
       )}
     </>

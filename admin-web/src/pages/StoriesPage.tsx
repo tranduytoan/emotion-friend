@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from 'react'
 import { storiesApi, Story } from '../api'
 
-type FormData = Omit<Story, 'id'> & { id?: string }
+type FormData = Omit<Story, 'id'>
 
 const EMPTY_FORM: FormData = {
-  title: '', content: '', category: 'general', imageUrl: '', sortOrder: 0,
+  title: '', content: '', category: 'general', imageUrl: '', sortOrder: 0, imageFolder: '',
 }
 
 const CATEGORIES = [
@@ -50,17 +50,21 @@ export default function StoriesPage() {
   }
 
   function openEdit(item: Story) {
-    setForm({ ...item, imageUrl: item.imageUrl ?? '' })
+    setForm({ ...item, imageUrl: item.imageUrl ?? '', imageFolder: item.imageFolder ?? '' })
     setModal({ open: true, editing: item })
   }
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
     setSaving(true)
-    const payload = { ...form, imageUrl: form.imageUrl?.trim() || undefined }
+    const payload = {
+      ...form,
+      imageUrl: form.imageUrl?.trim() || undefined,
+      imageFolder: form.imageFolder?.trim() || undefined,
+    }
     try {
       if (modal.editing) {
-        await storiesApi.update(modal.editing.id, payload as Omit<Story, 'id'>)
+        await storiesApi.update(modal.editing.id, payload)
         showToast('Đã cập nhật câu chuyện!')
       } else {
         await storiesApi.create(payload)
@@ -166,6 +170,16 @@ export default function StoriesPage() {
                   <label className="form-label">URL hình ảnh</label>
                   <input className="form-input" type="url" value={form.imageUrl ?? ''} onChange={e => setForm(f => ({ ...f, imageUrl: e.target.value }))} placeholder="https://..." />
                   <div className="form-hint">Để trống nếu không có hình ảnh</div>
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Folder ảnh (4 ảnh 1.jpg..4.jpg)</label>
+                  <input
+                    className="form-input"
+                    value={form.imageFolder ?? ''}
+                    onChange={e => setForm(f => ({ ...f, imageFolder: e.target.value }))}
+                    placeholder="vd: story_school_01"
+                  />
+                  <div className="form-hint">Ảnh sẽ được đọc từ /static/stories/{form.imageFolder}/1.jpg ... 4.jpg</div>
                 </div>
                 <div className="form-group">
                   <label className="form-label">Thứ tự sắp xếp</label>

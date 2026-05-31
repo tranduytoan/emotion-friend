@@ -14,7 +14,7 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${getToken()}`,
-      ...(options?.headers ?? {}),
+      ...(options?.headers),
     },
   })
   const json = await res.json()
@@ -32,6 +32,15 @@ export interface ScenarioLesson {
   correctEmotion: string   // EmotionType code of correct answer
   explanation: string
   sortOrder: number
+  topicId?: number | null
+}
+
+export interface LessonTopic {
+  id: number
+  title: string
+  description: string
+  difficulty: number
+  sortOrder: number
 }
 
 export interface Story {
@@ -41,6 +50,7 @@ export interface Story {
   category: string
   imageUrl?: string | null
   sortOrder: number
+  imageFolder?: string | null
 }
 
 export interface MusicTrack {
@@ -60,6 +70,17 @@ export const scenariosApi = {
   update: (id: number, data: Omit<ScenarioLesson, 'id'>) =>
     request<ScenarioLesson>(`/admin/scenarios/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   delete: (id: number) => request<string>(`/admin/scenarios/${id}`, { method: 'DELETE' }),
+}
+
+// ── Topic API ──────────────────────────────────────────────────────────────
+
+export const topicsApi = {
+  list: () => request<LessonTopic[]>('/admin/topics'),
+  create: (data: Omit<LessonTopic, 'id'>) =>
+    request<LessonTopic>('/admin/topics', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id: number, data: Omit<LessonTopic, 'id'>) =>
+    request<LessonTopic>(`/admin/topics/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  delete: (id: number) => request<string>(`/admin/topics/${id}`, { method: 'DELETE' }),
 }
 
 // ── Story API ──────────────────────────────────────────────────────────────

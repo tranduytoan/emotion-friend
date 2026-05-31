@@ -30,6 +30,7 @@ data class ScenarioLessonDto(
     val options: List<String>,       // EmotionType codes
     val correctEmotion: String,      // EmotionType code of correct answer
     val explanation: String,
+    val topicId: Int? = null,
 )
 
 @Serializable
@@ -114,6 +115,17 @@ data class StoryDto(
     val content: String,
     val category: String,
     val imageUrl: String? = null,
+    val sortOrder: Int = 0,
+    val imageFolder: String? = null,
+)
+
+/** Mirrors backend LessonTopic model — GET /api/topics. */
+@Serializable
+data class LessonTopicDto(
+    val id: Int,
+    val title: String,
+    val description: String = "",
+    val difficulty: Int = 1,
     val sortOrder: Int = 0,
 )
 

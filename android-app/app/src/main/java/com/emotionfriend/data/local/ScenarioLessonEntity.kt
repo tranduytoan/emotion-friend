@@ -12,5 +12,6 @@ data class ScenarioLessonEntity(
     val imageName: String?,
     val correctEmotion: EmotionType,
     val options: List<EmotionType>,
-    val explanation: String
+    val explanation: String,
+    val topicId: Int? = null,
 )

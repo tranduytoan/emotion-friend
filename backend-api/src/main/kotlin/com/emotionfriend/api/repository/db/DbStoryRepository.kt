@@ -1,5 +1,6 @@
 package com.emotionfriend.api.repository.db
 
+import com.emotionfriend.api.db.StoryImageTable
 import com.emotionfriend.api.db.StoryTable
 import com.emotionfriend.api.model.Story
 import com.emotionfriend.api.repository.StoryRepository
@@ -10,15 +11,29 @@ import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransacti
 
 class DbStoryRepository : StoryRepository {
 
+    private val storyWithImages = StoryTable.join(
+        StoryImageTable,
+        JoinType.LEFT,
+        onColumn = StoryTable.id,
+        otherColumn = StoryImageTable.storyId,
+    )
+
     private suspend fun <T> dbQuery(block: suspend () -> T): T =
         newSuspendedTransaction(Dispatchers.IO) { block() }
 
     override suspend fun getAll(): List<Story> = dbQuery {
-        StoryTable.selectAll().orderBy(StoryTable.sortOrder, SortOrder.ASC).map { it.toStory() }
+        storyWithImages
+            .selectAll()
+            .orderBy(StoryTable.sortOrder, SortOrder.ASC)
+            .map { it.toStory() }
     }
 
     override suspend fun getById(id: Int): Story? = dbQuery {
-        StoryTable.selectAll().where { StoryTable.id eq id }.singleOrNull()?.toStory()
+        storyWithImages
+            .selectAll()
+            .where { StoryTable.id eq id }
+            .singleOrNull()
+            ?.toStory()
     }
 
     override suspend fun create(story: Story): Story = dbQuery {
@@ -29,6 +44,12 @@ class DbStoryRepository : StoryRepository {
             it[imageUrl]  = story.imageUrl
             it[sortOrder] = story.sortOrder
         }[StoryTable.id]
+        if (story.imageFolder != null) {
+            StoryImageTable.insert {
+                it[storyId]    = generatedId
+                it[folderName] = story.imageFolder
+            }
+        }
         story.copy(id = generatedId)
     }
 
@@ -40,7 +61,24 @@ class DbStoryRepository : StoryRepository {
             it[imageUrl]  = story.imageUrl
             it[sortOrder] = story.sortOrder
         }
-        if (updated > 0) story.copy(id = id) else null
+        if (updated > 0) {
+            if (story.imageFolder != null) {
+                val existing = StoryImageTable.selectAll().where { StoryImageTable.storyId eq id }.count()
+                if (existing > 0) {
+                    StoryImageTable.update({ StoryImageTable.storyId eq id }) {
+                        it[folderName] = story.imageFolder
+                    }
+                } else {
+                    StoryImageTable.insert {
+                        it[storyId]    = id
+                        it[folderName] = story.imageFolder
+                    }
+                }
+            } else {
+                StoryImageTable.deleteWhere { storyId eq id }
+            }
+            story.copy(id = id)
+        } else null
     }
 
     override suspend fun delete(id: Int): Boolean = dbQuery {
@@ -48,11 +86,12 @@ class DbStoryRepository : StoryRepository {
     }
 
     private fun ResultRow.toStory() = Story(
-        id        = this[StoryTable.id],
-        title     = this[StoryTable.title],
-        content   = this[StoryTable.content],
-        category  = this[StoryTable.category],
-        imageUrl  = this[StoryTable.imageUrl],
-        sortOrder = this[StoryTable.sortOrder],
+        id          = this[StoryTable.id],
+        title       = this[StoryTable.title],
+        content     = this[StoryTable.content],
+        category    = this[StoryTable.category],
+        imageUrl    = this[StoryTable.imageUrl],
+        sortOrder   = this[StoryTable.sortOrder],
+        imageFolder = this.getOrNull(StoryImageTable.folderName),
     )
 }

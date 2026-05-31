@@ -37,11 +37,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
+import com.emotionfriend.BuildConfig
 import com.emotionfriend.core.audio.rememberTtsPlayer
 import com.emotionfriend.core.designsystem.components.EmotionPrimaryButton
 import com.emotionfriend.core.designsystem.components.EmotionScreenScaffold
@@ -196,10 +199,18 @@ private fun StoryReaderScreen(
     onNavigateBack: () -> Unit,
 ) {
     val tts          = rememberTtsPlayer()
-    val totalSlides  = (story.images.size.coerceAtLeast(1)) + 1  // images + emotion-question
+    val textPages    = remember(story.content) { story.content.chunkedByWords(80) }
+    var showImages   by remember { mutableStateOf(false) }
+    val hasImageFolder = !story.imageFolder.isNullOrBlank()
+    val contentSlides = if (showImages && hasImageFolder) 4 else textPages.size
+    val totalSlides  = contentSlides + 1
     val pagerState   = rememberPagerState(pageCount = { totalSlides })
     var storyRead    by remember { mutableStateOf(false) }
     var emotionPicked by remember { mutableStateOf<String?>(null) }
+    val imageBaseUrl = remember(story.imageFolder) {
+        if (story.imageFolder.isNullOrBlank()) null
+        else "${BuildConfig.BACKEND_URL}/static/stories/${story.imageFolder}"
+    }
 
     // Auto-read story content via TTS when screen opens
     LaunchedEffect(story.id) {
@@ -218,18 +229,26 @@ private fun StoryReaderScreen(
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            // Pager — each page = illustration emoji + excerpt; last page = emotion question
+            // Pager — content pages first (text or images), final page = emotion question.
             HorizontalPager(
                 state    = pagerState,
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),
             ) { page ->
-                if (page < story.images.size) {
-                    StoryImageSlide(
-                        imageIndex = page,
-                        content    = story.content,
-                    )
+                if (page < contentSlides) {
+                    if (showImages && imageBaseUrl != null) {
+                        StoryImageSlide(
+                            imageUrl  = "$imageBaseUrl/${page + 1}.jpg",
+                            fallbackText = textPages.getOrElse(page) { textPages.lastOrNull().orEmpty() },
+                        )
+                    } else {
+                        StoryTextSlide(
+                            text = textPages.getOrElse(page) { textPages.lastOrNull().orEmpty() },
+                            page = page,
+                            total = contentSlides,
+                        )
+                    }
                 } else {
                     EmotionQuestionSlide(
                         storyRead      = storyRead,
@@ -267,6 +286,17 @@ private fun StoryReaderScreen(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 EmotionPrimaryButton(
+                    text     = if (showImages) "📄 Chế độ chữ" else "🖼️ Chế độ ảnh",
+                    onClick  = {
+                        if (hasImageFolder) {
+                            showImages = !showImages
+                        } else {
+                            tts.speak("Câu chuyện này chưa có bộ ảnh minh họa.")
+                        }
+                    },
+                    modifier = Modifier.weight(1f),
+                )
+                EmotionPrimaryButton(
                     text     = "🔊 Nghe lại",
                     onClick  = { tts.speak(story.title + ". " + story.content) },
                     modifier = Modifier.weight(1f),
@@ -281,22 +311,13 @@ private fun StoryReaderScreen(
     }
 }
 
-// Slide with illustration (emoji) and a snippet of the story
+// Text page slide.
 @Composable
-private fun StoryImageSlide(
-    imageIndex: Int,
-    content: String,
+private fun StoryTextSlide(
+    text: String,
+    page: Int,
+    total: Int,
 ) {
-    val illustrationEmojis = listOf("📚", "🌈", "⭐", "🎨")
-    val emoji = illustrationEmojis.getOrElse(imageIndex) { "📖" }
-
-    // Show a portion of the story text for this illustration slide
-    val wordsPerSlide = 80
-    val words = content.split(" ")
-    val start = imageIndex * wordsPerSlide
-    val end   = minOf(start + wordsPerSlide, words.size)
-    val excerpt = if (start < words.size) words.subList(start, end).joinToString(" ") + "..." else ""
-
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -305,22 +326,57 @@ private fun StoryImageSlide(
             .padding(8.dp)
             .verticalScroll(rememberScrollState()),
     ) {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .size(120.dp)
-                .clip(RoundedCornerShape(24.dp))
-                .background(SkyBlue80),
-        ) {
-            Text(text = emoji, fontSize = 60.sp)
-        }
         Text(
-            text  = excerpt,
+            text = "Trang ${page + 1}/$total",
+            style = MaterialTheme.typography.labelLarge,
+            color = OnSurfaceVar,
+        )
+        Text(
+            text  = text,
             style = MaterialTheme.typography.bodyLarge,
             color = OnSurfaceVar,
             textAlign = TextAlign.Start,
         )
     }
+}
+
+// Image page slide loaded from backend static endpoint.
+@Composable
+private fun StoryImageSlide(
+    imageUrl: String,
+    fallbackText: String,
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(8.dp)
+            .verticalScroll(rememberScrollState()),
+    ) {
+        AsyncImage(
+            model = imageUrl,
+            contentDescription = "Story image",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(260.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(SkyBlue80),
+        )
+        Text(
+            text  = fallbackText,
+            style = MaterialTheme.typography.bodyMedium,
+            color = OnSurfaceVar,
+            textAlign = TextAlign.Start,
+        )
+    }
+}
+
+private fun String.chunkedByWords(wordsPerChunk: Int): List<String> {
+    val words = this.trim().split(Regex("\\s+")).filter { it.isNotBlank() }
+    if (words.isEmpty()) return listOf("")
+    return words.chunked(wordsPerChunk).map { it.joinToString(" ") }
 }
 
 // Last slide — emotion question

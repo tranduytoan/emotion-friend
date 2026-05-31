@@ -39,6 +39,16 @@ object EmotionCardTable : Table("emotion_cards") {
     override val primaryKey = PrimaryKey(id)
 }
 
+object LessonTopicTable : Table("lesson_topics") {
+    val id          = integer("id").autoIncrement()
+    val title       = varchar("title", 200)
+    val description = text("description")
+    val difficulty  = integer("difficulty")
+    val sortOrder   = integer("sort_order")
+
+    override val primaryKey = PrimaryKey(id)
+}
+
 object ScenarioLessonTable : Table("scenario_lessons") {
     val id             = integer("id").autoIncrement()
     val title          = varchar("title", 200)
@@ -47,6 +57,7 @@ object ScenarioLessonTable : Table("scenario_lessons") {
     val correctEmotion = varchar("correct_emotion", 50)
     val explanation    = text("explanation")
     val sortOrder      = integer("sort_order")
+    val topicId        = integer("topic_id").nullable()
 
     override val primaryKey = PrimaryKey(id)
 }
@@ -60,6 +71,13 @@ object StoryTable : Table("stories") {
     val sortOrder = integer("sort_order")
 
     override val primaryKey = PrimaryKey(id)
+}
+
+object StoryImageTable : Table("story_images") {
+    val storyId    = integer("story_id")
+    val folderName = varchar("folder_name", 200)
+
+    override val primaryKey = PrimaryKey(storyId)
 }
 
 object MusicTrackTable : Table("music_tracks") {

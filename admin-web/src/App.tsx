@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react'
 import { verifyToken } from './api'
 import ScenariosPage from './pages/ScenariosPage'
+import TopicsPage from './pages/TopicsPage'
 import StoriesPage from './pages/StoriesPage'
 import MusicPage from './pages/MusicPage'
 import LoginPage from './pages/LoginPage'
 
-type Page = 'scenarios' | 'stories' | 'music'
+type Page = 'scenarios' | 'topics' | 'stories' | 'music'
 
 const NAV_ITEMS: { id: Page; label: string; icon: string }[] = [
   { id: 'scenarios', label: 'Bài học cảm xúc', icon: '📚' },
+  { id: 'topics', label: 'Chủ đề bài học', icon: '🧩' },
   { id: 'stories', label: 'Câu chuyện', icon: '📖' },
   { id: 'music', label: 'Nhạc thư giãn', icon: '🎵' },
 ]
@@ -41,12 +43,14 @@ export default function App() {
 
   const PAGE_TITLES: Record<Page, string> = {
     scenarios: 'Bài học cảm xúc',
+    topics: 'Chủ đề bài học',
     stories: 'Câu chuyện',
     music: 'Nhạc thư giãn',
   }
 
   const PAGE_SUBTITLES: Record<Page, string> = {
     scenarios: 'Thêm, sửa, xóa các bài học nhận diện cảm xúc',
+    topics: 'Tổ chức bộ câu hỏi theo từng chủ đề từ dễ đến khó',
     stories: 'Quản lý các câu chuyện cảm xúc cho trẻ',
     music: 'Quản lý danh sách nhạc nhẹ thư giãn',
   }
@@ -91,6 +95,7 @@ export default function App() {
         </header>
         <div className="page-content">
           {page === 'scenarios' && <ScenariosPage />}
+          {page === 'topics' && <TopicsPage />}
           {page === 'stories' && <StoriesPage />}
           {page === 'music' && <MusicPage />}
         </div>

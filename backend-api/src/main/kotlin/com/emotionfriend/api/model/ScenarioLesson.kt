@@ -11,6 +11,7 @@ data class ScenarioLesson(
     val correctEmotion: String,      // EmotionType code of the correct answer
     val explanation: String,
     val sortOrder: Int = 0,
+    val topicId: Int? = null,
 )
 
 @Serializable
@@ -21,4 +22,5 @@ data class ScenarioLessonRequest(
     val correctEmotion: String,
     val explanation: String,
     val sortOrder: Int = 0,
+    val topicId: Int? = null,
 )

@@ -10,6 +10,7 @@ data class Story(
     val category: String,
     val imageUrl: String? = null,
     val sortOrder: Int = 0,
+    val imageFolder: String? = null,  // folder name in story_images table
 )
 
 @Serializable
@@ -19,4 +20,5 @@ data class StoryRequest(
     val category: String,
     val imageUrl: String? = null,
     val sortOrder: Int = 0,
+    val imageFolder: String? = null,
 )

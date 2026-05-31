@@ -23,10 +23,13 @@ export default function App() {
   useEffect(() => {
     const token = localStorage.getItem('admin_token')
     if (!token) { setLoading(false); return }
-    verifyToken(token).then(ok => {
-      setIsLoggedIn(ok)
-      setLoading(false)
-    })
+    verifyToken(token)
+      .then(ok => {
+        setIsLoggedIn(ok)
+      })
+      .finally(() => {
+        setLoading(false)
+      })
   }, [])
 
   if (loading) {

@@ -1,26 +1,44 @@
-// API client for the backend
-// In dev (vite proxy), calls go to http://localhost:8080
-// In production, set VITE_API_BASE env var
+// API client for the backend.
+// In dev (Vite proxy), calls go through the local dev server.
+// In production, set VITE_API_BASE if the UI is not served from the same origin as the backend.
 
 const API_BASE = import.meta.env.VITE_API_BASE ?? ''
+const REQUEST_TIMEOUT_MS = 8000
 
 function getToken(): string {
   return localStorage.getItem('admin_token') ?? ''
 }
 
+async function fetchJson<T>(path: string, options?: RequestInit): Promise<T> {
+  const controller = new AbortController()
+  const timeoutId = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
+
+  try {
+    const res = await fetch(`${API_BASE}${path}`, {
+      ...options,
+      cache: 'no-store',
+      signal: controller.signal,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${getToken()}`,
+        ...(options?.headers),
+      },
+    })
+
+    const text = await res.text()
+    const json = text ? JSON.parse(text) : null
+    if (!res.ok) {
+      throw new Error(json?.error ?? `Request failed with status ${res.status}`)
+    }
+    if (!json?.success) throw new Error(json?.error ?? 'Unknown error')
+    return json.data as T
+  } finally {
+    window.clearTimeout(timeoutId)
+  }
+}
+
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_BASE}${path}`, {
-    ...options,
-    cache: 'no-store',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${getToken()}`,
-      ...(options?.headers),
-    },
-  })
-  const json = await res.json()
-  if (!json.success) throw new Error(json.error ?? 'Unknown error')
-  return json.data as T
+  return fetchJson<T>(path, options)
 }
 
 // ── Types ──────────────────────────────────────────────────────────────────
@@ -111,12 +129,20 @@ export const musicApi = {
 /** Verify the token by hitting an admin endpoint. Returns true if valid. */
 export async function verifyToken(token: string): Promise<boolean> {
   try {
-    const res = await fetch(`${API_BASE}/admin/scenarios`, {
-      cache: 'no-store',
-      headers: { Authorization: `Bearer ${token}` },
-    })
-    const json = await res.json()
-    return json.success === true
+    const controller = new AbortController()
+    const timeoutId = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
+    try {
+      const res = await fetch(`${API_BASE}/admin/scenarios`, {
+        cache: 'no-store',
+        signal: controller.signal,
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      const text = await res.text()
+      const json = text ? JSON.parse(text) : null
+      return res.ok && json?.success === true
+    } finally {
+      window.clearTimeout(timeoutId)
+    }
   } catch {
     return false
   }

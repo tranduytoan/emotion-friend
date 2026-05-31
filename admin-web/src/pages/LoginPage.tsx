@@ -11,14 +11,17 @@ export default function LoginPage({ onLogin }: { onLogin: () => void }) {
     if (!token.trim()) return
     setLoading(true)
     setError('')
-    const ok = await verifyToken(token.trim())
-    if (ok) {
-      localStorage.setItem('admin_token', token.trim())
-      onLogin()
-    } else {
-      setError('Token không hợp lệ. Vui lòng kiểm tra lại.')
+    try {
+      const ok = await verifyToken(token.trim())
+      if (ok) {
+        localStorage.setItem('admin_token', token.trim())
+        onLogin()
+      } else {
+        setError('Token không hợp lệ hoặc backend chưa sẵn sàng. Vui lòng kiểm tra lại.')
+      }
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   return (
@@ -42,7 +45,7 @@ export default function LoginPage({ onLogin }: { onLogin: () => void }) {
             />
             <div className="form-hint">
               Token được cấu hình bởi biến môi trường ADMIN_TOKEN trên server.<br />
-              Mặc định: <code>admin-secret-token</code>
+              Nếu chưa đổi, dùng đúng giá trị trong file .env của hệ thống.
             </div>
           </div>
           <button className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }} type="submit" disabled={loading}>

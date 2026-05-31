@@ -1,0 +1,86 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: emotion_friend_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-emotion_friend}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - emotion_friend_net
+
+  backend:
+    image: ${BACKEND_IMAGE}
+    container_name: emotion_friend_backend
+    restart: unless-stopped
+    environment:
+      PORT: 8080
+      DATABASE_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE:-emotion_friend}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      DATABASE_USER: root
+      DATABASE_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      ADMIN_TOKEN: ${ADMIN_TOKEN:-emotion-admin-2703}
+      STATIC_FILES_PATH: /app/static
+    volumes:
+      - ./res/img:/app/static:ro
+    depends_on:
+      mysql:
+        condition: service_healthy
+    expose:
+      - "8080"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - emotion_friend_net
+
+  admin-web:
+    image: ${ADMIN_WEB_IMAGE}
+    container_name: emotion_friend_admin_web
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    expose:
+      - "80"
+    healthcheck:
+      test: ["CMD-SHELL", "test -s /usr/share/nginx/html/index.html || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - emotion_friend_net
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: emotion_friend_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      backend:
+        condition: service_healthy
+      admin-web:
+        condition: service_healthy
+    networks:
+      - emotion_friend_net
+
+volumes:
+  mysql_data:
+
+networks:
+  emotion_friend_net:
+    driver: bridge

@@ -295,9 +295,9 @@ private fun QuestionContent(
     BoxWithConstraints(modifier = modifier.fillMaxSize()) {
         val isCompactHeight = maxHeight < 720.dp
         val imageHeight = when {
-            maxHeight < 620.dp -> 156.dp
-            isCompactHeight -> 176.dp
-            else -> 210.dp
+            maxHeight < 620.dp -> 180.dp
+            isCompactHeight -> 202.dp
+            else -> 242.dp
         }
         val optionMinHeight = when {
             maxHeight < 620.dp -> 68.dp

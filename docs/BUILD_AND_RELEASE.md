@@ -6,12 +6,25 @@
 
 ## Mục lục
 
-1. [Build APK trên máy tính cá nhân](#1-build-apk-trên-máy-tính-cá-nhân)
-2. [Tìm file APK sau khi build](#2-tìm-file-apk-sau-khi-build)
-3. [GitHub Actions tự động build và lưu APK](#3-github-actions-tự-động-build-và-lưu-apk)
-4. [Cài APK lên thiết bị Android](#4-cài-apk-lên-thiết-bị-android)
-5. [Danh sách kiểm tra trước buổi demo](#5-danh-sách-kiểm-tra-trước-buổi-demo)
-6. [Kế hoạch nâng cấp: Firebase App Distribution](#6-kế-hoạch-nâng-cấp-firebase-app-distribution)
+- [Hướng dẫn Build \& Phát hành APK — Emotion Friend](#hướng-dẫn-build--phát-hành-apk--emotion-friend)
+  - [Mục lục](#mục-lục)
+  - [1. Build APK trên máy tính cá nhân](#1-build-apk-trên-máy-tính-cá-nhân)
+    - [Yêu cầu](#yêu-cầu)
+    - [Các bước thực hiện](#các-bước-thực-hiện)
+  - [2. Tìm file APK sau khi build](#2-tìm-file-apk-sau-khi-build)
+  - [3. GitHub Actions tự động build và lưu APK](#3-github-actions-tự-động-build-và-lưu-apk)
+    - [Cách tải APK từ GitHub Actions](#cách-tải-apk-từ-github-actions)
+  - [4. Cài APK lên thiết bị Android](#4-cài-apk-lên-thiết-bị-android)
+    - [Cách 1 — Cài qua cáp USB (khuyến nghị)](#cách-1--cài-qua-cáp-usb-khuyến-nghị)
+    - [Cách 2 — Cài qua file (không cần máy tính)](#cách-2--cài-qua-file-không-cần-máy-tính)
+  - [5. Danh sách kiểm tra trước buổi demo](#5-danh-sách-kiểm-tra-trước-buổi-demo)
+    - [Kiểm tra code](#kiểm-tra-code)
+    - [Kiểm tra APK](#kiểm-tra-apk)
+    - [Kiểm tra tính năng chính](#kiểm-tra-tính-năng-chính)
+    - [Kiểm tra thiết bị demo](#kiểm-tra-thiết-bị-demo)
+  - [6. Kế hoạch nâng cấp: Firebase App Distribution](#6-kế-hoạch-nâng-cấp-firebase-app-distribution)
+    - [Lợi ích so với tải thủ công](#lợi-ích-so-với-tải-thủ-công)
+    - [Các bước tích hợp (tóm tắt)](#các-bước-tích-hợp-tóm-tắt)
 
 ---
 

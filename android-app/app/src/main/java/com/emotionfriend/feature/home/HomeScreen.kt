@@ -253,7 +253,7 @@ private fun SelectEmotionPhase(
             textAlign = TextAlign.Center,
         )
         val emotions = EmotionType.entries
-        emotions.chunked(3).forEach { rowItems ->
+        emotions.chunked(2).forEach { rowItems ->
             Row(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 modifier              = Modifier.fillMaxWidth(),
@@ -271,7 +271,7 @@ private fun SelectEmotionPhase(
                         modifier       = Modifier.weight(1f),
                     )
                 }
-                if (rowItems.size < 3) repeat(3 - rowItems.size) { Spacer(Modifier.weight(1f)) }
+                if (rowItems.size < 2) repeat(2 - rowItems.size) { Spacer(Modifier.weight(1f)) }
             }
         }
         TextButton(onClick = onSkip) {

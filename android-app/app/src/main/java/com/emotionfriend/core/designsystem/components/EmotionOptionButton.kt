@@ -87,7 +87,7 @@ fun EmotionOptionButton(
                     text = label,
                     style = MaterialTheme.typography.titleLarge,
                     textAlign = TextAlign.Center,
-                    minLines = 2,
+                    minLines = 1,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.fillMaxWidth()

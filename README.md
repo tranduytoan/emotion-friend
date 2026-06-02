@@ -89,7 +89,6 @@ flowchart LR
 
 ### Tính năng bổ trợ
 
-- **Camera Practice** (`ExpressScreen` + `ExpressCameraScreen`): luyện biểu đạt khuôn mặt với CameraX — MVP preview.
 - **Xác thực người dùng** (`LoginScreen`, `RegisterScreen`, `VerifyEmailScreen`, `ForgotPasswordScreen`): đăng ký, đăng nhập, xác thực email, quên mật khẩu.
 - **Nhân vật Cô Vy:** 6 biểu cảm (Happy, Sad, Angry, Surprised, Calm, Tired) đồng hành theo ngữ cảnh từng màn hình.
 
@@ -118,9 +117,61 @@ emotion-friend/
 
 ## 7. Hình Ảnh Minh Hoạ
 
-<img src="res/img/miss-vy/Happy.png" alt="Cô Vy - Happy" width="96" />
-<img src="res/img/scenario_lessons/1.png" alt="Ảnh tình huống mẫu" width="140" />
-<img src="res/img/stories/story-1/1.png" alt="Ảnh truyện mẫu" width="140" />
+### Daily Check-in
+
+<table>
+  <tr>
+    <td align="center"><img src="res/readme_img/Daily.jpg" width="200"/><br/><sub><b>Chọn cảm xúc hằng ngày</b></sub></td>
+    <td align="center"><img src="res/readme_img/Daily_log.jpg" width="200"/><br/><sub><b>Nhật ký cảm xúc</b></sub></td>
+  </tr>
+</table>
+
+### 📚 Học cảm xúc
+
+<table>
+  <tr>
+    <td align="center"><img src="res/readme_img/emotionLearn_wrong.jpg" width="200"/><br/><sub><b>Câu hỏi nhận biết cảm xúc</b></sub></td>
+    <td align="center"><img src="res/readme_img/emotionLearn_true.jpg" width="200"/><br/><sub><b>Trả lời đúng 🎉</b></sub></td>
+  </tr>
+</table>
+
+### 📖 Kể chuyện
+
+<table>
+  <tr>
+    <td align="center"><img src="res/readme_img/story.jpg" width="200"/><br/><sub><b>Màn hình chọn chuyện</b></sub></td>
+    <td align="center"><img src="res/readme_img/story_1.jpg" width="200"/><br/><sub><b>Đọc truyện</b></sub></td>
+    <td align="center"><img src="res/readme_img/story_2.jpg" width="200"/><br/><sub><b>Lật trang</b></sub></td>
+    <td align="center"><img src="res/readme_img/story_3.jpg" width="200"/><br/><sub><b>Bày tỏ cảm xúc</b></sub></td>
+  </tr>
+</table>
+
+### 💬 Tâm sự cùng Cô Vy
+
+<table>
+  <tr>
+    <td align="center"><img src="res/readme_img/confide.jpg" width="200"/><br/><sub><b>Chat với AI Cô Vy</b></sub></td>
+  </tr>
+</table>
+
+### 🌈 Thư giãn
+
+<table>
+  <tr>
+    <td align="center"><img src="res/readme_img/Relax.jpg" width="200"/><br/><sub><b>Menu thư giãn</b></sub></td>
+    <td align="center"><img src="res/readme_img/Relax_breath.jpg" width="200"/><br/><sub><b>Thở cùng bóng</b></sub></td>
+    <td align="center"><img src="res/readme_img/Relax_music.jpg" width="200"/><br/><sub><b>Nghe nhạc nhẹ</b></sub></td>
+  </tr>
+</table>
+
+### 🌟 Tiến trình &amp; 🧒 Hồ sơ
+
+<table>
+  <tr>
+    <td align="center"><img src="res/readme_img/Progress.jpg" width="200"/><br/><sub><b>Tiến trình học tập</b></sub></td>
+    <td align="center"><img src="res/readme_img/Profile.jpg" width="200"/><br/><sub><b>Hồ sơ cá nhân</b></sub></td>
+  </tr>
+</table>
 
 ## 8. Chạy Nhanh Hệ Thống
 

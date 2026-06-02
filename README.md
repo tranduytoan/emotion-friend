@@ -202,4 +202,3 @@ BACKEND_URL=http://10.0.2.2:80       # Emulator
 - [docs/PROJECT_SCOPE.md](docs/PROJECT_SCOPE.md)
 - [docs/BACKEND_SETUP.md](docs/BACKEND_SETUP.md)
 - [docs/BUILD_AND_RELEASE.md](docs/BUILD_AND_RELEASE.md)
-- [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md)

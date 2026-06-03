@@ -138,6 +138,26 @@ class AdminRoutesTest {
     }
 
     @Test
+    fun `admin create topic rejects invalid request body`() = testApplication {
+        application {
+            configureSerialization()
+            configureStatusPages()
+            routing { adminRoutes(scenarioService, storyService, musicService, topicService) }
+        }
+
+        val response = client.post("/admin/topics") {
+            header(HttpHeaders.Authorization, "Bearer admin-secret-token")
+            contentType(ContentType.Application.Json)
+            setBody("{ invalid json }")
+        }
+
+        assertEquals(HttpStatusCode.BadRequest, response.status)
+        val result = response.body<ApiResponse<Unit>>()
+        assertEquals(false, result.success)
+        assertEquals("Invalid request body", result.error)
+    }
+
+    @Test
     fun `admin get topic by missing id returns bad request`() = testApplication {
         application {
             configureSerialization()
@@ -209,5 +229,423 @@ class AdminRoutesTest {
         val result = response.body<ApiResponse<Unit>>()
         assertEquals(false, result.success)
         assertEquals("Invalid request body", result.error)
+    }
+
+    @Test
+    fun `admin create story returns created story`() = testApplication {
+        application {
+            configureSerialization()
+            configureStatusPages()
+            routing { adminRoutes(scenarioService, storyService, musicService, topicService) }
+        }
+
+        val response = client.post("/admin/stories") {
+            header(HttpHeaders.Authorization, "Bearer admin-secret-token")
+            contentType(ContentType.Application.Json)
+            setBody(
+                """
+                {"title": "Fresh Story", "content": "Once upon a time", "category": "Moral"}
+                """.trimIndent(),
+            )
+        }
+
+        assertEquals(HttpStatusCode.Created, response.status)
+        val result = response.body<ApiResponse<Story>>()
+        assertEquals(true, result.success)
+        assertEquals(6, result.data?.id)
+        assertEquals("Fresh Story", result.data?.title)
+    }
+
+    @Test
+    fun `admin create scenario returns created scenario`() = testApplication {
+        application {
+            configureSerialization()
+            configureStatusPages()
+            routing { adminRoutes(scenarioService, storyService, musicService, topicService) }
+        }
+
+        val response = client.post("/admin/scenarios") {
+            header(HttpHeaders.Authorization, "Bearer admin-secret-token")
+            contentType(ContentType.Application.Json)
+            setBody(
+                """
+                {"title": "New Scenario", "situation": "Test", "options": ["HAPPY", "SAD"], "correctEmotion": "HAPPY", "explanation": "Good"}
+                """.trimIndent(),
+            )
+        }
+
+        assertEquals(HttpStatusCode.Created, response.status)
+        val result = response.body<ApiResponse<ScenarioLesson>>()
+        assertEquals(true, result.success)
+        assertEquals(2, result.data?.id)
+        assertEquals("New Scenario", result.data?.title)
+    }
+
+    @Test
+    fun `admin create music returns created music track`() = testApplication {
+        application {
+            configureSerialization()
+            configureStatusPages()
+            routing { adminRoutes(scenarioService, storyService, musicService, topicService) }
+        }
+
+        val response = client.post("/admin/music") {
+            header(HttpHeaders.Authorization, "Bearer admin-secret-token")
+            contentType(ContentType.Application.Json)
+            setBody(
+                """
+                {"title": "New Track", "artist": "Artist", "filename": "track.mp3", "sortOrder": 1}
+                """.trimIndent(),
+            )
+        }
+
+        assertEquals(HttpStatusCode.Created, response.status)
+        val result = response.body<ApiResponse<MusicTrack>>()
+        assertEquals(true, result.success)
+        assertEquals(2, result.data?.id)
+        assertEquals("New Track", result.data?.title)
+    }
+
+    @Test
+    fun `admin get topic scenarios returns scenario list`() = testApplication {
+        application {
+            configureSerialization()
+            configureStatusPages()
+            routing { adminRoutes(scenarioService, storyService, musicService, topicService) }
+        }
+
+        val response = client.get("/admin/topics/1/scenarios") {
+            header(HttpHeaders.Authorization, "Bearer admin-secret-token")
+        }
+
+        assertEquals(HttpStatusCode.OK, response.status)
+        val result = response.body<ApiResponse<List<ScenarioLesson>>>()
+        assertEquals(true, result.success)
+        assertEquals(1, result.data?.size)
+    }
+
+    @Test
+    fun `admin update topic returns updated topic`() = testApplication {
+        application {
+            configureSerialization()
+            configureStatusPages()
+            routing { adminRoutes(scenarioService, storyService, musicService, topicService) }
+        }
+
+        val response = client.put("/admin/topics/1") {
+            header(HttpHeaders.Authorization, "Bearer admin-secret-token")
+            contentType(ContentType.Application.Json)
+            setBody(
+                """
+                {"title": "Updated Topic", "description": "Desc", "difficulty": 1, "sortOrder": 10}
+                """.trimIndent(),
+            )
+        }
+
+        assertEquals(HttpStatusCode.OK, response.status)
+        val result = response.body<ApiResponse<LessonTopic>>()
+        assertEquals(true, result.success)
+        assertEquals("Updated Topic", result.data?.title)
+    }
+
+    @Test
+    fun `admin delete topic returns success`() = testApplication {
+        application {
+            configureSerialization()
+            configureStatusPages()
+            routing { adminRoutes(scenarioService, storyService, musicService, topicService) }
+        }
+
+        val response = client.delete("/admin/topics/1") {
+            header(HttpHeaders.Authorization, "Bearer admin-secret-token")
+        }
+
+        assertEquals(HttpStatusCode.OK, response.status)
+        val result = response.body<ApiResponse<String>>()
+        assertEquals(true, result.success)
+        assertEquals("Deleted", result.data)
+    }
+
+    @Test
+    fun `admin get scenario returns scenario details`() = testApplication {
+        application {
+            configureSerialization()
+            configureStatusPages()
+            routing { adminRoutes(scenarioService, storyService, musicService, topicService) }
+        }
+
+        val response = client.get("/admin/scenarios/1") {
+            header(HttpHeaders.Authorization, "Bearer admin-secret-token")
+        }
+
+        assertEquals(HttpStatusCode.OK, response.status)
+        val result = response.body<ApiResponse<ScenarioLesson>>()
+        assertEquals(true, result.success)
+        assertEquals(1, result.data?.id)
+    }
+
+    @Test
+    fun `admin update scenario returns updated scenario`() = testApplication {
+        application {
+            configureSerialization()
+            configureStatusPages()
+            routing { adminRoutes(scenarioService, storyService, musicService, topicService) }
+        }
+
+        val response = client.put("/admin/scenarios/1") {
+            header(HttpHeaders.Authorization, "Bearer admin-secret-token")
+            contentType(ContentType.Application.Json)
+            setBody(
+                """
+                {"title": "Updated Scenario", "situation": "New", "options": ["HAPPY"], "correctEmotion": "HAPPY", "explanation": "Ok", "sortOrder": 2}
+                """.trimIndent(),
+            )
+        }
+
+        assertEquals(HttpStatusCode.OK, response.status)
+        val result = response.body<ApiResponse<ScenarioLesson>>()
+        assertEquals(true, result.success)
+        assertEquals("Updated Scenario", result.data?.title)
+    }
+
+    @Test
+    fun `admin update scenario returns not found for missing id`() = testApplication {
+        application {
+            configureSerialization()
+            configureStatusPages()
+            routing { adminRoutes(scenarioService, storyService, musicService, topicService) }
+        }
+
+        val response = client.put("/admin/scenarios/99") {
+            header(HttpHeaders.Authorization, "Bearer admin-secret-token")
+            contentType(ContentType.Application.Json)
+            setBody(
+                """
+                {"title": "Nothing", "situation": "Missing", "options": ["HAPPY"], "correctEmotion": "HAPPY", "explanation": "N/A", "sortOrder": 0}
+                """.trimIndent(),
+            )
+        }
+
+        assertEquals(HttpStatusCode.NotFound, response.status)
+        val result = response.body<ApiResponse<Unit>>()
+        assertEquals(false, result.success)
+    }
+
+    @Test
+    fun `admin delete scenario returns success`() = testApplication {
+        application {
+            configureSerialization()
+            configureStatusPages()
+            routing { adminRoutes(scenarioService, storyService, musicService, topicService) }
+        }
+
+        val response = client.delete("/admin/scenarios/1") {
+            header(HttpHeaders.Authorization, "Bearer admin-secret-token")
+        }
+
+        assertEquals(HttpStatusCode.OK, response.status)
+        val result = response.body<ApiResponse<String>>()
+        assertEquals(true, result.success)
+        assertEquals("Deleted", result.data)
+    }
+
+    @Test
+    fun `admin get story returns story details`() = testApplication {
+        application {
+            configureSerialization()
+            configureStatusPages()
+            routing { adminRoutes(scenarioService, storyService, musicService, topicService) }
+        }
+
+        val response = client.get("/admin/stories/5") {
+            header(HttpHeaders.Authorization, "Bearer admin-secret-token")
+        }
+
+        assertEquals(HttpStatusCode.OK, response.status)
+        val result = response.body<ApiResponse<Story>>()
+        assertEquals(true, result.success)
+        assertEquals(5, result.data?.id)
+    }
+
+    @Test
+    fun `admin update story returns updated story`() = testApplication {
+        application {
+            configureSerialization()
+            configureStatusPages()
+            routing { adminRoutes(scenarioService, storyService, musicService, topicService) }
+        }
+
+        val response = client.put("/admin/stories/5") {
+            header(HttpHeaders.Authorization, "Bearer admin-secret-token")
+            contentType(ContentType.Application.Json)
+            setBody(
+                """
+                {"title": "Updated Story", "content": "Once again", "category": "Cat"}
+                """.trimIndent(),
+            )
+        }
+
+        assertEquals(HttpStatusCode.OK, response.status)
+        val result = response.body<ApiResponse<Story>>()
+        assertEquals(true, result.success)
+        assertEquals("Updated Story", result.data?.title)
+    }
+
+    @Test
+    fun `admin delete story returns success`() = testApplication {
+        application {
+            configureSerialization()
+            configureStatusPages()
+            routing { adminRoutes(scenarioService, storyService, musicService, topicService) }
+        }
+
+        val response = client.delete("/admin/stories/5") {
+            header(HttpHeaders.Authorization, "Bearer admin-secret-token")
+        }
+
+        assertEquals(HttpStatusCode.OK, response.status)
+        val result = response.body<ApiResponse<String>>()
+        assertEquals(true, result.success)
+        assertEquals("Deleted", result.data)
+    }
+
+    @Test
+    fun `admin get music returns track details`() = testApplication {
+        application {
+            configureSerialization()
+            configureStatusPages()
+            routing { adminRoutes(scenarioService, storyService, musicService, topicService) }
+        }
+
+        val response = client.get("/admin/music/1") {
+            header(HttpHeaders.Authorization, "Bearer admin-secret-token")
+        }
+
+        assertEquals(HttpStatusCode.OK, response.status)
+        val result = response.body<ApiResponse<MusicTrack>>()
+        assertEquals(true, result.success)
+        assertEquals(1, result.data?.id)
+    }
+
+    @Test
+    fun `admin update music returns updated track`() = testApplication {
+        application {
+            configureSerialization()
+            configureStatusPages()
+            routing { adminRoutes(scenarioService, storyService, musicService, topicService) }
+        }
+
+        val response = client.put("/admin/music/1") {
+            header(HttpHeaders.Authorization, "Bearer admin-secret-token")
+            contentType(ContentType.Application.Json)
+            setBody(
+                """
+                {"title": "Updated Track", "artist": "Artist", "filename": "track.mp3", "sortOrder": 1}
+                """.trimIndent(),
+            )
+        }
+
+        assertEquals(HttpStatusCode.OK, response.status)
+        val result = response.body<ApiResponse<MusicTrack>>()
+        assertEquals(true, result.success)
+        assertEquals("Updated Track", result.data?.title)
+    }
+
+    @Test
+    fun `admin delete music returns success`() = testApplication {
+        application {
+            configureSerialization()
+            configureStatusPages()
+            routing { adminRoutes(scenarioService, storyService, musicService, topicService) }
+        }
+
+        val response = client.delete("/admin/music/1") {
+            header(HttpHeaders.Authorization, "Bearer admin-secret-token")
+        }
+
+        assertEquals(HttpStatusCode.OK, response.status)
+        val result = response.body<ApiResponse<String>>()
+        assertEquals(true, result.success)
+        assertEquals("Deleted", result.data)
+    }
+
+    @Test
+    fun `admin invalid scenario image upload returns bad request`() = testApplication {
+        application {
+            configureSerialization()
+            configureStatusPages()
+            routing { adminRoutes(scenarioService, storyService, musicService, topicService) }
+        }
+
+        val response = client.post("/admin/scenarios/1/image") {
+            header(HttpHeaders.Authorization, "Bearer admin-secret-token")
+            contentType(ContentType.Application.Json)
+            setBody("{}")
+        }
+
+        assertEquals(HttpStatusCode.BadRequest, response.status)
+        val result = response.body<ApiResponse<Unit>>()
+        assertEquals(false, result.success)
+        assertEquals("Request must be multipart/form-data with field 'file'", result.error)
+    }
+
+    @Test
+    fun `admin scenario image upload rejects unsupported file type`() = testApplication {
+        application {
+            configureSerialization()
+            configureStatusPages()
+            routing { adminRoutes(scenarioService, storyService, musicService, topicService) }
+        }
+
+        val response = client.submitFormWithBinaryData("/admin/scenarios/1/image", formData {
+            append("file", "not-an-image".byteInputStream(), Headers.build {
+                append(HttpHeaders.ContentDisposition, "form-data; name=\"file\"; filename=\"file.txt\"")
+                append(HttpHeaders.ContentType, "text/plain")
+            })
+        }) {
+            header(HttpHeaders.Authorization, "Bearer admin-secret-token")
+        }
+
+        assertEquals(HttpStatusCode.BadRequest, response.status)
+        val result = response.body<ApiResponse<Unit>>()
+        assertEquals(false, result.success)
+        assertEquals("Only image files are allowed", result.error)
+    }
+
+    @Test
+    fun `admin scenario image upload writes png and returns updated scenario`() = testApplication {
+        val originalUserDir = System.getProperty("user.dir")
+        val rootDir = createTempDir("admin-image-root")
+        val workDir = File(rootDir, "userdir").apply { mkdirs() }
+        val scenarioDir = File(rootDir, "res/img/scenario_lessons").apply { mkdirs() }
+        System.setProperty("user.dir", workDir.absolutePath)
+
+        try {
+            application {
+                configureSerialization()
+                configureStatusPages()
+                routing { adminRoutes(scenarioService, storyService, musicService, topicService) }
+            }
+
+            val response = client.submitFormWithBinaryData("/admin/scenarios/1/image", formData {
+                append("file", "PNG DATA".byteInputStream(), Headers.build {
+                    append(HttpHeaders.ContentDisposition, "form-data; name=\"file\"; filename=\"lesson.png\"")
+                    append(HttpHeaders.ContentType, "image/png")
+                })
+            }) {
+                header(HttpHeaders.Authorization, "Bearer admin-secret-token")
+            }
+
+            assertEquals(HttpStatusCode.OK, response.status)
+            val result = response.body<ApiResponse<ScenarioLesson>>()
+            assertEquals(true, result.success)
+            assertEquals("1.png", result.data?.imageName)
+            assertEquals(File(scenarioDir, "1.png").isFile, true)
+        } finally {
+            System.setProperty("user.dir", originalUserDir)
+            scenarioDir.deleteRecursively()
+            workDir.deleteRecursively()
+            rootDir.deleteRecursively()
+        }
     }
 }

@@ -108,4 +108,46 @@ class PracticeRoutesTest {
         assertEquals("SAD", result.data?.promptedEmotion)
         assertEquals(true, result.data?.matched)
     }
+
+    @Test
+    fun `expression practice result returns fallback feedback for unknown emotion`() = testApplication {
+        application {
+            configureSerialization()
+            configureStatusPages()
+            routing { practiceRoutes(service) }
+        }
+
+        val response = client.post("/api/expression-practice/result") {
+            contentType(ContentType.Application.Json)
+            setBody(
+                """
+                {"childId": "child-1", "promptedEmotion": "EXCITED"}
+                """.trimIndent(),
+            )
+        }
+
+        assertEquals(HttpStatusCode.OK, response.status)
+        val result = response.body<ApiResponse<ExpressionPracticeResult>>()
+        assertEquals(true, result.success)
+        assertEquals("EXCITED", result.data?.promptedEmotion)
+        assertEquals(true, result.data?.matched)
+        assertEquals("Con làm tốt lắm! 🌟 Hãy tiếp tục luyện tập nhé!", result.data?.feedback)
+    }
+
+    @Test
+    fun `practice attempt get returns history for child id`() = testApplication {
+        application {
+            configureSerialization()
+            configureStatusPages()
+            routing { practiceRoutes(service) }
+        }
+
+        val response = client.get("/api/practice-attempts/child-1")
+
+        assertEquals(HttpStatusCode.OK, response.status)
+        val result = response.body<ApiResponse<List<PracticeAttempt>>>()
+        assertEquals(true, result.success)
+        assertEquals(1, result.data?.size)
+        assertEquals("child-1", result.data?.first()?.childId)
+    }
 }

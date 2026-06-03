@@ -49,4 +49,23 @@ class StatusPagesTest {
         assertEquals("Internal server error", result.error)
         assertNull(result.data)
     }
+
+    @Test
+    fun `no such element exception produces not found`() = testApplication {
+        application {
+            configureSerialization()
+            configureStatusPages()
+            routing {
+                get("/missing") { throw NoSuchElementException("Not found item") }
+            }
+        }
+
+        val response = client.get("/missing")
+
+        assertEquals(HttpStatusCode.NotFound, response.status)
+        val result = response.body<ApiResponse<Unit>>()
+        assertFalse(result.success)
+        assertEquals("Not found item", result.error)
+        assertNull(result.data)
+    }
 }

@@ -162,4 +162,27 @@ class AuthRoutesTest {
         assertEquals(true, result.success)
         assertEquals("Xác thực email thành công.", result.data?.message)
     }
+
+    @Test
+    fun `register endpoint rejects already existing email`() = testApplication {
+        application {
+            configureSerialization()
+            configureStatusPages()
+            routing { authRoutes(service) }
+        }
+
+        val response = client.post("/api/auth/register") {
+            contentType(ContentType.Application.Json)
+            setBody(
+                """
+                {"email": "test@example.com", "password": "ok123", "displayName": "Existing User"}
+                """.trimIndent(),
+            )
+        }
+
+        assertEquals(HttpStatusCode.BadRequest, response.status)
+        val result = response.body<ApiResponse<Unit>>()
+        assertEquals(false, result.success)
+        assertEquals("Email này đã được đăng ký.", result.error)
+    }
 }

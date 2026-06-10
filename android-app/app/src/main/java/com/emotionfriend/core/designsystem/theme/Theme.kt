@@ -3,91 +3,77 @@ package com.emotionfriend.core.designsystem.theme
 import android.content.res.Configuration
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.lightColorScheme
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 
-// Dynamic color is intentionally disabled — emotion colors must be stable
-// so children always associate the same color with the same emotion.
+// ─── LNReader Default Theme - Light Color Scheme ────────────────────────────
 private val LightColorScheme = lightColorScheme(
-    // ── Primary (sky blue — calm, trustworthy) ───────────────────────────────
-    primary              = SkyBlue40,
-    onPrimary            = OnPrimary,
-    primaryContainer     = SkyBlue80,
-    onPrimaryContainer   = OnBackground,
+    primary              = Md3LightPrimary,
+    onPrimary            = Md3LightOnPrimary,
+    primaryContainer     = Md3LightPrimaryContainer,
+    onPrimaryContainer   = Md3LightOnPrimaryContainer,
 
-    // ── Secondary (mint green — positive, growth) ────────────────────────────
-    secondary            = MintGreen40,
-    onSecondary          = OnPrimary,
-    secondaryContainer   = MintGreen80,
-    onSecondaryContainer = OnBackground,
+    secondary            = Md3LightSecondary,
+    onSecondary          = Md3LightOnSecondary,
+    secondaryContainer   = Md3LightSecondaryContainer,
+    onSecondaryContainer = Md3LightOnSecondaryContainer,
 
-    // ── Tertiary (warm amber — highlights, badges) ────────────────────────────
-    tertiary             = SunYellow40,
-    onTertiary           = OnPrimary,
-    tertiaryContainer    = SunYellow80,
-    onTertiaryContainer  = OnBackground,
+    tertiary             = Md3LightTertiary,
+    onTertiary           = Md3LightOnTertiary,
+    tertiaryContainer    = Md3LightTertiaryContainer,
+    onTertiaryContainer  = Md3LightOnTertiaryContainer,
 
-    // ── Error (soft — avoids alarming children) ───────────────────────────────
-    error                = ErrorRed,
-    onError              = OnErrorRed,
-    errorContainer       = ErrorRedContainer,
-    onErrorContainer     = OnErrorRedContainer,
+    error                = Md3LightError,
+    onError              = Md3LightOnError,
+    errorContainer       = Md3LightErrorContainer,
+    onErrorContainer     = Md3LightOnErrorContainer,
 
-    // ── Background / Surface ─────────────────────────────────────────────────
-    background           = WarmCream,
-    onBackground         = OnBackground,
+    background           = Md3LightBackground,
+    onBackground         = Md3LightOnBackground,
 
-    surface              = SurfaceWhite,
-    onSurface            = OnSurface,
-    surfaceVariant       = SurfaceVariant,
-    onSurfaceVariant     = OnSurfaceVar,
+    surface              = Md3LightSurface,
+    onSurface            = Md3LightOnSurface,
+    surfaceVariant       = Md3LightSurfaceVariant,
+    onSurfaceVariant     = Md3LightOnSurfaceVariant,
 
-    // ── Inverse (Snackbar, dark overlays) ────────────────────────────────────
-    inverseSurface       = SurfaceInverse,
-    inverseOnSurface     = OnSurfaceInverse,
-    inversePrimary       = PrimaryInverse,
-
-    // ── Outline ──────────────────────────────────────────────────────────────
-    outline              = OutlineMedium,
-    outlineVariant       = OutlineLight,
+    outline              = Md3LightOutline,
 )
 
-// ── Dark Color Scheme (warm dark tone) ──────────────────────────────────
-private val DarkColorScheme = androidx.compose.material3.darkColorScheme(
-    primary              = PrimaryInverse,
-    onPrimary            = OnBackground,
-    primaryContainer     = SkyBlue40,
-    onPrimaryContainer   = OnPrimary,
+// ─── LNReader Default Theme - Dark Color Scheme ─────────────────────────────
+private val DarkColorScheme = darkColorScheme(
+    primary              = Md3DarkPrimary,
+    onPrimary            = Md3DarkOnPrimary,
+    primaryContainer     = Md3DarkPrimaryContainer,
+    onPrimaryContainer   = Md3DarkOnPrimaryContainer,
 
-    secondary            = MintGreen80,
-    onSecondary          = OnBackground,
-    secondaryContainer   = MintGreen40,
-    onSecondaryContainer = OnPrimary,
+    secondary            = Md3DarkSecondary,
+    onSecondary          = Md3DarkOnSecondary,
+    secondaryContainer   = Md3DarkSecondaryContainer,
+    onSecondaryContainer = Md3DarkOnSecondaryContainer,
 
-    tertiary             = SunYellow80,
-    onTertiary           = OnBackground,
-    tertiaryContainer    = SunYellow40,
-    onTertiaryContainer  = OnPrimary,
+    tertiary             = Md3DarkTertiary,
+    onTertiary           = Md3DarkOnTertiary,
+    tertiaryContainer    = Md3DarkTertiaryContainer,
+    onTertiaryContainer  = Md3DarkOnTertiaryContainer,
 
-    error                = ErrorRed,
-    onError              = OnErrorRed,
-    errorContainer       = ErrorRedContainer,
-    onErrorContainer     = OnErrorRedContainer,
+    error                = Md3DarkError,
+    onError              = Md3DarkOnError,
+    errorContainer       = Md3DarkErrorContainer,
+    onErrorContainer     = Md3DarkOnErrorContainer,
 
-    background           = SurfaceInverse,
-    onBackground         = OnSurfaceInverse,
+    background           = Md3DarkBackground,
+    onBackground         = Md3DarkOnBackground,
 
-    surface              = Color(0xFF3D3B39), // Slightly lighter than background
-    onSurface            = OnSurfaceInverse,
-    surfaceVariant       = Color(0xFF4A4846),
-    onSurfaceVariant     = Color(0xFFC0BAB0),
+    surface              = Md3DarkSurface,
+    onSurface            = Md3DarkOnSurface,
+    surfaceVariant       = Md3DarkSurfaceVariant,
+    onSurfaceVariant     = Md3DarkOnSurfaceVariant,
 
-    outline              = Color(0xFF807B75),
-    outlineVariant       = Color(0xFF5D5B58),
+    outline              = Md3DarkOutline,
 )
 
 @Composable

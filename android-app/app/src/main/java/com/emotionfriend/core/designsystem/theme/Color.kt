@@ -2,40 +2,63 @@ package com.emotionfriend.core.designsystem.theme
 
 import androidx.compose.ui.graphics.Color
 
-// ─── Primary brand ───────────────────────────────────────────────────────────
-val SkyBlue40      = Color(0xFF4A90C4)  // primary (calm, friendly)
-val SkyBlue80      = Color(0xFFB3D7F2)  // primary container
-val SkyBlueLight   = Color(0xFFE8F4FD)  // soft tint background
+// ─── LNReader Default Theme Colors (Light) ──────────────────────────────────
+val Md3LightPrimary = Color(0xFF0057CE)
+val Md3LightOnPrimary = Color(0xFFFFFFFF)
+val Md3LightPrimaryContainer = Color(0xFFDAE2FF)
+val Md3LightOnPrimaryContainer = Color(0xFF001947)
 
-// ─── Secondary ───────────────────────────────────────────────────────────────
-val MintGreen40    = Color(0xFF4CAF82)  // secondary (positive feedback)
-val MintGreen80    = Color(0xFFB2DFD0)  // secondary container
+val Md3LightSecondary = Color(0xFF585E71)
+val Md3LightOnSecondary = Color(0xFFFFFFFF)
+val Md3LightSecondaryContainer = Color(0xFFDCE2F9)
+val Md3LightOnSecondaryContainer = Color(0xFF151B2C)
 
-// ─── Tertiary (warm accent — badges, highlights, notifications) ───────────────
-val SunYellow40    = Color(0xFFF9A825)  // warm amber — non-aggressive highlight
-val SunYellow80    = Color(0xFFFFECB3)  // soft amber container
+val Md3LightTertiary = Color(0xFF725572)
+val Md3LightOnTertiary = Color(0xFFFFFFFF)
+val Md3LightTertiaryContainer = Color(0xFFFDD7FA)
+val Md3LightOnTertiaryContainer = Color(0xFF2A132C)
 
-// ─── Background / Surface ────────────────────────────────────────────────────
-val WarmCream      = Color(0xFFFFF8F0)  // screen background (warm, not harsh white)
-val SurfaceWhite   = Color(0xFFFFFFFF)
-val SurfaceVariant = Color(0xFFF4F0EB)  // card background
+val Md3LightError = Color(0xFFBA1A1A)
+val Md3LightOnError = Color(0xFFFFFFFF)
+val Md3LightErrorContainer = Color(0xFFFFDAD6)
+val Md3LightOnErrorContainer = Color(0xFF410002)
 
-// ─── Inverse surface (Snackbar / dark overlays) ───────────────────────────────
-val SurfaceInverse    = Color(0xFF312F2D)  // warm dark tone (not cold grey)
-val OnSurfaceInverse  = Color(0xFFFBEFE8)  // readable warm white on dark
-val PrimaryInverse    = Color(0xFF99CDEF)  // lighter sky blue for inverse accent
+val Md3LightBackground = Color(0xFFFEFBFF)
+val Md3LightOnBackground = Color(0xFF1B1B1F)
+val Md3LightSurface = Color(0xFFFEFBFF)
+val Md3LightOnSurface = Color(0xFF1B1B1F)
+val Md3LightSurfaceVariant = Color(0xFFE2E2EC)
+val Md3LightOnSurfaceVariant = Color(0xFF45464F)
+val Md3LightOutline = Color(0xFF757780)
 
-// ─── On colors ───────────────────────────────────────────────────────────────
-val OnPrimary      = Color(0xFFFFFFFF)
-val OnBackground   = Color(0xFF2D2D2D)  // legible dark text
-val OnSurface      = Color(0xFF3A3A3A)
-val OnSurfaceVar   = Color(0xFF6B6B6B)  // secondary text, hints
+// ─── LNReader Default Theme Colors (Dark) ───────────────────────────────────
+val Md3DarkPrimary = Color(0xFFB1C5FF)
+val Md3DarkOnPrimary = Color(0xFF002C70)
+val Md3DarkPrimaryContainer = Color(0xFF00419E)
+val Md3DarkOnPrimaryContainer = Color(0xFFDAE2FF)
 
-// ─── Error (soft — avoids harsh pure red for children) ────────────────────────
-val ErrorRed            = Color(0xFFBA1A1A)  // M3-aligned error, less harsh than #F44336
-val ErrorRedContainer   = Color(0xFFFFDAD6)  // light error container tint
-val OnErrorRed          = Color(0xFFFFFFFF)  // text / icons on error fill
-val OnErrorRedContainer = Color(0xFF410002)  // text on error container
+val Md3DarkSecondary = Color(0xFFC0C6DC)
+val Md3DarkOnSecondary = Color(0xFF2A3042)
+val Md3DarkSecondaryContainer = Color(0xFF414659)
+val Md3DarkOnSecondaryContainer = Color(0xFFDCE2F9)
+
+val Md3DarkTertiary = Color(0xFFDFBBE0)
+val Md3DarkOnTertiary = Color(0xFF412742)
+val Md3DarkTertiaryContainer = Color(0xFF593D59)
+val Md3DarkOnTertiaryContainer = Color(0xFFFDD7FA)
+
+val Md3DarkError = Color(0xFFFFB4AB)
+val Md3DarkOnError = Color(0xFF690005)
+val Md3DarkErrorContainer = Color(0xFF93000A)
+val Md3DarkOnErrorContainer = Color(0xFFFFDAD6)
+
+val Md3DarkBackground = Color(0xFF1B1B1F)
+val Md3DarkOnBackground = Color(0xFFE4E2E6)
+val Md3DarkSurface = Color(0xFF1B1B1F)
+val Md3DarkOnSurface = Color(0xFFE4E2E6)
+val Md3DarkSurfaceVariant = Color(0xFF45464F)
+val Md3DarkOnSurfaceVariant = Color(0xFFC5C6D0)
+val Md3DarkOutline = Color(0xFF8F909A)
 
 // ─── Emotion colors (stable — never replaced by dynamic color) ───────────────
 val EmotionHappy    = Color(0xFFFFD166)  // yellow-gold  — happy
@@ -57,8 +80,23 @@ val EmotionCalmBg     = Color(0xFFE0F2F1)
 val FeedbackCorrect   = Color(0xFF4CAF82)  // green
 val FeedbackWrong     = Color(0xFFFF9E40)  // warm amber-orange — not alarming
 val FeedbackCorrectBg = Color(0xFFE8F5EF)
-val FeedbackWrongBg   = Color(0xFFFFF3E0)  // soft amber background
+val FeedbackWrongBg = Color(0xFFFFF3E0)  // soft amber background
 
-// ─── Outline / Divider ────────────────────────────────────────────────────────
-val OutlineLight = Color(0xFFDDD8D0)
-val OutlineMedium= Color(0xFFC0BAB0)
+// ─── Legacy Aliases (To fix compilation and bridge to MD3) ──────────────────
+val SkyBlue40      = Md3LightPrimary
+val SkyBlue80      = Md3LightPrimaryContainer
+val SkyBlueLight   = Color(0xFFE8F4FD) 
+val MintGreen40    = Md3LightSecondary
+val MintGreen80    = Md3LightSecondaryContainer
+val SunYellow40    = Md3LightTertiary
+val SunYellow80    = Md3LightTertiaryContainer
+val WarmCream      = Md3LightBackground
+val SurfaceWhite   = Color(0xFFFFFFFF)
+val SurfaceVariant = Md3LightSurfaceVariant
+val OnPrimary      = Md3LightOnPrimary
+val OnBackground   = Md3LightOnBackground
+val OnSurface      = Md3LightOnSurface
+val OnSurfaceVar   = Md3LightOnSurfaceVariant
+val OutlineLight   = Md3LightOutline
+val OutlineMedium  = Md3LightOutline
+

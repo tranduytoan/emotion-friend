@@ -31,6 +31,17 @@ import com.emotionfriend.feature.confide.ConfideScreen
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 
 /**
  * Root navigation host for Emotion Friend.
@@ -39,8 +50,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
  *
  * Architecture decisions:
  * • The auth state is observed here to determine the [NavHost.startDestination].
- *   While [AuthState.Loading], we keep the start destination as Login so the
- *   splash shows until the DataStore check resolves.
+ * • While [AuthState.Loading], we show a splash/loading state to avoid
+ *   flashing the login screen.
  * • After a successful login/register the graph pops the entire auth back-stack
  *   so the user cannot navigate back to auth screens with the system Back button.
  * • All roles land on HomeScreen after login.
@@ -65,10 +76,23 @@ fun EmotionFriendNavHost(
     val authViewModel: AuthViewModel = hiltViewModel()
     val authState by authViewModel.authState.collectAsState()
 
-    // Determine initial destination from persisted session.
-    val startDestination = when (authState) {
-        is AuthState.Authenticated -> AppRoute.Home.route
-        else -> AppRoute.Login.route
+    // NEW: Handle loading state to avoid login screen flash
+    if (authState is AuthState.Loading) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            contentAlignment = Alignment.Center
+        ) {
+            // Optional: Add a loading indicator or splash logo here
+        }
+        return
+    }
+
+    // Determine initial destination from persisted session ONCE after loading finishes.
+    val startDestination = remember {
+        if (authState is AuthState.Authenticated) AppRoute.Home.route
+        else AppRoute.Login.route
     }
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -109,6 +133,18 @@ fun EmotionFriendNavHost(
             navController    = navController,
             startDestination = startDestination,
             modifier         = modifier.padding(innerPadding),
+            enterTransition = {
+                slideInHorizontally(initialOffsetX = { it / 4 }, animationSpec = tween(300)) + fadeIn(animationSpec = tween(300))
+            },
+            exitTransition = {
+                slideOutHorizontally(targetOffsetX = { -it / 4 }, animationSpec = tween(300)) + fadeOut(animationSpec = tween(300))
+            },
+            popEnterTransition = {
+                slideInHorizontally(initialOffsetX = { -it / 4 }, animationSpec = tween(300)) + fadeIn(animationSpec = tween(300))
+            },
+            popExitTransition = {
+                slideOutHorizontally(targetOffsetX = { it / 4 }, animationSpec = tween(300)) + fadeOut(animationSpec = tween(300))
+            }
         ) {
 
         // ── Auth screens ──────────────────────────────────────────────────────

@@ -33,9 +33,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.emotionfriend.core.designsystem.theme.SkyBlue40
-import com.emotionfriend.core.designsystem.theme.SkyBlueLight
-import com.emotionfriend.core.designsystem.theme.WarmCream
 
 /**
  * Login screen.
@@ -52,7 +49,7 @@ fun LoginScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(WarmCream)
+            .background(MaterialTheme.colorScheme.background)
             .imePadding()
     ) {
         Column(
@@ -87,7 +84,7 @@ fun LoginScreen(
                     Icon(
                         imageVector = Icons.Default.Email,
                         contentDescription = null,
-                        tint = SkyBlue40,
+                        tint = MaterialTheme.colorScheme.primary,
                     )
                 },
                 keyboardOptions = KeyboardOptions(
@@ -108,7 +105,7 @@ fun LoginScreen(
                     Icon(
                         imageVector = Icons.Default.Lock,
                         contentDescription = null,
-                        tint = SkyBlue40,
+                        tint = MaterialTheme.colorScheme.primary,
                     )
                 },
                 trailingIcon  = {
@@ -134,7 +131,7 @@ fun LoginScreen(
                 TextButton(onClick = onNavigateToForgotPassword) {
                     Text(
                         text  = "Quên mật khẩu?",
-                        color = SkyBlue40,
+                        color = MaterialTheme.colorScheme.primary,
                         style = MaterialTheme.typography.bodySmall,
                     )
                 }
@@ -170,7 +167,7 @@ fun LoginScreen(
             ) {
                 Text(
                     text       = "Đăng ký ngay",
-                    color      = SkyBlue40,
+                    color      = MaterialTheme.colorScheme.primary,
                     style      = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Bold,
                 )
@@ -187,7 +184,7 @@ internal fun AppLogoHeader(title: String, subtitle: String) {
         contentAlignment = Alignment.Center,
         modifier = Modifier
             .size(80.dp)
-            .background(SkyBlueLight, CircleShape),
+            .background(MaterialTheme.colorScheme.primaryContainer, CircleShape),
     ) {
         Text(text = "😊", style = MaterialTheme.typography.headlineLarge)
     }

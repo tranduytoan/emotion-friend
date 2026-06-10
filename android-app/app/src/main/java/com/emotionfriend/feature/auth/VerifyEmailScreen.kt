@@ -40,10 +40,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.emotionfriend.core.designsystem.theme.SkyBlue40
-import com.emotionfriend.core.designsystem.theme.SkyBlueLight
-import com.emotionfriend.core.designsystem.theme.SurfaceVariant
-import com.emotionfriend.core.designsystem.theme.WarmCream
 import com.emotionfriend.domain.model.AuthUser
 
 /**
@@ -63,7 +59,7 @@ fun VerifyEmailScreen(
     val form by viewModel.verifyForm.collectAsState()
 
     Scaffold(
-        containerColor = WarmCream,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = { Text("Xác thực email") },
@@ -75,7 +71,7 @@ fun VerifyEmailScreen(
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = WarmCream),
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
             )
         }
     ) { innerPadding ->
@@ -122,7 +118,7 @@ fun VerifyEmailScreen(
                     text       = email,
                     style      = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold,
-                    color      = SkyBlue40,
+                    color      = MaterialTheme.colorScheme.primary,
                     textAlign  = TextAlign.Center,
                 )
 
@@ -180,7 +176,7 @@ fun VerifyEmailScreen(
                         Text(
                             text  = "Gửi lại",
                             style = MaterialTheme.typography.bodySmall,
-                            color = SkyBlue40,
+                            color = MaterialTheme.colorScheme.primary,
                         )
                     }
                 }
@@ -210,7 +206,7 @@ private fun OtpInputRow(
                 keyboardType = KeyboardType.NumberPassword,
                 imeAction    = ImeAction.Done,
             ),
-            cursorBrush = SolidColor(SkyBlue40),
+            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
             modifier = Modifier
                 .fillMaxWidth()
                 .size(1.dp), // Invisible but focusable
@@ -233,8 +229,8 @@ private fun OtpInputRow(
 
 @Composable
 private fun OtpCell(char: Char?, focused: Boolean) {
-    val bg     = if (char != null) SkyBlueLight else SurfaceVariant
-    val border = if (focused) SkyBlue40 else MaterialTheme.colorScheme.outline
+    val bg     = if (char != null) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant
+    val border = if (focused) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
 
     Box(
         contentAlignment = Alignment.Center,
@@ -247,7 +243,7 @@ private fun OtpCell(char: Char?, focused: Boolean) {
             text       = char?.toString() ?: "",
             style      = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
-            color      = if (char != null) SkyBlue40 else MaterialTheme.colorScheme.onSurface,
+            color      = if (char != null) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
         )
     }
 }

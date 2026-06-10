@@ -72,7 +72,7 @@ internal fun AuthTextField(
             errorBorderColor     = MaterialTheme.colorScheme.error,
             errorLabelColor      = MaterialTheme.colorScheme.error,
         ),
-        shape = MaterialTheme.shapes.small,
+        shape = MaterialTheme.shapes.medium,
         modifier = modifier.fillMaxWidth(),
     )
 }
@@ -88,7 +88,7 @@ internal fun PasswordVisibilityToggle(
         Text(
             text  = if (visible) "ẨN" else "HIỆN",
             style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = MaterialTheme.colorScheme.primary,
         )
     }
 }
@@ -106,7 +106,7 @@ internal fun AuthPrimaryButton(
     Button(
         onClick = onClick,
         enabled = enabled && !isLoading,
-        shape = MaterialTheme.shapes.small, // Fits standard friendly style
+        shape = MaterialTheme.shapes.medium, 
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.primary,
             contentColor   = MaterialTheme.colorScheme.onPrimary,

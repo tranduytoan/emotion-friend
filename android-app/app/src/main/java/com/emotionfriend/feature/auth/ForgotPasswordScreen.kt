@@ -32,8 +32,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.emotionfriend.core.designsystem.theme.SkyBlue40
-import com.emotionfriend.core.designsystem.theme.WarmCream
 
 /**
  * Forgot password screen.
@@ -50,7 +48,7 @@ fun ForgotPasswordScreen(
     val form by viewModel.forgotForm.collectAsState()
 
     Scaffold(
-        containerColor = WarmCream,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = { Text("Quên mật khẩu") },
@@ -62,7 +60,7 @@ fun ForgotPasswordScreen(
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = WarmCream),
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
             )
         }
     ) { innerPadding ->
@@ -115,7 +113,7 @@ fun ForgotPasswordScreen(
                         Icon(
                             imageVector = Icons.Default.Email,
                             contentDescription = null,
-                            tint = SkyBlue40,
+                            tint = MaterialTheme.colorScheme.primary,
                         )
                     },
                     keyboardOptions = KeyboardOptions(

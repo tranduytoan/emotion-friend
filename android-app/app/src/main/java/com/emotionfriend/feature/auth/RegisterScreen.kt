@@ -30,8 +30,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import com.emotionfriend.core.designsystem.theme.SkyBlue40
-import com.emotionfriend.core.designsystem.theme.WarmCream
 import com.emotionfriend.domain.model.AuthUser
 
 /**
@@ -51,7 +49,7 @@ fun RegisterScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(WarmCream)
+            .background(MaterialTheme.colorScheme.background)
             .imePadding()
     ) {
         Column(
@@ -94,7 +92,7 @@ fun RegisterScreen(
                     Icon(
                         imageVector = Icons.Default.Person,
                         contentDescription = null,
-                        tint = SkyBlue40,
+                        tint = MaterialTheme.colorScheme.primary,
                     )
                 },
                 keyboardOptions = KeyboardOptions(
@@ -115,7 +113,7 @@ fun RegisterScreen(
                     Icon(
                         imageVector = Icons.Default.Email,
                         contentDescription = null,
-                        tint = SkyBlue40,
+                        tint = MaterialTheme.colorScheme.primary,
                     )
                 },
                 keyboardOptions = KeyboardOptions(
@@ -136,7 +134,7 @@ fun RegisterScreen(
                     Icon(
                         imageVector = Icons.Default.Lock,
                         contentDescription = null,
-                        tint = SkyBlue40,
+                        tint = MaterialTheme.colorScheme.primary,
                     )
                 },
                 trailingIcon  = {
@@ -165,7 +163,7 @@ fun RegisterScreen(
                     Icon(
                         imageVector = Icons.Default.Lock,
                         contentDescription = null,
-                        tint = SkyBlue40,
+                        tint = MaterialTheme.colorScheme.primary,
                     )
                 },
                 trailingIcon  = {
@@ -212,7 +210,7 @@ fun RegisterScreen(
             ) {
                 Text(
                     text       = "Đăng nhập",
-                    color      = SkyBlue40,
+                    color      = MaterialTheme.colorScheme.primary,
                     style      = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Bold,
                 )

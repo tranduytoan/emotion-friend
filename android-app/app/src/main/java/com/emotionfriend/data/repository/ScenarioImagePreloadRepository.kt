@@ -5,7 +5,7 @@ import coil.ImageLoader
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import coil.size.Precision
-import com.emotionfriend.BuildConfig
+import com.emotionfriend.core.config.AppConfig
 import com.emotionfriend.core.di.ApplicationScope
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
@@ -76,6 +76,6 @@ class ScenarioImagePreloadRepository @Inject constructor(
     private fun scenarioImageUrl(imageName: String?): String? {
         val name = imageName?.trim().orEmpty()
         if (name.isEmpty()) return null
-        return "${BuildConfig.BACKEND_URL.trimEnd('/')}/img/scenario_lessons/$name"
+        return "${AppConfig.BASE_URL.trimEnd('/')}/img/scenario_lessons/$name"
     }
 }

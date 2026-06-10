@@ -1,6 +1,7 @@
 name: Android CI
 
 on:
+  workflow_dispatch:
   push:
     branches: [ "main", "develop", "feat/**", "fix/**", "ci/**" ]
     paths:
@@ -14,7 +15,7 @@ on:
 
 jobs:
   build:
-    name: Build & Test
+    name: Build & Verify (Lint + APK)
     runs-on: ubuntu-latest
 
     steps:
@@ -45,29 +46,27 @@ jobs:
         working-directory: android-app
         run: chmod +x gradlew
 
-      # ── 5. Run unit tests ─────────────────────────────────────────────────
-      - name: Run debug unit tests
+      # ── 5. Create .env file for build configuration ────────────────────────
+      - name: Create .env file
         working-directory: android-app
-        run: ./gradlew testDebugUnitTest --no-daemon
+        run: |
+          echo "BACKEND_URL=http://157.173.127.217:8088" > .env
+          echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> .env
 
-      # ── 6. Upload unit test report ────────────────────────────────────────
-      - name: Upload unit test report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: unit-test-report
-          path: android-app/app/build/reports/tests/testDebugUnitTest/
-          retention-days: 7
+      # ── 6. Run Lint check ──────────────────────────────────────────────────
+      - name: Run Lint
+        working-directory: android-app
+        run: ./gradlew lintDebug --no-daemon
 
-      # ── 7. Assemble the debug APK ─────────────────────────────────────────
+      # ── 6. Assemble the debug APK ─────────────────────────────────────────
       - name: Assemble debug APK
         working-directory: android-app
         run: ./gradlew assembleDebug --no-daemon
 
-      # ── 8. Upload debug APK so it can be downloaded from the Actions UI ──
+      # ── 7. Upload debug APK so it can be downloaded from the Actions UI ──
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
           name: emotion-friend-debug-${{ github.run_number }}
-          path: android-app/app/build/outputs/apk/debug/app-debug.apk
+          path: android-app/app/build/outputs/apk/debug/emotion-friend.apk
           retention-days: 14

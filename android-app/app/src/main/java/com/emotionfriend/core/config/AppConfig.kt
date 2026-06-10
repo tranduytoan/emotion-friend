@@ -17,8 +17,9 @@ object AppConfig {
 
     // ── Network ──────────────────────────────────────────────────────────────
 
-    /** Fixed backend URL for this APK. */
-    const val BASE_URL: String = "http://157.173.127.217:8088"
+    /** Backend URL injected from .env via BuildConfig. */
+    val BASE_URL: String
+        get() = com.emotionfriend.BuildConfig.BACKEND_URL
 
     /** TCP connection timeout in milliseconds. */
     const val CONNECT_TIMEOUT_MS: Int = 10_000

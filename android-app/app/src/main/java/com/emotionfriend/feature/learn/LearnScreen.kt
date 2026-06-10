@@ -50,7 +50,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
-import com.emotionfriend.BuildConfig
+import com.emotionfriend.core.config.AppConfig
 import com.emotionfriend.core.audio.FeedbackPhrases
 import com.emotionfriend.core.audio.TtsPlayer
 import com.emotionfriend.core.audio.rememberTtsPlayer
@@ -498,6 +498,6 @@ private fun EmotionType.toOptionVisuals(): OptionVisuals = when (this) {
 
 private fun scenarioImageUrl(imageName: String?): String {
     if (imageName.isNullOrBlank()) return ""
-    return "${BuildConfig.BACKEND_URL.trimEnd('/')}/img/scenario_lessons/$imageName"
+    return "${AppConfig.BASE_URL.trimEnd('/')}/img/scenario_lessons/$imageName"
 }
 

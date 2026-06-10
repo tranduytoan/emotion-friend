@@ -1,6 +1,6 @@
 package com.emotionfriend.feature.story
 
-import com.emotionfriend.BuildConfig
+import com.emotionfriend.core.config.AppConfig
 import com.emotionfriend.domain.model.Story
 
 private const val STORY_PAGE_COUNT = 4
@@ -8,7 +8,7 @@ private const val STORY_PAGE_COUNT = 4
 internal fun Story.storyImageBaseUrl(): String? {
     val folder = imageFolder?.trim().orEmpty()
     if (folder.isEmpty()) return null
-    return "${BuildConfig.BACKEND_URL.trimEnd('/')}/img/stories/$folder"
+    return "${AppConfig.BASE_URL.trimEnd('/')}/img/stories/$folder"
 }
 
 internal fun Story.storyCoverUrl(): String? =

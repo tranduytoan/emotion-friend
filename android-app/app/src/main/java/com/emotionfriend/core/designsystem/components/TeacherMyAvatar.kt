@@ -22,7 +22,7 @@ import coil.request.CachePolicy
 import coil.request.ImageRequest
 import coil.compose.AsyncImage
 import coil.size.Precision
-import com.emotionfriend.BuildConfig
+import com.emotionfriend.core.config.AppConfig
 import com.emotionfriend.core.designsystem.theme.SunYellow80
 import com.emotionfriend.core.designsystem.theme.dimensions
 import com.emotionfriend.core.image.appImageLoader
@@ -98,5 +98,5 @@ internal fun vyEmotionImageUrl(emotion: VyEmotion): String {
         VyEmotion.CALM        -> "Calm.png"
         VyEmotion.CELEBRATING -> "Happy.png"
     }
-    return "${BuildConfig.BACKEND_URL.trimEnd('/')}/img/miss-vy/$imageName"
+    return "${AppConfig.BASE_URL.trimEnd('/')}/img/miss-vy/$imageName"
 }

@@ -239,7 +239,7 @@ class StateSynchronizationTest {
     fun `state observers are notified of changes`() = runTest {
         val notifications = mutableListOf<EmotionType>()
 
-        val job = kotlinx.coroutines.launch {
+        launch {
             stateSync.selectedEmotion.collect { emotions ->
                 notifications.add(emotions)
             }
@@ -249,7 +249,6 @@ class StateSynchronizationTest {
         stateSync.updateSelectedEmotion(EmotionType.SAD)
 
         testDispatcher.scheduler.advanceUntilIdle()
-        job.cancel()
 
         assertTrue("Should receive notifications", notifications.size >= 2)
     }

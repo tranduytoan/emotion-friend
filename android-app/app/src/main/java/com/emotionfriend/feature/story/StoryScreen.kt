@@ -59,7 +59,6 @@ import com.emotionfriend.core.designsystem.theme.EmotionSurprisedBg
 import com.emotionfriend.core.designsystem.theme.EmotionTiredBg
 import com.emotionfriend.core.designsystem.theme.MintGreen40
 import com.emotionfriend.core.designsystem.theme.MintGreen80
-import com.emotionfriend.core.designsystem.theme.OnSurfaceVar
 import com.emotionfriend.core.designsystem.theme.SkyBlue40
 import com.emotionfriend.core.designsystem.theme.SkyBlue80
 import com.emotionfriend.core.designsystem.theme.SkyBlueLight
@@ -138,7 +137,7 @@ private fun StoriesListScreen(
     ) {
         if (stories.isEmpty()) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text("Đang tải câu chuyện...", color = OnSurfaceVar)
+                Text("Đang tải câu chuyện...", color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         } else {
             LazyVerticalGrid(
@@ -376,12 +375,12 @@ private fun StoryTextSlide(
         Text(
             text = "Trang ${page + 1}/$total",
             style = MaterialTheme.typography.labelLarge,
-            color = OnSurfaceVar,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         Text(
             text  = text,
             style = MaterialTheme.typography.bodyLarge,
-            color = OnSurfaceVar,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Start,
         )
     }
@@ -416,7 +415,7 @@ private fun StoryImageSlide(
         Text(
             text  = fallbackText,
             style = MaterialTheme.typography.bodyMedium,
-            color = OnSurfaceVar,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Start,
         )
     }

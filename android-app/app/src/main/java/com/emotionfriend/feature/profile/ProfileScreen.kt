@@ -17,7 +17,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -33,6 +38,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
@@ -45,7 +51,6 @@ import com.emotionfriend.core.designsystem.components.EmotionCard
 import com.emotionfriend.core.designsystem.components.EmotionPrimaryButton
 import com.emotionfriend.core.designsystem.components.EmotionScreenScaffold
 import com.emotionfriend.core.designsystem.theme.EmotionFriendTheme
-import com.emotionfriend.core.designsystem.theme.OnSurfaceVar
 import com.emotionfriend.core.designsystem.theme.dimensions
 
 // ---------------------------------------------------------------------------
@@ -83,6 +88,7 @@ fun ProfileScreen(
     var notificationEnabled by rememberSaveable { mutableStateOf(false) }
     var reminderTime by rememberSaveable { mutableStateOf("") }
     var language by rememberSaveable { mutableStateOf("") }
+    var theme by rememberSaveable { mutableStateOf(com.emotionfriend.core.designsystem.theme.AppTheme.SYSTEM) }
 
     val startEdit = {
         nameInput = state.name
@@ -92,6 +98,7 @@ fun ProfileScreen(
         notificationEnabled = state.settings.notificationEnabled
         reminderTime = state.settings.reminderTime
         language = state.settings.language
+        theme = state.settings.theme
         isEditing = true
     }
 
@@ -112,7 +119,8 @@ fun ProfileScreen(
             soundEnabled = soundEnabled,
             notificationEnabled = notificationEnabled,
             reminderTime = safeReminder,
-            language = safeLanguage
+            language = safeLanguage,
+            theme = theme
         )
         isEditing = false
     }
@@ -128,6 +136,7 @@ fun ProfileScreen(
             notificationEnabled = notificationEnabled,
             reminderTime = reminderTime,
             language = language,
+            theme = theme,
             onStartEdit = startEdit,
             onCancelEdit = cancelEdit,
             onSaveEdit = saveEdit,
@@ -138,6 +147,7 @@ fun ProfileScreen(
             onNotificationToggle = { notificationEnabled = it },
             onReminderChange = { reminderTime = it },
             onLanguageChange = { language = it },
+            onThemeChange = { theme = it },
             onLogout = viewModel::logout,
             modifier = modifier
         )
@@ -159,6 +169,7 @@ private fun ProfileContent(
     notificationEnabled: Boolean,
     reminderTime: String,
     language: String,
+    theme: com.emotionfriend.core.designsystem.theme.AppTheme,
     onStartEdit: () -> Unit,
     onCancelEdit: () -> Unit,
     onSaveEdit: () -> Unit,
@@ -169,6 +180,7 @@ private fun ProfileContent(
     onNotificationToggle: (Boolean) -> Unit,
     onReminderChange: (String) -> Unit,
     onLanguageChange: (String) -> Unit,
+    onThemeChange: (com.emotionfriend.core.designsystem.theme.AppTheme) -> Unit,
     onLogout: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
@@ -206,13 +218,13 @@ private fun ProfileContent(
                     Text(
                         text = "Tuổi: ${state.age}",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = OnSurfaceVar
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Spacer(Modifier.height(6.dp))
                     Text(
                         text = "Bé đang luyện cảm xúc mỗi ngày 🌟",
                         style = MaterialTheme.typography.bodySmall,
-                        color = OnSurfaceVar
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
@@ -229,6 +241,7 @@ private fun ProfileContent(
                 notificationEnabled = notificationEnabled,
                 reminderTime = reminderTime,
                 language = language,
+                theme = theme,
                 onNameChange = onNameChange,
                 onAgeChange = onAgeChange,
                 onAvatarChange = onAvatarChange,
@@ -236,6 +249,7 @@ private fun ProfileContent(
                 onNotificationToggle = onNotificationToggle,
                 onReminderChange = onReminderChange,
                 onLanguageChange = onLanguageChange,
+                onThemeChange = onThemeChange,
                 onCancelEdit = onCancelEdit,
                 onSaveEdit = onSaveEdit
             )
@@ -243,19 +257,28 @@ private fun ProfileContent(
 
         // --- Basic info -----------------------------------------------------
         SectionHeader(text = "Thông tin cơ bản")
-        EmotionCard {
-            InfoRow(label = "ID", value = state.userId.toString())
-            InfoRow(label = "Họ tên", value = state.name)
-            InfoRow(label = "Tuổi", value = state.age.toString())
+        EmotionCard(padding = 0.dp) {
+            Column {
+                InfoRow(label = "ID", value = state.userId.toString())
+                InfoRow(label = "Họ tên", value = state.name)
+                InfoRow(label = "Tuổi", value = state.age.toString())
+            }
         }
 
         // --- Settings --------------------------------------------------------
         SectionHeader(text = "Cài đặt")
-        EmotionCard {
-            SettingRow(label = "Âm thanh", enabled = state.settings.soundEnabled)
-            SettingRow(label = "Thông báo", enabled = state.settings.notificationEnabled)
-            InfoRow(label = "Giờ nhắc", value = state.settings.reminderTime)
-            InfoRow(label = "Ngôn ngữ", value = state.settings.language)
+        EmotionCard(padding = 0.dp) {
+            Column {
+                SettingRow(label = "Âm thanh", enabled = state.settings.soundEnabled)
+                SettingRow(label = "Thông báo", enabled = state.settings.notificationEnabled)
+                InfoRow(label = "Giờ nhắc", value = state.settings.reminderTime)
+                InfoRow(label = "Ngôn ngữ", value = state.settings.language)
+                InfoRow(label = "Giao diện", value = when(state.settings.theme) {
+                    com.emotionfriend.core.designsystem.theme.AppTheme.SYSTEM -> "Theo hệ thống"
+                    com.emotionfriend.core.designsystem.theme.AppTheme.LIGHT -> "Sáng"
+                    com.emotionfriend.core.designsystem.theme.AppTheme.DARK -> "Tối"
+                })
+            }
         }
 
         // --- Logout ----------------------------------------------------------
@@ -285,14 +308,15 @@ private fun SectionHeader(text: String) {
     Text(
         text = text,
         style = MaterialTheme.typography.titleMedium,
-        color = MaterialTheme.colorScheme.onBackground
+        color = MaterialTheme.colorScheme.onBackground,
+        modifier = Modifier.padding(horizontal = 4.dp, vertical = 4.dp)
     )
 }
 
 @Composable
 private fun AvatarBubble(
     emoji: String,
-    backgroundColor: androidx.compose.ui.graphics.Color,
+    backgroundColor: Color,
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -310,20 +334,25 @@ private fun InfoRow(
     value: String,
     modifier: Modifier = Modifier
 ) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
+    ListItem(
+        headlineContent = {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodyLarge
+            )
+        },
+        trailingContent = {
+            AssistChip(
+                onClick = {},
+                label = { Text(text = value, style = MaterialTheme.typography.labelMedium) },
+                colors = AssistChipDefaults.assistChipColors(
+                    labelColor = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            )
+        },
+        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
         modifier = modifier
-            .fillMaxWidth()
-            .padding(vertical = 6.dp)
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyMedium,
-            color = OnSurfaceVar,
-            modifier = Modifier.weight(1f)
-        )
-        ValueChip(text = value)
-    }
+    )
 }
 
 @Composable
@@ -333,50 +362,41 @@ private fun SettingRow(
     modifier: Modifier = Modifier
 ) {
     val chipText = if (enabled) "Bật" else "Tắt"
-    val chipColor = if (enabled) {
+    val containerColor = if (enabled) {
         MaterialTheme.colorScheme.secondaryContainer
     } else {
         MaterialTheme.colorScheme.surfaceVariant
     }
+    val contentColor = if (enabled) {
+        MaterialTheme.colorScheme.onSecondaryContainer
+    } else {
+        MaterialTheme.colorScheme.onSurfaceVariant
+    }
 
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
+    ListItem(
+        headlineContent = {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodyLarge
+            )
+        },
+        trailingContent = {
+            AssistChip(
+                onClick = {},
+                label = { Text(text = chipText, style = MaterialTheme.typography.labelMedium) },
+                colors = AssistChipDefaults.assistChipColors(
+                    containerColor = containerColor,
+                    labelColor = contentColor
+                ),
+                border = null
+            )
+        },
+        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
         modifier = modifier
-            .fillMaxWidth()
-            .padding(vertical = 6.dp)
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyMedium,
-            color = OnSurfaceVar,
-            modifier = Modifier.weight(1f)
-        )
-        ValueChip(text = chipText, backgroundColor = chipColor)
-    }
+    )
 }
 
-@Composable
-private fun ValueChip(
-    text: String,
-    backgroundColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.surface
-) {
-    Surface(
-        color = backgroundColor,
-        shape = MaterialTheme.shapes.small,
-        tonalElevation = 0.dp,
-        border = androidx.compose.foundation.BorderStroke(
-            width = 1.dp,
-            color = MaterialTheme.colorScheme.outlineVariant
-        )
-    ) {
-        Text(
-            text = text,
-            style = MaterialTheme.typography.labelMedium,
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
-        )
-    }
-}
-
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
 private fun EditProfileCard(
     nameInput: String,
@@ -386,6 +406,7 @@ private fun EditProfileCard(
     notificationEnabled: Boolean,
     reminderTime: String,
     language: String,
+    theme: com.emotionfriend.core.designsystem.theme.AppTheme,
     onNameChange: (String) -> Unit,
     onAgeChange: (String) -> Unit,
     onAvatarChange: (String) -> Unit,
@@ -393,6 +414,7 @@ private fun EditProfileCard(
     onNotificationToggle: (Boolean) -> Unit,
     onReminderChange: (String) -> Unit,
     onLanguageChange: (String) -> Unit,
+    onThemeChange: (com.emotionfriend.core.designsystem.theme.AppTheme) -> Unit,
     onCancelEdit: () -> Unit,
     onSaveEdit: () -> Unit
 ) {
@@ -411,7 +433,7 @@ private fun EditProfileCard(
                     Text(
                         text = "Ba mẹ có thể giúp con điền nhé!",
                         style = MaterialTheme.typography.bodySmall,
-                        color = OnSurfaceVar
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
@@ -452,6 +474,34 @@ private fun EditProfileCard(
                 supportingText = { Text(text = "Ví dụ: Tiếng Việt") },
                 modifier = Modifier.fillMaxWidth()
             )
+
+            // --- Theme selection --------------------------------------------
+            Text(
+                text = "Giao diện ứng dụng:",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                com.emotionfriend.core.designsystem.theme.AppTheme.entries.forEach { themeOption ->
+                    val isSelected = theme == themeOption
+                    val label = when(themeOption) {
+                        com.emotionfriend.core.designsystem.theme.AppTheme.SYSTEM -> "Hệ thống"
+                        com.emotionfriend.core.designsystem.theme.AppTheme.LIGHT -> "Sáng"
+                        com.emotionfriend.core.designsystem.theme.AppTheme.DARK -> "Tối"
+                    }
+                    FilterChip(
+                        selected = isSelected,
+                        onClick = { onThemeChange(themeOption) },
+                        label = { Text(text = label, style = MaterialTheme.typography.labelMedium) },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+
             SettingToggleRow(
                 label = "Âm thanh",
                 helper = "Bật nhạc và hiệu ứng vui nhộn",
@@ -484,6 +534,7 @@ private fun EditProfileCard(
     }
 }
 
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
 private fun AvatarPickerGrid(
     selected: String,
@@ -497,7 +548,7 @@ private fun AvatarPickerGrid(
         Text(
             text  = "Chọn ảnh đại diện cho bé:",
             style = MaterialTheme.typography.labelMedium,
-            color = OnSurfaceVar
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         avatarOptions.chunked(4).forEach { rowItems ->
             Row(
@@ -506,25 +557,13 @@ private fun AvatarPickerGrid(
             ) {
                 rowItems.forEach { emoji ->
                     val isSelected = selected == emoji
-                    OutlinedButton(
-                        onClick        = { onSelect(emoji) },
-                        shape          = CircleShape,
-                        border         = BorderStroke(
-                            width = if (isSelected) 3.dp else 1.dp,
-                            color = if (isSelected) MaterialTheme.colorScheme.primary
-                                    else MaterialTheme.colorScheme.outline
-                        ),
-                        colors         = ButtonDefaults.outlinedButtonColors(
-                            containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer
-                                             else MaterialTheme.colorScheme.surface
-                        ),
-                        contentPadding = PaddingValues(0.dp),
-                        modifier       = Modifier
-                            .size(52.dp)
-                            .semantics { contentDescription = "Chọn avatar $emoji" }
-                    ) {
-                        Text(text = emoji, style = MaterialTheme.typography.titleMedium)
-                    }
+                    FilterChip(
+                        selected = isSelected,
+                        onClick = { onSelect(emoji) },
+                        label = { Text(text = emoji, style = MaterialTheme.typography.titleMedium) },
+                        shape = CircleShape,
+                        modifier = Modifier.size(52.dp)
+                    )
                 }
             }
         }
@@ -538,30 +577,29 @@ private fun SettingToggleRow(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit
 ) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 6.dp)
-    ) {
-        Column(modifier = Modifier.weight(1f)) {
+    ListItem(
+        headlineContent = {
             Text(
                 text = label,
-                style = MaterialTheme.typography.bodyMedium,
-                color = OnSurfaceVar
+                style = MaterialTheme.typography.bodyLarge
             )
+        },
+        supportingContent = {
             Text(
                 text = helper,
                 style = MaterialTheme.typography.bodySmall,
-                color = OnSurfaceVar
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-        }
-        Switch(
-            checked = checked,
-            onCheckedChange = onCheckedChange,
-            modifier = Modifier.semantics { role = Role.Switch }
-        )
-    }
+        },
+        trailingContent = {
+            Switch(
+                checked = checked,
+                onCheckedChange = onCheckedChange,
+                modifier = Modifier.semantics { role = Role.Switch }
+            )
+        },
+        colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+    )
 }
 
 
@@ -585,7 +623,8 @@ private fun ProfileScreenPreview() {
                     soundEnabled = true,
                     notificationEnabled = true,
                     reminderTime = "19:00",
-                    language = "Tiếng Việt"
+                    language = "Tiếng Việt",
+                    theme = com.emotionfriend.core.designsystem.theme.AppTheme.SYSTEM
                 ),
                 progress = ProfileProgress(
                     totalExercises = 12,
@@ -602,6 +641,7 @@ private fun ProfileScreenPreview() {
             notificationEnabled = true,
             reminderTime = "19:00",
             language = "Tiếng Việt",
+            theme = com.emotionfriend.core.designsystem.theme.AppTheme.SYSTEM,
             onStartEdit = {},
             onCancelEdit = {},
             onSaveEdit = {},
@@ -611,7 +651,8 @@ private fun ProfileScreenPreview() {
             onSoundToggle = {},
             onNotificationToggle = {},
             onReminderChange = {},
-            onLanguageChange = {}
+            onLanguageChange = {},
+            onThemeChange = {}
         )
     }
 }

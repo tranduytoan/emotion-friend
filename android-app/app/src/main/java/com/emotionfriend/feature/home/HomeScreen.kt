@@ -10,26 +10,26 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.core.content.ContextCompat
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -37,19 +37,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.emotionfriend.core.audio.TtsPlayer
 import com.emotionfriend.core.audio.rememberTtsPlayer
@@ -69,8 +66,6 @@ import com.emotionfriend.core.designsystem.theme.EmotionSurprised
 import com.emotionfriend.core.designsystem.theme.EmotionSurprisedBg
 import com.emotionfriend.core.designsystem.theme.EmotionTired
 import com.emotionfriend.core.designsystem.theme.EmotionTiredBg
-import com.emotionfriend.core.designsystem.theme.MintGreen80
-import com.emotionfriend.core.designsystem.theme.SkyBlueLight
 import com.emotionfriend.domain.model.EmotionType
 import kotlinx.coroutines.delay
 
@@ -340,10 +335,9 @@ private fun RecordingPhase(
 }
 
 // ---------------------------------------------------------------------------
-// Phase 4 — Main activity carousel
+// Phase 4 — Main activity grid
 // ---------------------------------------------------------------------------
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun DashboardPhase(
     onNavigateToLearn: () -> Unit,
@@ -360,29 +354,17 @@ private fun DashboardPhase(
         HomeActivity("📚", "Học cảm xúc",     EmotionHappyBg, onNavigateToLearn),
         HomeActivity("📖", "Kể chuyện",        EmotionSadBg,   onNavigateToStory),
         HomeActivity("💬", "Tâm sự",           EmotionSurprisedBg, onNavigateToConfide),
-        HomeActivity("📓", "Cảm xúc của con",  EmotionCalmBg,  onNavigateToJournal),
+        HomeActivity("📸", "Ghi lại",         EmotionCalmBg,  onNavigateToExpress),
         HomeActivity("🌈", "Thư giãn",         EmotionAngryBg, onNavigateToRelax),
-        HomeActivity("🌟", "Tiến trình",       MintGreen80,    onNavigateToProgress),
-        HomeActivity("🧒", "Hồ sơ",            SkyBlueLight,   onNavigateToProfile),
     )
 
-    val pagerState   = rememberPagerState(pageCount = { activities.size })
-    val tts          = rememberTtsPlayer()
-    val welcomeMsg   = "Chào mừng con trở lại! Hôm nay mình cùng khám phá cảm xúc nhé!"
-    var greetingDone by remember { mutableStateOf(false) }
+    val tts = rememberTtsPlayer()
+    val welcomeMsg = "Chào mừng con trở lại! Hôm nay mình cùng khám phá cảm xúc nhé!"
 
     // Greeting when dashboard first appears
     LaunchedEffect(Unit) {
         delay(400)
         tts.speak("Chào mừng con trở lại lớp học cảm xúc cùng cô Vy nhé!")
-        greetingDone = true
-    }
-
-    // Speak page label when swiping (not during greeting)
-    LaunchedEffect(pagerState.currentPage) {
-        if (greetingDone) {
-            tts.speak(activities[pagerState.currentPage].label)
-        }
     }
 
     EmotionScreenScaffold {
@@ -399,82 +381,61 @@ private fun DashboardPhase(
                 vyEmotion = VyEmotion.HAPPY,
                 modifier  = Modifier.padding(horizontal = 24.dp),
             )
-            HorizontalPager(
-                state    = pagerState,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-            ) { page ->
-                ActivityCard(
-                    activity = activities[page],
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 12.dp),
-                )
-            }
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment     = Alignment.CenterVertically,
+            
+            Text(
+                text = "Hôm nay con muốn làm gì? ✨",
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
+            )
+
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                contentPadding = PaddingValues(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.weight(1f)
             ) {
-                repeat(activities.size) { index ->
-                    val selected = pagerState.currentPage == index
-                    Box(
-                        modifier = Modifier
-                            .size(if (selected) 12.dp else 8.dp)
-                            .clip(CircleShape)
-                            .background(
-                                if (selected) MaterialTheme.colorScheme.primary
-                                else MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
-                            ),
+                items(activities) { activity ->
+                    ActivityCard(
+                        activity = activity,
+                        onSpeak = { tts.speak(activity.label) }
                     )
                 }
             }
-            Text(
-                text      = "Vuốt sang để chọn hoạt động 👉",
-                style     = MaterialTheme.typography.bodyMedium.copy(
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                ),
-                textAlign = TextAlign.Center,
-                modifier  = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 8.dp),
-            )
         }
     }
 }
 
 // ---------------------------------------------------------------------------
-// Full-screen activity card shown inside the pager
+// Activity card shown in the grid
 // ---------------------------------------------------------------------------
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ActivityCard(
     activity: HomeActivity,
+    onSpeak: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier         = modifier
-            .heightIn(min = 320.dp)
-            .clip(MaterialTheme.shapes.extraLarge)
-            .background(activity.background)
-            .clickable(
-                role         = Role.Button,
-                onClickLabel = activity.label,
-                onClick      = activity.onClick,
-            )
-            .padding(32.dp),
+    Card(
+        onClick = { onSpeak(); activity.onClick() },
+        colors = CardDefaults.cardColors(containerColor = activity.background),
+        shape = MaterialTheme.shapes.extraLarge,
+        modifier = modifier.height(180.dp)
     ) {
         Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.Center
         ) {
-            Text(text = activity.emoji, fontSize = 96.sp)
-            Spacer(modifier = Modifier.height(24.dp))
+            Text(text = activity.emoji, fontSize = 48.sp)
+            Spacer(modifier = Modifier.height(12.dp))
             Text(
-                text      = activity.label,
-                style     = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
-                textAlign = TextAlign.Center,
+                text = activity.label,
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                textAlign = TextAlign.Center
             )
         }
     }

@@ -194,7 +194,7 @@ private class InMemoryEmotionRepository : EmotionRepository {
 
     override suspend fun getById(id: String): EmotionCard? = store[id]
 
-    override suspend fun upsertAll(cards: List<EmotionCard>> {
+    override suspend fun upsertAll(cards: List<EmotionCard>) {
         store.clear()
         for (card in cards) {
             store[card.id] = card

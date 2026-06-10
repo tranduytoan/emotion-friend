@@ -66,7 +66,6 @@ import com.emotionfriend.core.designsystem.theme.EmotionSurprised
 import com.emotionfriend.core.designsystem.theme.EmotionSurprisedBg
 import com.emotionfriend.core.designsystem.theme.EmotionTired
 import com.emotionfriend.core.designsystem.theme.EmotionTiredBg
-import com.emotionfriend.core.designsystem.theme.OnSurfaceVar
 import com.emotionfriend.domain.model.EmotionType
 import com.emotionfriend.domain.model.JournalEntry
 import kotlinx.coroutines.delay
@@ -182,7 +181,7 @@ private fun HistoryScreen(
                         text      = "Chưa có cảm xúc nào\nBấm + để thêm",
                         style     = MaterialTheme.typography.bodyLarge,
                         textAlign = TextAlign.Center,
-                        color     = OnSurfaceVar,
+                        color     = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
                 else -> LazyColumn(
@@ -238,7 +237,7 @@ private fun EntryRow(
                 style      = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.SemiBold,
             )
-            Text(text = dateStr, style = MaterialTheme.typography.labelMedium, color = OnSurfaceVar)
+            Text(text = dateStr, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         if (entry.audioPath != null) {
             IconButton(onClick = onTogglePlay, modifier = Modifier.size(40.dp)) {
@@ -373,7 +372,7 @@ private fun RecordingPhase(
             Text(
                 text  = "Bấm để dừng sớm",
                 style = MaterialTheme.typography.labelMedium,
-                color = OnSurfaceVar,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }

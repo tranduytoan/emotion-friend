@@ -6,6 +6,7 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 
@@ -55,10 +56,53 @@ private val LightColorScheme = lightColorScheme(
     outlineVariant       = OutlineLight,
 )
 
+// ── Dark Color Scheme (warm dark tone) ──────────────────────────────────
+private val DarkColorScheme = androidx.compose.material3.darkColorScheme(
+    primary              = PrimaryInverse,
+    onPrimary            = OnBackground,
+    primaryContainer     = SkyBlue40,
+    onPrimaryContainer   = OnPrimary,
+
+    secondary            = MintGreen80,
+    onSecondary          = OnBackground,
+    secondaryContainer   = MintGreen40,
+    onSecondaryContainer = OnPrimary,
+
+    tertiary             = SunYellow80,
+    onTertiary           = OnBackground,
+    tertiaryContainer    = SunYellow40,
+    onTertiaryContainer  = OnPrimary,
+
+    error                = ErrorRed,
+    onError              = OnErrorRed,
+    errorContainer       = ErrorRedContainer,
+    onErrorContainer     = OnErrorRedContainer,
+
+    background           = SurfaceInverse,
+    onBackground         = OnSurfaceInverse,
+
+    surface              = Color(0xFF3D3B39), // Slightly lighter than background
+    onSurface            = OnSurfaceInverse,
+    surfaceVariant       = Color(0xFF4A4846),
+    onSurfaceVariant     = Color(0xFFC0BAB0),
+
+    outline              = Color(0xFF807B75),
+    outlineVariant       = Color(0xFF5D5B58),
+)
+
 @Composable
 fun EmotionFriendTheme(
+    appTheme: AppTheme = AppTheme.SYSTEM,
     content: @Composable () -> Unit
 ) {
+    val darkTheme = when (appTheme) {
+        AppTheme.LIGHT -> false
+        AppTheme.DARK -> true
+        AppTheme.SYSTEM -> androidx.compose.foundation.isSystemInDarkTheme()
+    }
+
+    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
+
     val configuration = LocalConfiguration.current
     val dimensions = remember(configuration) {
         responsiveAppDimensions(configuration)
@@ -68,7 +112,7 @@ fun EmotionFriendTheme(
         LocalAppDimensions provides dimensions
     ) {
         MaterialTheme(
-            colorScheme = LightColorScheme,
+            colorScheme = colorScheme,
             typography  = Typography,
             shapes      = Shapes,
             content     = content

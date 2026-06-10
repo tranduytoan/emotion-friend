@@ -39,7 +39,6 @@ import com.emotionfriend.core.designsystem.theme.EmotionSad
 import com.emotionfriend.core.designsystem.theme.EmotionSurprised
 import com.emotionfriend.core.designsystem.theme.MintGreen40
 import com.emotionfriend.core.designsystem.theme.MintGreen80
-import com.emotionfriend.core.designsystem.theme.OnSurfaceVar
 import com.emotionfriend.core.designsystem.theme.SkyBlue40
 import com.emotionfriend.core.designsystem.theme.SkyBlueLight
 import com.emotionfriend.domain.model.EmotionType
@@ -157,7 +156,7 @@ private fun ProgressContent(
                 Text(
                     text  = accuracyLabel(state.accuracyRate),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = OnSurfaceVar
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             Spacer(Modifier.height(10.dp))
@@ -185,7 +184,7 @@ private fun ProgressContent(
                         Text(
                             text  = "Cảm xúc hay nhầm nhất",
                             style = MaterialTheme.typography.labelMedium,
-                            color = OnSurfaceVar
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Text(
                             text  = emotion.toLabel(),
@@ -213,7 +212,7 @@ private fun ProgressContent(
                 Text(
                     text  = parentSuggestion(state),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = OnSurfaceVar
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -242,7 +241,7 @@ private fun StatCard(
             Text(
                 text  = label,
                 style = MaterialTheme.typography.labelMedium,
-                color = OnSurfaceVar
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
@@ -268,7 +267,7 @@ private fun EmptyProgressContent(modifier: Modifier = Modifier) {
         Text(
             text      = "Con hãy bắt đầu bài học đầu tiên nhé.",
             style     = MaterialTheme.typography.bodyLarge,
-            color     = OnSurfaceVar,
+            color     = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         )
     }
@@ -327,14 +326,14 @@ private fun BadgeChip(badge: BadgeItem) {
             text  = badge.emoji,
             style = MaterialTheme.typography.titleLarge,
             color = if (badge.earned) MaterialTheme.colorScheme.onSurface
-                    else OnSurfaceVar.copy(alpha = 0.3f)
+                    else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f)
         )
         Spacer(Modifier.height(4.dp))
         Text(
             text      = badge.label,
             style     = MaterialTheme.typography.labelSmall,
             color     = if (badge.earned) MaterialTheme.colorScheme.onSurface
-                        else OnSurfaceVar.copy(alpha = 0.4f),
+                        else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
             textAlign = TextAlign.Center
         )
     }

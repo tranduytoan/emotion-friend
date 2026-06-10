@@ -62,7 +62,7 @@ fun TeacherMySpeechBubble(
 
     Card(
         modifier  = modifier,
-        colors    = CardDefaults.cardColors(containerColor = SurfaceVariant),
+        colors    = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         shape     = MaterialTheme.shapes.medium,
     ) {
@@ -74,7 +74,7 @@ fun TeacherMySpeechBubble(
             Text(
                 text  = "Cô giáo Vy:",
                 style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
-                color = SkyBlue40,
+                color = MaterialTheme.colorScheme.primary,
             )
             if (onSpeak != null) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -85,7 +85,7 @@ fun TeacherMySpeechBubble(
                         Icon(
                             imageVector        = Icons.AutoMirrored.Filled.VolumeUp,
                             contentDescription = "Nghe cô Vy nói",
-                            tint               = SkyBlue40,
+                            tint               = MaterialTheme.colorScheme.primary,
                             modifier           = Modifier.size(22.dp),
                         )
                     }
@@ -102,7 +102,7 @@ fun TeacherMySpeechBubble(
                                         .width(2.dp)
                                         .height(waveHeight)
                                         .clip(MaterialTheme.shapes.extraSmall)
-                                        .background(SkyBlue40.copy(alpha = 0.55f + (index * 0.1f)))
+                                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.55f + (index * 0.1f)))
                                 )
                             }
                         }

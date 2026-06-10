@@ -27,7 +27,8 @@ data class ProfileSettings(
     val soundEnabled: Boolean,
     val notificationEnabled: Boolean,
     val reminderTime: String,
-    val language: String
+    val language: String,
+    val theme: com.emotionfriend.core.designsystem.theme.AppTheme
 )
 
 data class ProfileProgress(
@@ -66,6 +67,7 @@ class ProfileViewModel @Inject constructor(
         private val KEY_NOTIFICATIONS       = booleanPreferencesKey("profile_notifications")
         private val KEY_REMINDER_TIME       = stringPreferencesKey("profile_reminder_time")
         private val KEY_LANGUAGE            = stringPreferencesKey("profile_language")
+        private val KEY_THEME               = stringPreferencesKey("profile_theme")
 
         // Defaults
         private const val DEFAULT_NAME          = "Bé Minh"
@@ -73,6 +75,7 @@ class ProfileViewModel @Inject constructor(
         private const val DEFAULT_AVATAR        = "🧒"
         private const val DEFAULT_REMINDER_TIME = "19:00"
         private const val DEFAULT_LANGUAGE      = "Tiếng Việt"
+        private val DEFAULT_THEME               = com.emotionfriend.core.designsystem.theme.AppTheme.SYSTEM
     }
 
     private val _uiState = MutableStateFlow(
@@ -88,6 +91,7 @@ class ProfileViewModel @Inject constructor(
                 notificationEnabled = true,
                 reminderTime        = DEFAULT_REMINDER_TIME,
                 language            = DEFAULT_LANGUAGE,
+                theme               = DEFAULT_THEME,
             ),
             progress        = ProfileProgress(
                 totalExercises = 0,
@@ -108,6 +112,9 @@ class ProfileViewModel @Inject constructor(
 
     private suspend fun loadPersistedProfile() {
         val prefs = dataStore.data.first()
+        val themeName = prefs[KEY_THEME] ?: DEFAULT_THEME.name
+        val theme = try { com.emotionfriend.core.designsystem.theme.AppTheme.valueOf(themeName) } catch (e: Exception) { DEFAULT_THEME }
+
         _uiState.value = _uiState.value.copy(
             name        = prefs[KEY_NAME]    ?: DEFAULT_NAME,
             age         = prefs[KEY_AGE]     ?: DEFAULT_AGE,
@@ -117,6 +124,7 @@ class ProfileViewModel @Inject constructor(
                 notificationEnabled = prefs[KEY_NOTIFICATIONS] ?: true,
                 reminderTime        = prefs[KEY_REMINDER_TIME] ?: DEFAULT_REMINDER_TIME,
                 language            = prefs[KEY_LANGUAGE]      ?: DEFAULT_LANGUAGE,
+                theme               = theme,
             ),
         )
     }
@@ -145,6 +153,7 @@ class ProfileViewModel @Inject constructor(
         notificationEnabled: Boolean,
         reminderTime: String,
         language: String,
+        theme: com.emotionfriend.core.designsystem.theme.AppTheme,
     ) {
         _uiState.value = _uiState.value.copy(
             settings = _uiState.value.settings.copy(
@@ -152,6 +161,7 @@ class ProfileViewModel @Inject constructor(
                 notificationEnabled = notificationEnabled,
                 reminderTime        = reminderTime,
                 language            = language,
+                theme               = theme,
             ),
         )
         viewModelScope.launch {
@@ -160,6 +170,7 @@ class ProfileViewModel @Inject constructor(
                 prefs[KEY_NOTIFICATIONS] = notificationEnabled
                 prefs[KEY_REMINDER_TIME] = reminderTime
                 prefs[KEY_LANGUAGE]      = language
+                prefs[KEY_THEME]         = theme.name
             }
         }
     }

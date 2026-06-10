@@ -165,5 +165,7 @@ private class FakeStoryRepository(
 
     override fun getAll(): Flow<List<Story>> = storyFlow
     override suspend fun getById(id: String): Story? = storyFlow.value.find { it.id == id }
-    override suspend fun upsertAll(stories: List<Story>) { this.storyFlow.value = stories }
+    override fun upsertAll(stories: List<Story>) { 
+        this.storyFlow.value = stories 
+    }
 }

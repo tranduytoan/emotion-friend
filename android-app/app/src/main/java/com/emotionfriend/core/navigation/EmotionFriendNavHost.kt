@@ -28,6 +28,10 @@ import com.emotionfriend.feature.relax.RelaxScreen
 import com.emotionfriend.feature.story.StoryScreen
 import com.emotionfriend.feature.confide.ConfideScreen
 
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
+import androidx.navigation.compose.currentBackStackEntryAsState
+
 /**
  * Root navigation host for Emotion Friend.
  *
@@ -67,11 +71,45 @@ fun EmotionFriendNavHost(
         else -> AppRoute.Login.route
     }
 
-    NavHost(
-        navController    = navController,
-        startDestination = startDestination,
-        modifier         = modifier,
-    ) {
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
+    val bottomNavRoutes = listOf(
+        AppRoute.Home.route,
+        AppRoute.Journal.route,
+        AppRoute.Progress.route,
+        AppRoute.Profile.route
+    )
+
+    Scaffold(
+        bottomBar = {
+            if (currentRoute in bottomNavRoutes) {
+                EmotionFriendBottomNavigation(
+                    currentRoute = currentRoute,
+                    onNavigate = { route ->
+                        navController.navigate(route) {
+                            // Pop up to the start destination of the graph to
+                            // avoid building up a large stack of destinations
+                            // on the back stack as users select items
+                            popUpTo(navController.graph.startDestinationId) {
+                                saveState = true
+                            }
+                            // Avoid multiple copies of the same destination when
+                            // reselecting the same item
+                            launchSingleTop = true
+                            // Restore state when reselecting a previously selected item
+                            restoreState = true
+                        }
+                    }
+                )
+            }
+        }
+    ) { innerPadding ->
+        NavHost(
+            navController    = navController,
+            startDestination = startDestination,
+            modifier         = modifier.padding(innerPadding),
+        ) {
 
         // ── Auth screens ──────────────────────────────────────────────────────
 
@@ -213,6 +251,7 @@ fun EmotionFriendNavHost(
             )
         }
     }
+}
 }
 
 // ── Navigation helpers ────────────────────────────────────────────────────────

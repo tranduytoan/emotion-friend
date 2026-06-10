@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.Email
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -30,17 +31,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import com.emotionfriend.core.designsystem.theme.ErrorRed
-import com.emotionfriend.core.designsystem.theme.ErrorRedContainer
-import com.emotionfriend.core.designsystem.theme.MintGreen40
-import com.emotionfriend.core.designsystem.theme.MintGreen80
-import com.emotionfriend.core.designsystem.theme.SkyBlue40
-import com.emotionfriend.core.designsystem.theme.SkyBlueLight
-import com.emotionfriend.core.designsystem.theme.SurfaceVariant
 import com.emotionfriend.domain.model.UserRole
 
 // ── AuthTextField ─────────────────────────────────────────────────────────────
@@ -71,13 +66,13 @@ internal fun AuthTextField(
             PasswordVisualTransformation() else VisualTransformation.None,
         isError = isError,
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor   = SkyBlue40,
-            focusedLabelColor    = SkyBlue40,
-            cursorColor          = SkyBlue40,
-            errorBorderColor     = ErrorRed,
-            errorLabelColor      = ErrorRed,
+            focusedBorderColor   = MaterialTheme.colorScheme.primary,
+            focusedLabelColor    = MaterialTheme.colorScheme.primary,
+            cursorColor          = MaterialTheme.colorScheme.primary,
+            errorBorderColor     = MaterialTheme.colorScheme.error,
+            errorLabelColor      = MaterialTheme.colorScheme.error,
         ),
-        shape = RoundedCornerShape(12.dp),
+        shape = MaterialTheme.shapes.small,
         modifier = modifier.fillMaxWidth(),
     )
 }
@@ -90,8 +85,6 @@ internal fun PasswordVisibilityToggle(
     onToggle: () -> Unit,
 ) {
     IconButton(onClick = onToggle) {
-        // Use text-based toggle since material-icons-extended is not in the dependency set.
-        // The label clearly communicates the action to screen readers and users alike.
         Text(
             text  = if (visible) "ẨN" else "HIỆN",
             style = MaterialTheme.typography.labelSmall,
@@ -113,9 +106,9 @@ internal fun AuthPrimaryButton(
     Button(
         onClick = onClick,
         enabled = enabled && !isLoading,
-        shape = RoundedCornerShape(14.dp),
+        shape = MaterialTheme.shapes.small, // Fits standard friendly style
         colors = ButtonDefaults.buttonColors(
-            containerColor = SkyBlue40,
+            containerColor = MaterialTheme.colorScheme.primary,
             contentColor   = MaterialTheme.colorScheme.onPrimary,
         ),
         modifier = modifier
@@ -140,13 +133,13 @@ internal fun AuthPrimaryButton(
 @Composable
 internal fun ErrorBanner(message: String, modifier: Modifier = Modifier) {
     Surface(
-        color  = ErrorRedContainer,
-        shape  = RoundedCornerShape(10.dp),
+        color  = MaterialTheme.colorScheme.errorContainer,
+        shape  = MaterialTheme.shapes.small,
         modifier = modifier.fillMaxWidth(),
     ) {
         Text(
             text  = message,
-            color = ErrorRed,
+            color = MaterialTheme.colorScheme.error,
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
         )
@@ -158,8 +151,8 @@ internal fun ErrorBanner(message: String, modifier: Modifier = Modifier) {
 @Composable
 internal fun SuccessBanner(message: String, modifier: Modifier = Modifier) {
     Surface(
-        color  = MintGreen80,
-        shape  = RoundedCornerShape(10.dp),
+        color  = MaterialTheme.colorScheme.secondaryContainer,
+        shape  = MaterialTheme.shapes.small,
         modifier = modifier.fillMaxWidth(),
     ) {
         Row(
@@ -169,13 +162,13 @@ internal fun SuccessBanner(message: String, modifier: Modifier = Modifier) {
             Icon(
                 imageVector = Icons.Default.Check,
                 contentDescription = null,
-                tint = MintGreen40,
+                tint = MaterialTheme.colorScheme.onSecondaryContainer,
                 modifier = Modifier.size(18.dp),
             )
             Spacer(Modifier.size(8.dp))
             Text(
                 text  = message,
-                color = MintGreen40,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
                 style = MaterialTheme.typography.bodySmall,
             )
         }
@@ -184,6 +177,7 @@ internal fun SuccessBanner(message: String, modifier: Modifier = Modifier) {
 
 // ── RoleSelector ─────────────────────────────────────────────────────────────
 
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
 internal fun RoleSelector(
     selectedRole: UserRole,
@@ -202,43 +196,21 @@ internal fun RoleSelector(
             modifier = Modifier.fillMaxWidth(),
         ) {
             UserRole.entries.forEach { role ->
-                RoleChip(
-                    role       = role,
-                    isSelected = role == selectedRole,
-                    onClick    = { onRoleSelected(role) },
-                    modifier   = Modifier.weight(1f),
+                FilterChip(
+                    selected = role == selectedRole,
+                    onClick = { onRoleSelected(role) },
+                    label = {
+                        Text(
+                            text = role.displayName,
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                        )
+                    },
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(56.dp)
                 )
             }
-        }
-    }
-}
-
-@Composable
-private fun RoleChip(
-    role: UserRole,
-    isSelected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val bgColor     = if (isSelected) SkyBlueLight else SurfaceVariant
-    val borderColor = if (isSelected) SkyBlue40    else SurfaceVariant
-    val textColor   = if (isSelected) SkyBlue40    else MaterialTheme.colorScheme.onSurfaceVariant
-
-    Surface(
-        onClick   = onClick,
-        color     = bgColor,
-        shape     = RoundedCornerShape(12.dp),
-        modifier  = modifier
-            .height(56.dp)
-            .border(1.dp, borderColor, RoundedCornerShape(12.dp)),
-    ) {
-        Box(contentAlignment = Alignment.Center) {
-            Text(
-                text  = role.displayName,
-                style = MaterialTheme.typography.bodySmall,
-                color = textColor,
-                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-            )
         }
     }
 }

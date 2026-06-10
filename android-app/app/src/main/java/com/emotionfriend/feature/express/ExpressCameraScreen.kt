@@ -44,7 +44,6 @@ import com.emotionfriend.core.designsystem.components.TeacherMyMessages
 import com.emotionfriend.core.designsystem.components.VyEmotion
 import com.emotionfriend.core.designsystem.components.toVyEmotionForCompanion
 import com.emotionfriend.core.designsystem.theme.EmotionFriendTheme
-import com.emotionfriend.core.designsystem.theme.OnSurfaceVar
 import com.emotionfriend.domain.model.EmotionType
 
 // ---------------------------------------------------------------------------
@@ -188,7 +187,7 @@ private fun CameraFallbackPlaceholder(modifier: Modifier = Modifier) {
             Text(
                 text  = "Camera không khả dụng",
                 style = MaterialTheme.typography.bodyMedium,
-                color = OnSurfaceVar
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }

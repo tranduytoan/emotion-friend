@@ -24,6 +24,7 @@ import com.emotionfriend.core.designsystem.theme.dimensions
 fun EmotionCard(
     modifier: Modifier = Modifier,
     containerColor: Color = Color.Unspecified,
+    padding: androidx.compose.ui.unit.Dp = MaterialTheme.dimensions.cardPadding,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val resolvedColor = if (containerColor == Color.Unspecified)
@@ -37,7 +38,7 @@ fun EmotionCard(
         modifier  = modifier.fillMaxWidth()
     ) {
         Column(
-            modifier = Modifier.padding(MaterialTheme.dimensions.cardPadding),
+            modifier = Modifier.padding(padding),
             content  = content
         )
     }

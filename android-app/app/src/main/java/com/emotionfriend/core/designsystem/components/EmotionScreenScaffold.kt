@@ -9,27 +9,27 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import com.emotionfriend.core.designsystem.theme.EmotionFriendTheme
 import com.emotionfriend.core.designsystem.theme.dimensions
-import com.emotionfriend.core.designsystem.theme.WarmCream
 
 /**
  * Standard screen scaffold for all feature screens.
  *
  * Provides:
- * - Warm cream background
- * - Optional top app bar with back button
+ * - Material3 Scaffold with CenterAlignedTopAppBar
+ * - Optional back navigation button
  * - Safe-drawing insets
  * - Content slot with consistent horizontal padding
  *
@@ -46,14 +46,14 @@ fun EmotionScreenScaffold(
 ) {
     Scaffold(
         contentWindowInsets = WindowInsets.safeDrawing,
-        containerColor      = WarmCream,
+        containerColor      = MaterialTheme.colorScheme.background,
         topBar = {
             if (title != null) {
-                TopAppBar(
+                CenterAlignedTopAppBar(
                     title = {
                         Text(
                             text  = title,
-                            style = MaterialTheme.typography.headlineSmall
+                            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
                         )
                     },
                     navigationIcon = {
@@ -66,9 +66,10 @@ fun EmotionScreenScaffold(
                             }
                         }
                     },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = WarmCream,
-                        titleContentColor = MaterialTheme.colorScheme.onBackground
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.background,
+                        titleContentColor = MaterialTheme.colorScheme.onBackground,
+                        navigationIconContentColor = MaterialTheme.colorScheme.onBackground
                     )
                 )
             }

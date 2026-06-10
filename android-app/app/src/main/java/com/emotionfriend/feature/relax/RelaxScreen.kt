@@ -65,7 +65,6 @@ import com.emotionfriend.core.designsystem.theme.EmotionFriendTheme
 import com.emotionfriend.core.designsystem.theme.EmotionHappyBg
 import com.emotionfriend.core.designsystem.theme.MintGreen40
 import com.emotionfriend.core.designsystem.theme.MintGreen80
-import com.emotionfriend.core.designsystem.theme.OnSurfaceVar
 import com.emotionfriend.core.designsystem.theme.SkyBlueLight
 
 // ---------------------------------------------------------------------------
@@ -219,7 +218,7 @@ private fun DurationChips(
         Text(
             text  = label,
             style = MaterialTheme.typography.labelMedium,
-            color = OnSurfaceVar
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         options.forEach { (value, chipLabel) ->
             val isSelected = selected == value
@@ -357,7 +356,7 @@ private fun BreathingScreen(
         Text(
             text      = "Hít vào 3 giây · Thở ra 3 giây",
             style     = MaterialTheme.typography.titleMedium,
-            color     = OnSurfaceVar,
+            color     = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         )
 
@@ -475,13 +474,13 @@ private fun MusicScreen(
             Text(
                 text      = "Nhắm mắt và thở đều nhé 😌",
                 style     = MaterialTheme.typography.titleMedium,
-                color     = OnSurfaceVar,
+                color     = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
             )
             Text(
                 text      = "${secsLeft}s",
                 style     = MaterialTheme.typography.bodyLarge,
-                color     = OnSurfaceVar,
+                color     = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
 
@@ -556,7 +555,7 @@ private fun PuzzleScreen(
         Text(
             text      = "Trò chơi xếp hình sẽ sớm có nhé! 🌟",
             style     = MaterialTheme.typography.titleMedium,
-            color     = OnSurfaceVar,
+            color     = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         )
 

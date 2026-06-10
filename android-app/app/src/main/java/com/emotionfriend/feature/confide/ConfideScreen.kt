@@ -59,7 +59,6 @@ import com.emotionfriend.core.designsystem.components.VyEmotion
 import com.emotionfriend.core.designsystem.theme.EmotionCalmBg
 import com.emotionfriend.core.designsystem.theme.MintGreen40
 import com.emotionfriend.core.designsystem.theme.OnSurface
-import com.emotionfriend.core.designsystem.theme.OnSurfaceVar
 import com.emotionfriend.core.designsystem.theme.SkyBlue40
 import com.emotionfriend.core.designsystem.theme.SkyBlue80
 import com.emotionfriend.core.designsystem.theme.SurfaceVariant
@@ -194,7 +193,7 @@ fun ConfideScreen(
                             text      = "Con có thể kể điều gì khiến con vui, buồn, hay lo lắng nhé!\n" +
                                         "Nhấn 🎤 để nói hoặc gõ vào ô bên dưới.",
                             style     = MaterialTheme.typography.bodyMedium,
-                            color     = OnSurfaceVar,
+                            color     = MaterialTheme.colorScheme.onSurfaceVariant,
                             textAlign = TextAlign.Center,
                         )
                     }

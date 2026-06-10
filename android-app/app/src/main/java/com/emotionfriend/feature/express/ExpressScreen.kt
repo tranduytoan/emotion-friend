@@ -30,7 +30,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.emotionfriend.core.designsystem.components.EmotionPrimaryButton
 import com.emotionfriend.core.designsystem.components.EmotionScreenScaffold
 import com.emotionfriend.core.designsystem.theme.EmotionFriendTheme
-import com.emotionfriend.core.designsystem.theme.OnSurfaceVar
 import com.emotionfriend.domain.model.EmotionType
 
 // ---------------------------------------------------------------------------
@@ -96,7 +95,7 @@ private fun PermissionDeniedContent(modifier: Modifier = Modifier) {
         Text(
             text      = "Hãy cấp quyền camera trong cài đặt để dùng tính năng này.",
             style     = MaterialTheme.typography.bodyLarge,
-            color     = OnSurfaceVar,
+            color     = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         )
         Spacer(Modifier.height(24.dp))
